@@ -49,7 +49,7 @@ class TugasController extends Controller
             'id_divisi'  => 'required|exists:divisi,id_divisi',
         ]);
 
-        Tugas::create([
+        $tugas = Tugas::create([
             'nama_tugas' => $request->nama_tugas,
             'deskripsi'  => $request->deskripsi,
             'minggu'     => $request->minggu,
@@ -58,6 +58,18 @@ class TugasController extends Controller
             'poin'       => $request->poin,
             'id_divisi'  => $request->id_divisi,
         ]);
+
+        $karyawanList = \App\Models\Karyawan::where('id_divisi', $request->id_divisi)->get();
+
+        foreach ($karyawanList as $karyawan) {
+            Pengumpulan::create([
+                'id_tugas'     => $tugas->id_tugas,
+                'id_karyawan'  => $karyawan->id_karyawan,
+                'status'       => 'belum_mengerjakan',
+                'poin_didapat' => 0,
+                'file'         => null,
+            ]);
+        }
 
         return redirect('/kelola-tugas');
     }
@@ -82,6 +94,8 @@ class TugasController extends Controller
         ]);
 
         $tugas = Tugas::findOrFail($id);
+        $divisiLama = $tugas->id_divisi; // simpan sebelum update
+
         $tugas->update([
             'nama_tugas' => $request->nama_tugas,
             'deskripsi'  => $request->deskripsi,
@@ -91,6 +105,22 @@ class TugasController extends Controller
             'poin'       => $request->poin,
             'id_divisi'  => $request->id_divisi,
         ]);
+
+        // Jika divisi berubah, hapus pengumpulan lama & generate untuk divisi baru
+        if ($request->id_divisi != $divisiLama) {
+            Pengumpulan::where('id_tugas', $id)->delete();
+
+            $karyawanList = \App\Models\Karyawan::where('id_divisi', $request->id_divisi)->get();
+            foreach ($karyawanList as $karyawan) {
+                Pengumpulan::create([
+                    'id_tugas'     => $tugas->id_tugas,
+                    'id_karyawan'  => $karyawan->id_karyawan,
+                    'status'       => 'belum_mengerjakan',
+                    'poin_didapat' => 0,
+                    'file'         => null,
+                ]);
+            }
+        }
 
         return redirect('/kelola-tugas');
     }

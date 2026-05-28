@@ -52,14 +52,35 @@ class KaryawanController extends Controller
     public function update(Request $request, $id)
     {
         $karyawan = Karyawan::find($id);
-        $karyawan->nama = $request->nama;
+
+        $divisiLama = $karyawan->id_divisi; // simpan sebelum update
+
+        $karyawan->nama     = $request->nama;
         $karyawan->username = $request->username;
         if ($request->password) {
-            $karyawan->password = md5($request->password); // tambah md5
+            $karyawan->password = md5($request->password);
         }
-        $karyawan->id_role = $request->id_role;
+        $karyawan->id_role  = $request->id_role;
         $karyawan->id_divisi = $request->id_divisi;
         $karyawan->save();
+
+        // Jika divisi berubah, auto-generate pengumpulan untuk tugas aktif di divisi baru
+        if ($request->id_divisi != $divisiLama) {
+            $minggu = \Carbon\Carbon::now()->weekOfMonth;
+            $bulan  = \Carbon\Carbon::now()->month;
+
+            $tugasAktif = \App\Models\Tugas::where('id_divisi', $request->id_divisi)
+                ->where('minggu', $minggu)
+                ->where('bulan', $bulan)
+                ->get();
+
+            foreach ($tugasAktif as $tugas) {
+                \App\Models\Pengumpulan::firstOrCreate(
+                    ['id_tugas'    => $tugas->id_tugas, 'id_karyawan' => $karyawan->id_karyawan],
+                    ['status'      => 'belum_mengerjakan', 'poin_didapat' => 0, 'file' => null]
+                );
+            }
+        }
 
         return redirect('/data-karyawan');
     }
