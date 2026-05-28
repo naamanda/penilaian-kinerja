@@ -109,3 +109,7 @@ Route::get('/reward-atasan/edit/{id}', [RewardController::class, 'edit'])->name(
 Route::put('/reward-atasan/edit/{id}', [RewardController::class, 'update'])->name('reward.update');
 Route::delete('/reward-atasan/hapus/{id}', [RewardController::class, 'destroy'])->name('reward.destroy');
 Route::get('/reward-atasan/{id}', [RewardController::class, 'detail'])->name('reward.detail'); // ← paling bawah
+
+Route::get('/pelanggaran-atasan', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
+Route::post('/pelanggaran-atasan/{id}/upload-sp', [PelanggaranController::class, 'uploadSp'])->name('pelanggaran.uploadSp');
+Route::delete('/pelanggaran-atasan/{id}/delete-sp', [PelanggaranController::class, 'deleteSp'])->name('pelanggaran.deleteSp');

@@ -36,13 +36,13 @@ class RewardController extends Controller
     {
         $request->validate([
             'nama_reward' => 'required|string|max:255',
-            'jenis'       => 'required|string|max:255', // rank_1, rank_2, rank_3, atau disiplin
+            'jenis'       => 'required|in:ranking,disiplin',
             'nominal'     => 'required|numeric|min:0',
         ]);
 
         Reward::create($request->only(['nama_reward', 'jenis', 'nominal']));
 
-        return redirect('/reward-atasan')->with('success', 'Kategori program reward baru berhasil ditambahkan.');
+        return redirect('/reward-atasan');
     }
 
     /**
@@ -66,12 +66,12 @@ class RewardController extends Controller
         $pemenang = collect();
         $kriteriaNama = strtolower($reward->nama_reward);
 
-        // 2. Tentukan pemenang berdasarkan ranking
-        if (str_contains($kriteriaNama, 'ranking 1') || str_contains($kriteriaNama, 'peringkat 1')) {
+        // 2. Tentukan pemenang berdasarkan ranking (DIPERBAIKI: Ditambahkan variasi kata 'rank')
+        if (str_contains($kriteriaNama, 'ranking 1') || str_contains($kriteriaNama, 'peringkat 1') || str_contains($kriteriaNama, 'rank 1')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(0)->take(1)->get();
-        } elseif (str_contains($kriteriaNama, 'ranking 2') || str_contains($kriteriaNama, 'peringkat 2')) {
+        } elseif (str_contains($kriteriaNama, 'ranking 2') || str_contains($kriteriaNama, 'peringkat 2') || str_contains($kriteriaNama, 'rank 2')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(1)->take(1)->get();
-        } elseif (str_contains($kriteriaNama, 'ranking 3') || str_contains($kriteriaNama, 'peringkat 3')) {
+        } elseif (str_contains($kriteriaNama, 'ranking 3') || str_contains($kriteriaNama, 'peringkat 3') || str_contains($kriteriaNama, 'rank 3')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(2)->take(1)->get();
         }
 
@@ -100,14 +100,14 @@ class RewardController extends Controller
     {
         $request->validate([
             'nama_reward' => 'required|string|max:255',
-            'jenis'       => 'required|string|max:255',
+            'jenis'       => 'required|in:ranking,disiplin', // KOREKSI: Validasi diperketat sesuai ENUM DB
             'nominal'     => 'required|numeric|min:0',
         ]);
 
         $reward = Reward::findOrFail($id);
         $reward->update($request->only(['nama_reward', 'jenis', 'nominal']));
 
-        return redirect('/reward-atasan')->with('success', 'Kategori program reward berhasil diperbarui.');
+        return redirect('/reward-atasan');
     }
 
     /**
@@ -118,6 +118,6 @@ class RewardController extends Controller
         $reward = Reward::findOrFail($id);
         $reward->delete();
 
-        return redirect('/reward-atasan')->with('success', 'Kategori program reward sukses dihapus.');
+        return redirect('/reward-atasan');
     }
 }

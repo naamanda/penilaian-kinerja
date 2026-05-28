@@ -76,7 +76,11 @@ class HasilAkhirController extends Controller
             ->whereIn('status', ['hadir', 'terlambat'])
             ->count();
 
-        $tidakHadirAbsensi = max(0, $hariKerjaSelesai - $realHadir);
+        $tidakHadirAbsensi = Absensi::where('id_karyawan', $idKaryawan)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->where('status', 'tidak_hadir')
+            ->count();
 
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
