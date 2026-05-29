@@ -17,6 +17,7 @@ use App\Http\Controllers\KaryawanTugasController;
 use App\Http\Controllers\DashboardAtasanController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\PelanggaranController;
+use App\Http\Controllers\KaryawanAkunController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -113,3 +114,8 @@ Route::get('/reward-atasan/{id}', [RewardController::class, 'detail'])->name('re
 Route::get('/pelanggaran-atasan', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
 Route::post('/pelanggaran-atasan/{id}/upload-sp', [PelanggaranController::class, 'uploadSp'])->name('pelanggaran.uploadSp');
 Route::delete('/pelanggaran-atasan/{id}/delete-sp', [PelanggaranController::class, 'deleteSp'])->name('pelanggaran.deleteSp');
+
+Route::get('/akun-karyawan', [KaryawanAkunController::class, 'index'])->name('karyawan.akun');
+Route::get('/akun-karyawan/unduh', [KaryawanAkunController::class, 'unduh'])->name('karyawan.akun.unduh');
+Route::get('/akun-karyawan/reward', [KaryawanAkunController::class, 'reward'])->name('karyawan.akun.reward');
+Route::get('/akun-karyawan/pelanggaran', [KaryawanAkunController::class, 'pelanggaran'])->name('karyawan.akun.pelanggaran');

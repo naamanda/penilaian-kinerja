@@ -15,9 +15,90 @@ class AbsensiController extends Controller
      * Tentukan koordinat kantor secara hardcode.
      * Silahkan sesuaikan lat & lng dengan lokasi kantor asli.
      */
-    private $office_lat = -7.6785720;
-    private $office_lng = 109.0355009;
+    private $office_lat =  -7.678603;
+    private $office_lng = 109.035448;
     private $radius_km = 0.1; // 100 meter toleransi jarak
+
+    // ==========================================
+    // POV ADMIN (Tampilan Desktop)
+    // ==========================================
+
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $tab    = $request->input('tab', 'semua'); // tab aktif: semua | hari_ini | tidak_hadir
+        $today  = Carbon::today()->toDateString();
+
+        // ── Tab: Tidak Hadir Hari Ini ──────────────────────────────────────
+        if ($tab === 'tidak_hadir') {
+            $sudahAbsenIds = Absensi::whereDate('tanggal', $today)
+                ->whereIn('status', ['hadir', 'terlambat'])
+                ->pluck('id_karyawan');
+
+            $karyawanTidakHadir = \App\Models\Karyawan::whereNotIn('id_karyawan', $sudahAbsenIds)
+                ->when($search, fn($q) => $q->where('nama', 'like', "%{$search}%"))
+                ->paginate(5)
+                ->withQueryString();
+
+            return view('admin.absensi.index', [
+                'data'               => Absensi::query()->paginate(5), // ← pakai Eloquent, bukan collect()
+                'karyawanTidakHadir' => $karyawanTidakHadir,
+                'tab'                => $tab,
+                'today'              => $today,
+            ]);
+        }
+
+        // ── Tab: Hadir & Terlambat Hari Ini ───────────────────────────────
+        $query = Absensi::with('karyawan');
+
+        if ($tab === 'hari_ini') {
+            $query->whereDate('tanggal', $today)
+                ->whereIn('status', ['hadir', 'terlambat']);
+        } else {
+            // Tab: Semua — logika filter asli
+            if ($search) {
+                $query->whereHas('karyawan', fn($q) => $q->where('nama', 'like', "%{$search}%"))
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('tanggal', 'like', "%{$search}%");
+            }
+            if ($request->filled('tanggal')) {
+                $query->whereDate('tanggal', $request->tanggal);
+            }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+        }
+
+        $data = $query->orderBy('tanggal', 'desc')->paginate(5)->withQueryString();
+
+        return view('admin.absensi.index', [
+            'data'               => $data,
+            'karyawanTidakHadir' => collect(),
+            'tab'                => $tab,
+            'today'              => $today,
+        ]);
+    }
+
+    public function show($id)
+    {
+        // Menampilkan detail untuk admin (Foto, Lokasi, Waktu)
+        $absensi = Absensi::with('karyawan')->findOrFail($id);
+        return view('admin.absensi.detail', compact('absensi'));
+    }
+
+    public function destroy($id)
+    {
+        $absensi = Absensi::where('id_absensi', $id)->firstOrFail();
+
+        // --- FIXED: HAPUS FOTO DI PUBLIC PATH ---
+        if ($absensi->foto && file_exists(public_path('uploads/absensi/' . $absensi->foto))) {
+            unlink(public_path('uploads/absensi/' . $absensi->foto));
+        }
+
+        $absensi->delete();
+
+        return back()->with('success', 'Catatan absensi berhasil dihapus tanpa menghapus data karyawan.');
+    }
 
     // ==========================================
     // POV KARYAWAN (Tampilan Mobile Web)
@@ -30,7 +111,7 @@ class AbsensiController extends Controller
             'id_karyawan' => 'required|exists:karyawan,id_karyawan',
             'latitude'    => 'required',
             'longitude'   => 'required',
-            'foto'        => 'required' // Menangkap string base64 dari kamera
+            'foto'        => 'required'
         ]);
 
         $now = Carbon::now();
@@ -56,21 +137,23 @@ class AbsensiController extends Controller
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu jam 07:30.'], 403);
         }
 
-        // Tentukan status kehadiran
         $status = ($jamMenit <= '08:00') ? 'hadir' : 'terlambat';
 
-        // 5. EKSEKUSI DATABASE (TRANSACTIONAL)
+        // 5. EKSEKUSI DATABASE
         return DB::transaction(function () use ($request, $tanggal, $now, $status) {
 
-            // Proses Konversi Base64 ke File Image
+            // --- FIXED: PENYIMPANAN FOTO LANGSUNG KE PUBLIC PATH ---
             $img = $request->foto;
-            $folderPath = "public/absensi/";
             $image_parts = explode(";base64,", $img);
             $image_base64 = base64_decode($image_parts[1]);
             $fileName = $request->id_karyawan . '_' . time() . '.png';
-            Storage::put($folderPath . $fileName, $image_base64);
 
-            // Simpan ke Tabel Absensi
+            $destinationPath = public_path('uploads/absensi/');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            file_put_contents($destinationPath . $fileName, $image_base64);
+
             Absensi::create([
                 'id_karyawan' => $request->id_karyawan,
                 'tanggal'     => $tanggal,
@@ -81,7 +164,6 @@ class AbsensiController extends Controller
                 'status'      => $status
             ]);
 
-            // Jika status Terlambat, catat poin di tabel Pelanggaran
             if ($status == 'terlambat') {
                 $this->updatePoinPelanggaran($request->id_karyawan, 'terlambat');
             }
@@ -89,73 +171,15 @@ class AbsensiController extends Controller
             return response()->json([
                 'message' => 'Absensi berhasil disimpan!',
                 'status'  => $status,
-                'misi_terbuka' => true // Trigger frontend untuk unlock misi harian
+                'misi_terbuka' => true
             ]);
         });
-    }
-
-    // ==========================================
-    // POV ADMIN (Tampilan Desktop)
-    // ==========================================
-
-    public function index(Request $request)
-    {
-        // Ambil keyword dari input search
-        $search = $request->input('search');
-        $query = Absensi::with('karyawan');
-
-        if ($search) {
-            $query->whereHas('karyawan', function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%");
-            })
-                ->orWhere('status', 'like', "%{$search}%") // Contoh cari berdasarkan status
-                ->orWhere('tanggal', 'like', "%{$search}%");     // Contoh cari berdasarkan tanggal
-        }
-
-        if ($request->filled('tanggal')) {
-            $query->whereDate('tanggal', $request->tanggal);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Gunakan paginate(5) agar pas dengan layar tanpa scroll
-        $data = $query->orderBy('tanggal', 'desc')->paginate(5)->withQueryString();
-
-        return view('admin.absensi.index', compact('data'));
-    }
-
-    public function show($id)
-    {
-        // Menampilkan detail untuk admin (Foto, Lokasi, Waktu)
-        $absensi = Absensi::with('karyawan')->findOrFail($id);
-        return view('admin.absensi.detail', compact('absensi'));
-    }
-
-    public function destroy($id)
-    {
-        // Gunakan findOrFail untuk memastikan data ada sebelum dihapus
-        $absensi = Absensi::where('id_absensi', $id)->firstOrFail();
-
-        // Hapus fotonya jika ada
-        if ($absensi->foto) {
-            Storage::delete('uploads/absensi/' . $absensi->foto);
-        }
-
-        // Eksekusi hapus baris absensi
-        $absensi->delete();
-
-        return back()->with('success', 'Catatan absensi berhasil dihapus tanpa menghapus data karyawan.');
     }
 
     // ==========================================
     // PRIVATE LOGIC (INTERNAL)
     // ==========================================
 
-    /**
-     * Menghitung jarak antara 2 titik koordinat bumi.
-     */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
@@ -165,9 +189,6 @@ class AbsensiController extends Controller
         return ($dist * 60 * 1.1515) * 1.609344;
     }
 
-    /**
-     * Update/Create record pelanggaran bulanan.
-     */
     private function updatePoinPelanggaran($id_karyawan, $jenis)
     {
         $now = Carbon::now();
@@ -182,13 +203,12 @@ class AbsensiController extends Controller
 
         if ($jenis == 'terlambat') {
             $p->total_terlambat += 1;
-            $p->total_poinpl += 1; // 1 poin terlambat
+            $p->total_poinpl += 1;
         } else {
             $p->total_tidakmengerjakan += 1;
-            $p->total_poinpl += 2; // 2 poin tidak hadir/mengerjakan
+            $p->total_poinpl += 2;
         }
 
-        // Logic SP (Surat Peringatan)
         if ($p->total_poinpl >= 9) {
             $p->status = 'SP2';
         } elseif ($p->total_poinpl >= 5) {

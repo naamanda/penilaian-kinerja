@@ -3,13 +3,14 @@
 @section('content')
 
 {{-- Header --}}
-<div class="bg-[#1e3f7c] px-5 pt-10 pb-6 flex items-center justify-between">
-    <img src="{{ asset('assets/logo.png') }}" alt="logo" class="w-8 h-8 object-contain">
-    <span class="text-white font-bold text-lg">LifeSync</span>
-    <div class="w-8"></div>
+<div class="bg-[#1e3f7c] px-5 pt-6 pb-8">
+    <div class="flex items-center justify-center gap-3 mb-1">
+        <img src="{{ asset('assets/logo.png') }}" alt="logo" class="w-10 h-10 object-contain">
+        <span class="text-white font-bold text-2xl tracking-wide">LifeSync</span>
+    </div>
 </div>
 
-<div class="px-4 py-4 pb-24">
+<div class="px-4 py-4 pb-24 -mt-4">
     <div class="bg-white rounded-2xl shadow-md p-5">
 
         <p class="font-bold text-gray-800 text-base">Absensi</p>
@@ -97,6 +98,23 @@
 
     </div>
 </div>
+
+{{-- Pop-up Modal Custom untuk Gagal Radius --}}
+<div id="popupRadius" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center shadow-xl transform scale-95 transition-transform duration-300">
+        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+            📍
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Absensi Gagal</h3>
+        <p class="text-sm text-gray-500 mb-6">
+            Posisi kamu di luar radius kantor. Silahkan mendekat ke area kantor untuk melakukan absensi.
+        </p>
+        <button onclick="tutupPopup()" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-xl shadow-md transition-all active:scale-98">
+            OK
+        </button>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -107,9 +125,8 @@ let userLat     = null;
 let userLng     = null;
 let lokasiValid = false;
 
-// Koordinat kantor — samakan dengan di KaryawanAbsensiController
-const OFFICE_LAT = -7.6785720;
-const OFFICE_LNG = 109.0355009;
+const OFFICE_LAT =  -7.678603;
+const OFFICE_LNG = 109.035448;
 const RADIUS_KM  = 0.1; // 100 meter
 
 function hitungJarak(lat1, lon1, lat2, lon2) {
@@ -239,14 +256,34 @@ function ulangi() {
     btnAbsen.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed transition-all';
 }
 
+// Fungsi kontrol Pop-up Modal
+function bukaPopup() {
+    const modal = document.getElementById('popupRadius');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.firstElementChild.classList.remove('scale-95');
+    }, 20);
+}
+
+function tutupPopup() {
+    const modal = document.getElementById('popupRadius');
+    modal.classList.add('opacity-0');
+    modal.firstElementChild.classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
 async function kirimAbsensi() {
     if (!fotoBase64) {
         alert('Silahkan ambil foto terlebih dahulu.');
         return;
     }
 
+    // Mengganti alert() dengan pemanggilan Pop-up Modal Custom
     if (!lokasiValid) {
-        alert('Absensi gagal. Posisi kamu di luar radius kantor.');
+        bukaPopup();
         return;
     }
 

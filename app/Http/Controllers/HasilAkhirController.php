@@ -20,24 +20,31 @@ class HasilAkhirController extends Controller
 
     /**
      * Hitung semua nilai karyawan untuk bulan & tahun tertentu.
-     * Bisa dipanggil realtime (tanpa simpan) atau sebelum generate.
+     * Murni memisahkan Kehadiran, Kedisiplinan (Misi), dan Tugas.
      *
-     * @return array{kehadiran: float, misi: float, tugas: float, akhir: float, predikat: array, pelanggaran: array}
+     * @return array{kehadiran: float, kedisiplinan: float, tugas: float, akhir: float, predikat: array, pelanggaran: array}
      */
     public function hitungNilai(int $idKaryawan, int $bulan, int $tahun): array
     {
-        $nilaiKehadiran = $this->hitungNilaiKehadiran($idKaryawan, $bulan, $tahun);
-        $nilaiMisi      = $this->hitungNilaiMisi($idKaryawan, $bulan, $tahun);
-        $nilaiTugas     = $this->hitungNilaiTugas($idKaryawan, $bulan, $tahun);
-        $nilaiAkhir     = round(($nilaiKehadiran + $nilaiMisi + $nilaiTugas) / 3, 2);
+        // 1. Nilai Kehadiran murni dari rekapitulasi Absensi
+        $nilaiKehadiran   = $this->hitungNilaiKehadiran($idKaryawan, $bulan, $tahun);
+
+        // 2. Nilai Kedisiplinan murni dari Pengerjaan Misi Harian
+        $nilaiKedisiplinan = $this->hitungNilaiMisi($idKaryawan, $bulan, $tahun);
+
+        // 3. Nilai Tugas murni dari Pengumpulan Tugas Mingguan
+        $nilaiTugas        = $this->hitungNilaiTugas($idKaryawan, $bulan, $tahun);
+
+        // Rumus Akurat: Dijumlahkan rata dari 3 komponen utama terpisah
+        $nilaiAkhir        = round(($nilaiKehadiran + $nilaiKedisiplinan + $nilaiTugas) / 3, 2);
 
         return [
-            'kehadiran'   => $nilaiKehadiran,
-            'misi'        => $nilaiMisi,
-            'tugas'       => $nilaiTugas,
-            'akhir'       => $nilaiAkhir,
-            'predikat'    => $this->hitungPredikat($nilaiAkhir),
-            'pelanggaran' => $this->hitungPelanggaran($idKaryawan, $bulan, $tahun),
+            'kehadiran'    => $nilaiKehadiran,
+            'kedisiplinan' => $nilaiKedisiplinan,
+            'tugas'        => $nilaiTugas,
+            'akhir'        => $nilaiAkhir,
+            'predikat'     => $this->hitungPredikat($nilaiAkhir),
+            'pelanggaran'  => $this->hitungPelanggaran($idKaryawan, $bulan, $tahun),
         ];
     }
 
@@ -48,7 +55,7 @@ class HasilAkhirController extends Controller
      */
     public function hitungPelanggaran(int $idKaryawan, int $bulan, int $tahun): array
     {
-        // ── Terlambat (1 poin) ────────────────────────────────
+        // ── 1. Terlambat (1 poin) ────────────────────────────────
         $terlambatAbsensi = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -68,14 +75,7 @@ class HasilAkhirController extends Controller
 
         $totalTerlambat = $terlambatAbsensi + $terlambatMisi + $terlambatTugas;
 
-        // ── Tidak mengerjakan / tidak hadir (2 poin) ─────────
-        $hariKerjaSelesai = 22;
-        $realHadir = Absensi::where('id_karyawan', $idKaryawan)
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->whereIn('status', ['hadir', 'terlambat'])
-            ->count();
-
+        // ── 2. Tidak mengerjakan / Tidak Hadir (2 poin) ─────────
         $tidakHadirAbsensi = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -85,17 +85,17 @@ class HasilAkhirController extends Controller
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
+            ->where('status', 'tidak_mengerjakan')
             ->count();
 
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
             ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
+            ->where('status', 'tidak_mengerjakan')
             ->count();
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;
 
-        // ── Total poin & status ───────────────────────────────
+        // ── 3. Total Poin & Status Pelanggaran ─────────────────
         $totalPoin = ($totalTerlambat * 1) + ($totalTidakMengerjakan * 2);
 
         return [
@@ -178,9 +178,9 @@ class HasilAkhirController extends Controller
                     [
                         'total_harikerja'    => 22,
                         'nilai_kehadiran'    => $data['kehadiran'],
-                        'nilai_kedisiplinan' => max(0, 100 - ($data['pelanggaran']['total_poin'] * 5)),
-                        'nilai_tugas'        => $data['tugas'],
-                        'nilai_akhir'        => $data['akhir'],
+                        'nilai_kedisiplinan' => $data['kedisiplinan'], // Menyimpan nilai misi harian secara terpisah
+                        'nilai_tugas'        => $data['tugas'],        // Menyimpan nilai tugas mingguan secara terpisah
+                        'nilai_akhir'        => $data['akhir'],        // Hasil bagi rata rata 3 pilar komponen
                         'predikat'           => $data['predikat']['kode'],
                     ]
                 );

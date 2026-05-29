@@ -2,10 +2,12 @@
 
 @section('content')
 
-<div class="bg-[#1e3f7c] px-5 pt-10 pb-6 flex items-center justify-between">
-    <img src="{{ asset('assets/logo.png') }}" alt="logo" class="w-8 h-8 object-contain">
-    <span class="text-white font-bold text-lg">LifeSync</span>
-    <div class="w-8"></div>
+{{-- Header --}}
+<div class="bg-[#1e3f7c] px-5 pt-6 pb-8">
+    <div class="flex items-center justify-center gap-3 mb-1">
+        <img src="{{ asset('assets/logo.png') }}" alt="logo" class="w-10 h-10 object-contain">
+        <span class="text-white font-bold text-2xl tracking-wide">LifeSync</span>
+    </div>
 </div>
 
 <div class="px-4 py-4 pb-24">

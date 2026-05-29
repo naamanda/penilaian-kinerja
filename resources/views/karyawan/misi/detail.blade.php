@@ -10,12 +10,17 @@
     <div class="w-14"></div>
 </div>
 
+{{-- Toast Notifikasi --}}
+<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300">
+    <span id="toast-icon" class="text-lg shrink-0"></span>
+    <span id="toast-message"></span>
+</div>
+
 <div class="px-4 py-4 pb-24">
 
-    {{-- Hitung isTerlambat sekali di sini, dipakai di seluruh halaman --}}
     @php
     $waktuUploadFull = \Carbon\Carbon::parse(
-    \Carbon\Carbon::parse($pengerjaan->tanggal)->format('Y-m-d') . ' ' . $pengerjaan->waktu_upload
+        \Carbon\Carbon::parse($pengerjaan->tanggal)->format('Y-m-d') . ' ' . $pengerjaan->waktu_upload
     );
     $isTerlambat = $waktuUploadFull->gt(\Carbon\Carbon::parse($toleransi));
     @endphp
@@ -27,30 +32,29 @@
                 🏅 {{ $pengerjaan->misi->poin }} Poin
             </span>
 
-            {{-- Status Badge Atas --}}
             <div>
                 @if($pengerjaan->status == 'belum_mengerjakan')
-                @if($bisaUpload)
-                <span class="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full font-medium">Bisa Dikerjakan</span>
-                @elseif(\Carbon\Carbon::now()->gt($toleransi))
-                <span class="text-xs bg-gray-100 text-gray-400 px-2.5 py-1 rounded-full font-medium">Terlewat</span>
-                @else
-                <span class="text-xs bg-yellow-100 text-yellow-600 px-2.5 py-1 rounded-full font-medium">Belum Mulai</span>
-                @endif
+                    @if($bisaUpload)
+                        <span class="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full font-medium">Bisa Dikerjakan</span>
+                    @elseif(\Carbon\Carbon::now()->gt($toleransi))
+                        <span class="text-xs bg-gray-100 text-gray-400 px-2.5 py-1 rounded-full font-medium">Terlewat</span>
+                    @else
+                        <span class="text-xs bg-yellow-100 text-yellow-600 px-2.5 py-1 rounded-full font-medium">Belum Mulai</span>
+                    @endif
                 @elseif($pengerjaan->status == 'menunggu')
-                @if($isTerlambat)
-                <span class="text-xs bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan (Terlambat)</span>
-                @else
-                <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan</span>
-                @endif
+                    @if($isTerlambat)
+                        <span class="text-xs bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan (Terlambat)</span>
+                    @else
+                        <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan</span>
+                    @endif
                 @elseif($pengerjaan->status == 'disetujui')
-                @if($isTerlambat)
-                <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ Disetujui (Terlambat)</span>
-                @else
-                <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">✓ Disetujui</span>
-                @endif
+                    @if($isTerlambat)
+                        <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ Disetujui (Terlambat)</span>
+                    @else
+                        <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">✓ Disetujui</span>
+                    @endif
                 @elseif($pengerjaan->status == 'ditolak')
-                <span class="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">Ditolak (Bisa Upload Ulang)</span>
+                    <span class="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">Ditolak (Bisa Upload Ulang)</span>
                 @endif
             </div>
         </div>
@@ -64,27 +68,23 @@
         </div>
     </div>
 
-    {{-- Area Interaktif (Kamera / Hasil Upload) --}}
+    {{-- Area Interaktif --}}
     <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100">
         <h2 class="font-bold text-gray-800 text-sm mb-4">Bukti Pengerjaan Misi</h2>
 
         @if($bisaUpload)
-        {{-- Kamera Aktif --}}
         <div id="camera-container" class="relative w-full aspect-square bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center">
             <button type="button" id="btn-start-init" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md z-10">
                 📷 Aktifkan Kamera
             </button>
-
             <video id="video" class="hidden w-full h-full object-cover absolute inset-0" autoplay playsinline></video>
             <canvas id="canvas" class="hidden"></canvas>
             <img id="preview" class="hidden w-full h-full object-cover absolute inset-0" alt="Preview foto">
-
             <button type="button" id="btn-switch" class="hidden absolute top-3 right-3 bg-black/50 text-white p-2.5 rounded-full hover:bg-black/70 transition backdrop-blur-sm z-10">
                 🔄 Putar Kamera
             </button>
         </div>
 
-        {{-- Tombol Kontrol Kamera --}}
         <div class="flex flex-col gap-3">
             <button type="button" id="btn-capture" class="hidden w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition shadow-sm">
                 📸 Ambil Foto Bukti
@@ -97,10 +97,8 @@
             </button>
         </div>
         @else
-        {{-- Tampilan Informasi Setelah Upload --}}
         <div class="flex flex-col gap-4">
             @if($pengerjaan->foto)
-            {{-- Komponen Link/Preview File Bukti --}}
             <div class="flex items-center gap-3 bg-gray-50 border border-gray-100 p-3.5 rounded-xl">
                 <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center shrink-0">
                     <span class="text-xl">📷</span>
@@ -113,84 +111,42 @@
                 </div>
             </div>
 
-            {{-- Baris Informasi Tambahan --}}
             <div class="border-t border-dashed border-gray-100 pt-3 flex flex-col gap-2 text-xs">
-
-                {{-- Poin Diperoleh --}}
                 <div class="flex justify-between items-center">
                     <span class="text-gray-400">Poin Diperoleh:</span>
-
                     @if($pengerjaan->status == 'disetujui')
-
-                    <span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                        +{{ $pengerjaan->misi->poin }} Poin
-                    </span>
-
+                        <span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->misi->poin }} Poin</span>
                     @elseif($pengerjaan->status == 'terlambat')
-
-                    <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
-                        +{{ $pengerjaan->poin_didapat }} Poin
-                    </span>
-
+                        <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->poin_didapat }} Poin</span>
                     @elseif($pengerjaan->status == 'ditolak')
-
-                    <span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">
-                        0 Poin
-                    </span>
-
+                        <span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">0 Poin</span>
                     @elseif($pengerjaan->status == 'menunggu')
-
-                    <span class="font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">
-                        Menunggu Persetujuan
-                    </span>
-
+                        <span class="font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
                     @endif
                 </div>
 
-                {{-- Status Misi --}}
                 <div class="flex justify-between items-center">
                     <span class="text-gray-400">Status Misi:</span>
-
                     <div>
                         @if($pengerjaan->status == 'menunggu')
-
-                        <span class="font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                            Menunggu Persetujuan
-                        </span>
-
+                            <span class="font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
                         @elseif($pengerjaan->status == 'disetujui')
-
-                        <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                            ✓ Disetujui
-                        </span>
-
+                            <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">✓ Disetujui</span>
                         @elseif($pengerjaan->status == 'terlambat')
-
-                        <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
-                            ✓ Disetujui (Terlambat)
-                        </span>
-
+                            <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">✓ Disetujui (Terlambat)</span>
                         @elseif($pengerjaan->status == 'ditolak')
-
-                        <span class="font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md">
-                            Ditolak
-                        </span>
-
+                            <span class="font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md">Ditolak</span>
                         @endif
                     </div>
                 </div>
 
-                {{-- Waktu Upload --}}
                 <div class="flex justify-between items-center">
                     <span class="text-gray-400">Waktu Upload:</span>
-
                     <span class="text-gray-600 font-medium">
                         {{ \Carbon\Carbon::parse($pengerjaan->tanggal)->format('d M Y') }}
-                        pukul
-                        {{ substr($pengerjaan->waktu_upload, 0, 5) }} WIB
+                        pukul {{ substr($pengerjaan->waktu_upload, 0, 5) }} WIB
                     </span>
                 </div>
-
             </div>
             @else
             <div class="text-center py-4">
@@ -202,38 +158,55 @@
     </div>
 </div>
 
-{{-- Logika Penanganan Kamera, Switch Mode, dan AJAX --}}
 @if($bisaUpload)
 <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const preview = document.getElementById('preview');
-    const btnStartInit = document.getElementById('btn-start-init');
-    const btnCapture = document.getElementById('btn-capture');
-    const btnRetake = document.getElementById('btn-retake');
-    const btnSubmit = document.getElementById('btn-submit');
-    const btnSwitch = document.getElementById('btn-switch');
+    // ── Toast ──────────────────────────────────────────────
+    function showToast(message, type = 'success') {
+        const toast   = document.getElementById('toast');
+        const icon    = document.getElementById('toast-icon');
+        const msg     = document.getElementById('toast-message');
 
-    let currentStream = null;
-    let base64Image = null;
+        toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300
+            ${type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+
+        icon.textContent = type === 'success' ? '✅' : '❌';
+        msg.textContent  = message;
+
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.style.opacity = '1';
+            }, 400);
+        }, 2800);
+    }
+
+    // ── Kamera ────────────────────────────────────────────
+    const video        = document.getElementById('video');
+    const canvas       = document.getElementById('canvas');
+    const preview      = document.getElementById('preview');
+    const btnStartInit = document.getElementById('btn-start-init');
+    const btnCapture   = document.getElementById('btn-capture');
+    const btnRetake    = document.getElementById('btn-retake');
+    const btnSubmit    = document.getElementById('btn-submit');
+    const btnSwitch    = document.getElementById('btn-switch');
+
+    let currentStream    = null;
+    let base64Image      = null;
     let currentFacingMode = "environment";
 
     function stopCamera() {
         if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
+            currentStream.getTracks().forEach(t => t.stop());
             currentStream = null;
         }
     }
 
     function startCamera(facingMode) {
         stopCamera();
-
-        navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: facingMode
-                },
-                audio: false
-            })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: false })
             .then(stream => {
                 currentStream = stream;
                 video.srcObject = stream;
@@ -241,12 +214,8 @@
                 btnSwitch.classList.remove('hidden');
                 btnCapture.classList.remove('hidden');
             })
-            .catch(err => {
-                console.error("Gagal mode " + facingMode + ", mencoba fallback...", err);
-                navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: false
-                    })
+            .catch(() => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                     .then(stream => {
                         currentStream = stream;
                         video.srcObject = stream;
@@ -254,8 +223,8 @@
                         btnSwitch.classList.remove('hidden');
                         btnCapture.classList.remove('hidden');
                     })
-                    .catch(e => {
-                        alert("Gagal mengakses kamera apa pun.");
+                    .catch(() => {
+                        showToast('Gagal mengakses kamera.', 'error');
                         btnStartInit.classList.remove('hidden');
                     });
             });
@@ -267,16 +236,15 @@
     });
 
     btnSwitch.addEventListener('click', () => {
-        currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
         startCamera(currentFacingMode);
     });
 
     btnCapture.addEventListener('click', () => {
-        const context = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
+        const ctx = canvas.getContext('2d');
+        canvas.width  = video.videoWidth;
         canvas.height = video.videoHeight;
-
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         base64Image = canvas.toDataURL('image/png');
 
         preview.src = base64Image;
@@ -300,44 +268,39 @@
 
     btnSubmit.addEventListener('click', () => {
         if (!base64Image) {
-            alert('Silakan ambil foto bukti terlebih dahulu.');
+            showToast('Silakan ambil foto bukti terlebih dahulu.', 'error');
             return;
         }
 
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "Mengirim...";
+        btnSubmit.disabled   = true;
+        btnSubmit.innerText  = "Mengirim...";
 
         fetch('/aktivitas-misi/{{ $pengerjaan->id_pengerjaan }}/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    foto: base64Image
-                })
-            })
-            .then(async response => {
-                const isJson = response.headers.get('content-type')?.includes('application/json');
-                const data = isJson ? await response.json() : null;
-
-                if (!response.ok) {
-                    const errorMsg = (data && data.message) ? data.message : 'Terjadi kesalahan pada server (Status: ' + response.status + ')';
-                    throw new Error(errorMsg);
-                }
-                return data;
-            })
-            .then(data => {
-                alert(data.message || 'Bukti misi berhasil dikirim!');
-                window.location.href = '/aktivitas-misi';
-            })
-            .catch(err => {
-                console.error('Error saat upload:', err);
-                alert('Gagal mengirim data: ' + err.message);
-                btnSubmit.disabled = false;
-                btnSubmit.innerText = "📤 Kirim Bukti Misi";
-            });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ foto: base64Image })
+        })
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data   = isJson ? await response.json() : null;
+            if (!response.ok) {
+                throw new Error((data && data.message) ? data.message : 'Terjadi kesalahan pada server.');
+            }
+            return data;
+        })
+        .then(data => {
+            showToast(data.message || 'Bukti misi berhasil dikirim!', 'success');
+            setTimeout(() => window.location.href = '/aktivitas-misi', 2500);
+        })
+        .catch(err => {
+            showToast('Gagal: ' + err.message, 'error');
+            btnSubmit.disabled  = false;
+            btnSubmit.innerText = "📤 Kirim Bukti Misi";
+        });
     });
 </script>
 @endif

@@ -2,6 +2,12 @@
 
 @section('content')
 
+{{-- Toast Notifikasi --}}
+<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300">
+    <span id="toast-icon" class="text-lg shrink-0"></span>
+    <span id="toast-message"></span>
+</div>
+
 <div class="bg-[#1e3f7c] px-5 pt-10 pb-6 flex items-center gap-3">
     <a href="/tugas-mingguan" class="text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,15 +34,15 @@
 
         <div class="mt-3">
             @if($pengumpulan->status == 'menunggu')
-            <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">Menunggu Persetujuan</span>
+                <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">Menunggu Persetujuan</span>
             @elseif($pengumpulan->status == 'disetujui')
-            <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">✓ Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
+                <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">✓ Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'terlambat')
-            <span class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">Terlambat — +{{ $pengumpulan->poin_didapat }} poin</span>
+                <span class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">Terlambat — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'ditolak')
-            <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full">Ditolak — Upload ulang bukti</span>
+                <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full">Ditolak — Upload ulang bukti</span>
             @else
-            <span class="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">Belum Dikerjakan</span>
+                <span class="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">Belum Dikerjakan</span>
             @endif
         </div>
     </div>
@@ -74,7 +80,6 @@
             Deadline: {{ $deadline->locale('id')->translatedFormat('l, d F Y H:i') }}
         </p>
 
-        {{-- Area klik untuk pilih file --}}
         <div id="previewArea"
             class="w-full aspect-square rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
                     flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
@@ -111,22 +116,44 @@
 
 @push('scripts')
 <script>
+    // ── Toast ──────────────────────────────────────────────
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon  = document.getElementById('toast-icon');
+        const msg   = document.getElementById('toast-message');
+
+        toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300
+            ${type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+
+        icon.textContent = type === 'success' ? '✅' : '❌';
+        msg.textContent  = message;
+
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.style.opacity = '1';
+            }, 400);
+        }, 2800);
+    }
+
+    // ── File Handling ──────────────────────────────────────
     let fotoBase64 = null;
 
     function previewFile(event) {
         const file = event.target.files[0];
         if (!file) return;
 
-        // Validasi tipe
         if (file.type !== 'application/pdf') {
-            alert('Hanya file PDF yang diperbolehkan.');
+            showToast('Hanya file PDF yang diperbolehkan.', 'error');
             event.target.value = '';
             return;
         }
 
-        // Validasi ukuran (10 MB)
         if (file.size > 10 * 1024 * 1024) {
-            alert('Ukuran file tidak boleh lebih dari 10 MB.');
+            showToast('Ukuran file tidak boleh lebih dari 10 MB.', 'error');
             event.target.value = '';
             return;
         }
@@ -135,7 +162,6 @@
         reader.onload = function(e) {
             fotoBase64 = e.target.result;
 
-            // Tampilkan nama file & ukuran
             document.getElementById('placeholder').innerHTML = `
             <div class="flex flex-col items-center gap-2 px-4">
                 <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
@@ -148,9 +174,8 @@
                 <p class="text-xs text-gray-400">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
             </div>`;
 
-            // Aktifkan tombol upload
             const btnUpload = document.getElementById('btnUpload');
-            btnUpload.disabled = false;
+            btnUpload.disabled  = false;
             btnUpload.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-[#1e3f7c] text-white transition-all active:scale-95';
             document.getElementById('btnUlang').classList.remove('hidden');
         };
@@ -173,7 +198,7 @@
         </div>`;
 
         const btnUpload = document.getElementById('btnUpload');
-        btnUpload.disabled = true;
+        btnUpload.disabled  = true;
         btnUpload.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed';
         document.getElementById('btnUlang').classList.add('hidden');
     }
@@ -182,34 +207,32 @@
         if (!fotoBase64) return;
 
         const btn = document.getElementById('btnUpload');
-        btn.disabled = true;
+        btn.disabled    = true;
         btn.textContent = 'Mengupload...';
 
         try {
-            const res = await fetch('/tugas-mingguan/{{ $pengumpulan->id_pengumpulan }}/upload', {
+            const res  = await fetch('/tugas-mingguan/{{ $pengumpulan->id_pengumpulan }}/upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    file: fotoBase64
-                })
+                body: JSON.stringify({ file: fotoBase64 })
             });
 
             const data = await res.json();
 
             if (res.ok) {
-                alert(data.message);
-                window.location.href = '/tugas-mingguan';
+                showToast(data.message || 'Tugas berhasil diupload!', 'success');
+                setTimeout(() => window.location.href = '/tugas-mingguan', 2500);
             } else {
-                alert(data.message);
-                btn.disabled = false;
+                showToast(data.message || 'Gagal mengupload tugas.', 'error');
+                btn.disabled    = false;
                 btn.textContent = 'Upload Bukti';
             }
         } catch (e) {
-            alert('Terjadi kesalahan. Coba lagi.');
-            btn.disabled = false;
+            showToast('Terjadi kesalahan. Coba lagi.', 'error');
+            btn.disabled    = false;
             btn.textContent = 'Upload Bukti';
         }
     }
