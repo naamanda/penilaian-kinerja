@@ -119,3 +119,7 @@ Route::get('/akun-karyawan', [KaryawanAkunController::class, 'index'])->name('ka
 Route::get('/akun-karyawan/unduh', [KaryawanAkunController::class, 'unduh'])->name('karyawan.akun.unduh');
 Route::get('/akun-karyawan/reward', [KaryawanAkunController::class, 'reward'])->name('karyawan.akun.reward');
 Route::get('/akun-karyawan/pelanggaran', [KaryawanAkunController::class, 'pelanggaran'])->name('karyawan.akun.pelanggaran');
+
+Route::get('/karyawan/akun/reward/sertifikat/{id}', [KaryawanAkunController::class, 'unduhSertifikat'])->name('karyawan.akun.reward.sertifikat');
+Route::get('/karyawan/akun/pelanggaran', [KaryawanAkunController::class, 'pelanggaran'])->name('karyawan.akun.pelanggaran');
+Route::post('/karyawan/akun/pelanggaran/{id}/upload', [KaryawanAkunController::class, 'uploadSpKaryawan'])->name('karyawan.akun.pelanggaran.upload');

@@ -81,7 +81,6 @@
                         <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Tidak Mengerjakan</th>
                         <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Total Poin</th>
                         <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Status</th>
-                        <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Arsip SP</th>
                         <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -142,36 +141,22 @@
                             @endif
                         </td>
 
-                        {{-- Arsip SP --}}
-                        <td class="px-6 py-4 text-center">
-                            @if(!empty($p->file_sp_karyawan))
-                            <a href="{{ asset('storage/sp_karyawan/' . $p->file_sp_karyawan) }}" target="_blank"
-                                class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition">
-                                📄 Lihat File
-                            </a>
-                            @else
-                                @if($p->file_sp)
-                                <span class="text-xs text-amber-500 font-medium italic">Menunggu TTD Karyawan</span>
-                                @else
-                                <span class="text-xs text-gray-300 italic">Belum ada</span>
-                                @endif
-                            @endif
-                        </td>
-
-                        {{-- Aksi --}}
+                        {{-- Kolom Aksi Tunggal (Upload / Lihat + Cancel) --}}
                         <td class="px-6 py-4 text-center">
                             @if($p->id_pelanggaran)
                                 @if($p->file_sp)
-                                    <div class="flex items-center justify-center gap-1.5 mx-auto">
-                                        <a href="{{ asset('storage/sp_signed/' . $p->file_sp) }}" target="_blank"
-                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 transition">
-                                            📄 Lihat Draf
+                                    <div class="flex items-center justify-center gap-2 mx-auto">
+                                        {{-- Tombol Lihat Berkas --}}
+                                        <a href="{{ asset('uploads/sp_signed/' . $p->file_sp) }}" target="_blank"
+                                            class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition shadow-sm">
+                                            📄 Lihat File
                                         </a>
+                                        {{-- Tombol Cancel / Hapus Berkas --}}
                                         <form action="{{ route('pelanggaran.deleteSp', $p->id_pelanggaran) }}" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin membatalkan/menghapus file draf ini?')">
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus/membatalkan file Surat Peringatan ini?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="p-1 text-rose-600 hover:bg-rose-50 rounded-md transition" title="Batalkan / Tarik Berkas Draf">
+                                            <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition" title="Hapus Berkas SP">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
@@ -179,24 +164,29 @@
                                         </form>
                                     </div>
                                 @else
-                                    <button
-                                        onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.remove('hidden')"
-                                        class="p-2 bg-[#1e3f7c]/10 text-[#1e3f7c] rounded-xl hover:bg-[#1e3f7c]/20 transition flex items-center justify-center mx-auto"
-                                        title="Unggah Draf Surat">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                        </svg>
-                                    </button>
+                                    {{-- Jika Status SP1/SP2 tapi belum upload berkas --}}
+                                    @if(strtoupper($p->status) !== 'AMAN')
+                                        <button
+                                            onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.remove('hidden')"
+                                            class="p-2 bg-[#1e3f7c]/10 text-[#1e3f7c] rounded-xl hover:bg-[#1e3f7c]/20 transition flex items-center justify-center mx-auto"
+                                            title="Unggah Surat Peringatan">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-gray-300">-</span>
+                                    @endif
                                 @endif
                             @else
-                            <span class="text-xs text-amber-400 italic">ID Kosong</span>
+                                <span class="text-xs text-amber-400 italic">ID Kosong</span>
                             @endif
                         </td>
 
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 font-medium">
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400 font-medium">
                             Tidak ada data pelanggaran untuk periode ini.
                         </td>
                     </tr>
@@ -216,14 +206,14 @@
 
 </div>
 
-{{-- ✅ Modal dipindah ke LUAR tabel --}}
+{{-- Modal Upload --}}
 @foreach($pelanggarans as $p)
     @if($p->id_pelanggaran)
     <div id="modal-{{ $p->id_pelanggaran }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="text-base font-bold text-gray-800">Unggah Draf Surat Peringatan</h3>
+                    <h3 class="text-base font-bold text-gray-800">Unggah Surat Peringatan</h3>
                     <p class="text-xs text-gray-500 mt-0.5">
                         {{ $p->karyawan->nama ?? '-' }} &middot;
                         <span class="font-semibold text-[#1e3f7c]">{{ $p->status }}</span>
@@ -244,7 +234,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <label class="cursor-pointer">
-                        <span class="text-sm font-semibold text-[#1e3f7c]">Pilih file draf</span>
+                        <span class="text-sm font-semibold text-[#1e3f7c]">Pilih file berkas SP</span>
                         <input type="file" name="file_sp" accept=".pdf,.jpg,.png" class="hidden" required
                             onchange="document.getElementById('filename-{{ $p->id_pelanggaran }}').textContent = this.files[0]?.name ?? ''">
                     </label>
@@ -259,7 +249,7 @@
                     </button>
                     <button type="submit"
                         class="flex-1 bg-[#1e3f7c] hover:bg-[#152c58] text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-sm">
-                        Simpan
+                        Simpan Berkas
                     </button>
                 </div>
             </form>

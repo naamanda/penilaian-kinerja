@@ -7,7 +7,6 @@ use App\Models\Pelanggaran;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class PelanggaranController extends Controller
 {
@@ -38,9 +37,9 @@ class PelanggaranController extends Controller
             $dataNilai = $this->hasilAkhir->hitungNilai($k->id_karyawan, $bulan, $tahun);
 
             $poinData   = $dataNilai['pelanggaran'];
-            $totalPoin  = $poinData['total_poin']       ?? 0;
-            $terlambat  = $poinData['terlambat']         ?? 0;
-            $tidakKerja = $poinData['tidak_mengerjakan'] ?? 0;
+            $totalPoin  = $poinData['total_poin']         ?? 0;
+            $terlambat  = $poinData['terlambat']          ?? 0;
+            $tidakKerja = $poinData['tidak_mengerjakan']   ?? 0;
             $status     = $poinData['status'];
 
             $statusUpper = strtoupper($status === 'aman' ? 'AMAN' : $status);
@@ -86,17 +85,20 @@ class PelanggaranController extends Controller
             'file_sp' => 'required|file|mimes:pdf,jpg,png|max:2048',
         ]);
 
-        // Cari atau buat record pelanggaran berdasarkan id_pelanggaran
         $pelanggaran = Pelanggaran::findOrFail($id);
 
         if ($request->hasFile('file_sp')) {
-            if ($pelanggaran->file_sp && file_exists(public_path('storage/sp_signed/' . $pelanggaran->file_sp))) {
-                unlink(public_path('storage/sp_signed/' . $pelanggaran->file_sp));
+            // Hapus file lama jika ada
+            if ($pelanggaran->file_sp) {
+                $oldPath = public_path('uploads/sp_signed/' . $pelanggaran->file_sp);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
-            $file     = $request->file('file_sp');
+            $file = $request->file('file_sp');
             $filename = 'SP_SIGNED_' . $pelanggaran->id_karyawan . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('storage/sp_signed/'), $filename);
+            $file->move(public_path('uploads/sp_signed'), $filename);
 
             $pelanggaran->update([
                 'file_sp'    => $filename,
@@ -104,21 +106,26 @@ class PelanggaranController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Arsip file SP bertandatangan berhasil disimpan.');
+        return redirect()->back()->with('success', 'Arsip file SP resmi berhasil disimpan.');
     }
 
     public function deleteSp($id)
     {
-        $pelanggaran = \App\Models\Pelanggaran::findOrFail($id);
+        $pelanggaran = Pelanggaran::findOrFail($id);
 
-        if ($pelanggaran->file_sp && Storage::exists('public/sp_signed/' . $pelanggaran->file_sp)) {
-            Storage::delete('public/sp_signed/' . $pelanggaran->file_sp);
+        // Hapus file fisik dari direktori uploads/sp_signed
+        if ($pelanggaran->file_sp) {
+            $filePath = public_path('uploads/sp_signed/' . $pelanggaran->file_sp);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
 
         $pelanggaran->update([
-            'file_sp' => null
+            'file_sp'    => null,
+            'tanggal_sp' => null
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Berkas arsip SP berhasil dihapus.');
     }
 }

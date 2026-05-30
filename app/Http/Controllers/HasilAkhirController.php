@@ -85,12 +85,12 @@ class HasilAkhirController extends Controller
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->where('status', 'tidak_mengerjakan')
+            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])  // ← tambah ini
             ->count();
 
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
             ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
-            ->where('status', 'tidak_mengerjakan')
+            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])  // ← tambah ini
             ->count();
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;
