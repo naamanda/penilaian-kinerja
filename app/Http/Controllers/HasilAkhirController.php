@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\HasilAkhir;
 use App\Models\Karyawan;
 use App\Models\Absensi;
@@ -85,7 +86,14 @@ class HasilAkhirController extends Controller
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])  // ← tambah ini
+            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
+            ->where(function ($q) {
+                $q->where('tanggal', '<', Carbon::today())  // hari-hari sebelumnya
+                    ->orWhere(function ($q2) {                // ATAU hari ini tapi waktu misi sudah lewat
+                        $q2->where('tanggal', Carbon::today())
+                            ->whereHas('misi', fn($m) => $m->where('waktu_selesai', '<', Carbon::now()->format('H:i:s')));
+                    });
+            })
             ->count();
 
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
@@ -252,8 +260,8 @@ class HasilAkhirController extends Controller
 
     private function hitungStatusPelanggaran(int $totalPoin): string
     {
-        if ($totalPoin >= 9) return 'SP2';
-        if ($totalPoin >= 5) return 'SP1';
+        if ($totalPoin >= 12) return 'SP2';
+        if ($totalPoin >= 8) return 'SP1';
         return 'aman';
     }
 }

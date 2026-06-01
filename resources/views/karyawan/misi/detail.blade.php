@@ -87,13 +87,13 @@
 
         <div class="flex flex-col gap-3">
             <button type="button" id="btn-capture" class="hidden w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition shadow-sm">
-                📸 Ambil Foto Bukti
+                Ambil Foto Bukti
             </button>
             <button type="button" id="btn-retake" class="hidden w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition">
-                🔄 Foto Ulang
+                Foto Ulang
             </button>
             <button type="button" id="btn-submit" class="hidden w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition shadow-sm">
-                📤 Kirim Bukti Misi
+                Kirim Bukti Misi
             </button>
         </div>
         @else

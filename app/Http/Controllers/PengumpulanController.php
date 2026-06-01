@@ -12,15 +12,23 @@ class PengumpulanController extends Controller
     {
         $tab    = $request->input('tab', 'antrean');
         $search = $request->input('search');
-        $query  = Pengumpulan::with(['tugas', 'karyawan']);
+        $bulan  = (int) $request->get('bulan', date('n'));
+        $tahun  = (int) $request->get('tahun', date('Y'));
+
+        $query = Pengumpulan::with(['tugas', 'karyawan']);
 
         if ($tab == 'antrean') {
             $query->whereIn('status', ['menunggu', 'ditolak'])
+                ->whereMonth('tanggal_upload', $bulan)
+                ->whereYear('tanggal_upload', $tahun)
                 ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
         } elseif ($tab == 'belum_mengerjakan') {
-            $query->where('status', 'belum_mengerjakan');
+            $query->where('status', 'belum_mengerjakan')
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun));
         } elseif ($tab == 'selesai') {
-            $query->whereIn('status', ['disetujui', 'terlambat']);
+            $query->whereIn('status', ['disetujui', 'terlambat'])
+                ->whereMonth('tanggal_upload', $bulan)
+                ->whereYear('tanggal_upload', $tahun);
         }
 
         if ($search) {
@@ -39,13 +47,15 @@ class PengumpulanController extends Controller
             ->withQueryString();
 
         $stat = [
-            'belum'     => Pengumpulan::where('status', 'belum_mengerjakan')->count(),
-            'menunggu'  => Pengumpulan::where('status', 'menunggu')->count(),
-            'terlambat' => Pengumpulan::where('status', 'terlambat')->count(),
-            'disetujui' => Pengumpulan::where('status', 'disetujui')->count(),
+            'belum'     => Pengumpulan::where('status', 'belum_mengerjakan')
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
+                ->count(),
+            'menunggu'  => Pengumpulan::where('status', 'menunggu')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
+            'terlambat' => Pengumpulan::where('status', 'terlambat')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
+            'disetujui' => Pengumpulan::where('status', 'disetujui')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
         ];
 
-        return view('admin.tugas.pengumpulan.index', compact('data', 'stat', 'tab', 'search'));
+        return view('admin.tugas.pengumpulan.index', compact('data', 'stat', 'tab', 'search', 'bulan', 'tahun'));
     }
 
     public function show($id)

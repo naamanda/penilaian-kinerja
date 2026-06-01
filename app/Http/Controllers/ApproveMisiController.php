@@ -10,9 +10,14 @@ class ApproveMisiController extends Controller
 {
     public function index(Request $request)
     {
-        $tab   = $request->input('tab', 'antrean');
-        $query = Pengerjaan::with(['misi', 'karyawan']);
+        $tab    = $request->input('tab', 'antrean');
         $search = $request->input('search');
+        $bulan  = (int) $request->get('bulan', date('n'));
+        $tahun  = (int) $request->get('tahun', date('Y'));
+
+        $query = Pengerjaan::with(['misi', 'karyawan'])
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun);
 
         if ($tab == 'antrean') {
             $query->whereIn('status', ['menunggu', 'ditolak'])
@@ -23,7 +28,6 @@ class ApproveMisiController extends Controller
             $query->whereIn('status', ['disetujui', 'terlambat']);
         }
 
-        // ✅ Filter search lewat relasi, bukan kolom langsung
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('misi', function ($q2) use ($search) {
@@ -36,17 +40,17 @@ class ApproveMisiController extends Controller
         }
 
         $data = $query->orderBy('tanggal', 'desc')
-              ->paginate(5)
-              ->withQueryString();
+            ->paginate(5)
+            ->withQueryString();
 
         $stat = [
-            'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->count(),
-            'menunggu'  => Pengerjaan::where('status', 'menunggu')->count(),
-            'terlambat' => Pengerjaan::where('status', 'terlambat')->count(),
-            'disetujui' => Pengerjaan::where('status', 'disetujui')->count(),
+            'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
+            'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
+            'terlambat' => Pengerjaan::where('status', 'terlambat')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
+            'disetujui' => Pengerjaan::where('status', 'disetujui')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
         ];
 
-        return view('admin.misi.approve.index', compact('data', 'stat', 'tab'));
+        return view('admin.misi.approve.index', compact('data', 'stat', 'tab', 'bulan', 'tahun'));
     }
 
     public function show($id)

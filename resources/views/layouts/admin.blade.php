@@ -75,7 +75,7 @@
                         <circle cx="9" cy="7" r="4" />
                         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
                     </svg>
-                    Data Karyawan
+                    Data User
                 </a>
 
                 <a href="/data-divisi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('data-divisi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"

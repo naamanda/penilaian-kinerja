@@ -5,7 +5,7 @@
 
     {{-- Header Section atau Bagian atas sendiri --}}
     <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold text-gray-800">Data Karyawan</h1>
+        <h1 class="text-2xl font-bold text-gray-800">Data User</h1>
         <a href="/data-karyawan/tambah"
             class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-[#1e3f7c] text-white">
-                        <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Nama Karyawan</th>
+                        <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Nama User</th>
                         <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Username</th>
                         <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Role</th>
                         <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Divisi</th>

@@ -12,7 +12,13 @@ class TugasController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $query  = Tugas::with('divisi')->orderBy('id_tugas', 'desc');
+        $bulan  = (int) $request->get('bulan', date('n'));
+        $tahun  = (int) $request->get('tahun', date('Y'));
+
+        $query = Tugas::with('divisi')
+            ->where('bulan', $bulan)         
+            ->whereYear('deadline', $tahun)  
+            ->orderBy('id_tugas', 'desc');
 
         if ($request->filled('id_divisi')) {
             $query->where('id_divisi', $request->id_divisi);
