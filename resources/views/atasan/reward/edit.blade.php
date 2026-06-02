@@ -27,9 +27,9 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        {{-- Kriteria Kualifikasi / Jenis --}}
+                        {{-- Kualifikasi / Jenis --}}
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1 tracking-widest">Kriteria Kualifikasi</label>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1 tracking-widest">Kualifikasi</label>
                             <div class="relative">
                                 <select name="jenis" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#1e3f7c] outline-none appearance-none cursor-pointer">
                                     {{-- Mengecek angka 1 atau romawi i pada nama reward --}}

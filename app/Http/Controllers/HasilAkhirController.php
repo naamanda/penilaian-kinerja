@@ -77,11 +77,25 @@ class HasilAkhirController extends Controller
         $totalTerlambat = $terlambatAbsensi + $terlambatMisi + $terlambatTugas;
 
         // ── 2. Tidak mengerjakan / Tidak Hadir (2 poin) ─────────
-        $tidakHadirAbsensi = Absensi::where('id_karyawan', $idKaryawan)
+        $hariIni = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year)
+            ? Carbon::now()->day
+            : Carbon::create($tahun, $bulan)->daysInMonth;
+
+        $hariKerjaBerjalan = 0;
+        for ($d = 1; $d <= $hariIni; $d++) {
+            $tanggal = Carbon::create($tahun, $bulan, $d);
+            if ($tanggal->isWeekday() && $tanggal->lte(Carbon::today())) {
+                $hariKerjaBerjalan++;
+            }
+        }
+
+        $totalHadir = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->where('status', 'tidak_hadir')
+            ->whereIn('status', ['hadir', 'terlambat'])
             ->count();
+
+        $tidakHadirAbsensi = max(0, $hariKerjaBerjalan - $totalHadir);
 
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -96,9 +110,12 @@ class HasilAkhirController extends Controller
             })
             ->count();
 
+        $karyawan = Karyawan::findOrFail($idKaryawan);
+
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
-            ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])  // ← tambah ini
+            ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
+                ->where('id_divisi', $karyawan->id_divisi))
+            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
             ->count();
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;

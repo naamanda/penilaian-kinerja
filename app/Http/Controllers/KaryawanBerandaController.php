@@ -84,6 +84,7 @@ class KaryawanBerandaController extends Controller
         $minggu = Carbon::now()->weekOfMonth;
         $tugas  = Tugas::where('minggu', $minggu)
             ->where('bulan', $bulan)
+            ->where('id_divisi', $karyawan->id_divisi) // ← tambah ini
             ->get()
             ->map(function ($t) use ($id) {
                 $t->selesai = Pengumpulan::where('id_tugas', $t->id_tugas)

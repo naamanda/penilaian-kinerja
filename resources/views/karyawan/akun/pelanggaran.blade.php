@@ -43,7 +43,7 @@
                     </p>
                 </div>
                 <div class="bg-gray-50 rounded-xl p-3 text-center border border-gray-100/50">
-                    <p class="text-[11px] font-medium text-gray-400 mb-0.5">Tidak Kerja</p>
+                    <p class="text-[11px] font-medium text-gray-400 mb-0.5">Tidak Mengerjakan</p>
                     <p class="text-lg font-bold {{ $pelanggaran['tidak_mengerjakan'] > 0 ? 'text-rose-500' : 'text-gray-400' }}">
                         {{ $pelanggaran['tidak_mengerjakan'] }}
                     </p>
@@ -64,7 +64,7 @@
                 <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-[10px] text-gray-400">
                     <span class="flex items-center gap-1">• Terlambat: <b class="text-gray-500">1 Poin</b></span>
                     <span class="flex items-center gap-1">• SP1: <b class="text-amber-600">Poin 5–8</b></span>
-                    <span class="flex items-center gap-1">• Tidak Kerja: <b class="text-gray-500">2 Poin</b></span>
+                    <span class="flex items-center gap-1">• Tidak Mengerjakan: <b class="text-gray-500">2 Poin</b></span>
                     <span class="flex items-center gap-1">• SP2: <b class="text-rose-600">Poin ≥ 9</b></span>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
                         <div class="max-w-[60%]">
                             <p class="text-xs font-bold text-gray-800 flex items-center gap-1">
-                                <i class="fas fa-file-signature text-[#1e3f7c]"></i> Dokumen Resmi
+                                <i class="fas fa-file-signature text-[#1e3f7c]"></i> File SP
                             </p>
                             <p class="text-[10px] text-gray-400 truncate mt-0.5">{{ $spBulanIni->file_sp }}</p>
                         </div>

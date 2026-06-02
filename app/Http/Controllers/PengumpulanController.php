@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pengumpulan;
+use App\Models\Divisi;
 use Carbon\Carbon;
 
 class PengumpulanController extends Controller
@@ -15,47 +16,65 @@ class PengumpulanController extends Controller
         $bulan  = (int) $request->get('bulan', date('n'));
         $tahun  = (int) $request->get('tahun', date('Y'));
 
-        $query = Pengumpulan::with(['tugas', 'karyawan']);
+        // 1. QUERY UTAMA UNTUK ISI TABEL (DI-FILTER BERDASARKAN TAB YANG DIKLIK)
+        $query = Pengumpulan::with(['tugas.divisi', 'karyawan']);
 
         if ($tab == 'antrean') {
             $query->whereIn('status', ['menunggu', 'ditolak'])
                 ->whereMonth('tanggal_upload', $bulan)
-                ->whereYear('tanggal_upload', $tahun)
-                ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
+                ->whereYear('tanggal_upload', $tahun);
         } elseif ($tab == 'belum_mengerjakan') {
             $query->where('status', 'belum_mengerjakan')
-                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun));
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
+                ->whereRaw('EXISTS (
+            SELECT 1 FROM tugas 
+            JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
+            WHERE tugas.id_tugas = pengumpulan.id_tugas
+            AND karyawan.id_karyawan = pengumpulan.id_karyawan)');
         } elseif ($tab == 'selesai') {
             $query->whereIn('status', ['disetujui', 'terlambat'])
                 ->whereMonth('tanggal_upload', $bulan)
                 ->whereYear('tanggal_upload', $tahun);
         }
 
+        // Filter Pencarian jika user mengetik nama karyawan/tugas
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('tugas', function ($q2) use ($search) {
-                    $q2->where('nama_tugas', 'like', '%' . $search . '%');
-                })
-                    ->orWhereHas('karyawan', function ($q2) use ($search) {
-                        $q2->where('nama', 'like', '%' . $search . '%');
-                    });
+                $q->whereHas('karyawan', fn($q2) => $q2->where('nama', 'like', '%' . $search . '%'))
+                    ->orWhereHas('tugas', fn($q2) => $q2->where('nama_tugas', 'like', '%' . $search . '%'));
             });
         }
 
-        $data = $query->orderBy('tanggal_upload', 'desc')
-            ->paginate(5)
-            ->withQueryString();
+        // Eksekusi data untuk tabel bawah (Paginasi 5 data per halaman)
+        $data = $query->orderBy('id_pengumpulan', 'desc')->paginate(5)->withQueryString();
 
+
+        // =========================================================================
+        // 2. HITUNG STATISTIK (DIPISAH SENDIRI-SENDIRI BIAR RELEVAN & TIDAK NGACU)
+        // =========================================================================
         $stat = [
-            'belum'     => Pengumpulan::where('status', 'belum_mengerjakan')
+            'belum' => Pengumpulan::where('status', 'belum_mengerjakan')
                 ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
+                ->whereRaw('EXISTS (
+            SELECT 1 FROM tugas 
+            JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
+            WHERE tugas.id_tugas = pengumpulan.id_tugas
+            AND karyawan.id_karyawan = pengumpulan.id_karyawan)')
                 ->count(),
-            'menunggu'  => Pengumpulan::where('status', 'menunggu')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
-            'terlambat' => Pengumpulan::where('status', 'terlambat')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
-            'disetujui' => Pengumpulan::where('status', 'disetujui')->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
+
+            'menunggu' => Pengumpulan::where('status', 'menunggu')
+                ->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
+
+            'terlambat' => Pengumpulan::where('status', 'terlambat')
+                ->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
+
+            'disetujui' => Pengumpulan::where('status', 'disetujui')
+                ->whereMonth('tanggal_upload', $bulan)->whereYear('tanggal_upload', $tahun)->count(),
         ];
 
-        return view('admin.tugas.pengumpulan.index', compact('data', 'stat', 'tab', 'search', 'bulan', 'tahun'));
+        $list_divisi = Divisi::all();
+
+        return view('admin.tugas.pengumpulan.index', compact('data', 'stat', 'tab', 'search', 'bulan', 'tahun', 'list_divisi'));
     }
 
     public function show($id)

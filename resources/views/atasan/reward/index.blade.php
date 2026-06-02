@@ -34,7 +34,7 @@
                 <thead>
                     <tr class="bg-[#1e3f7c] text-white">
                         <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Nama Reward</th>
-                        <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Kriteria Kualifikasi</th>
+                        <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Kualifikasi</th>
                         <th class="px-6 py-4 text-left font-semibold uppercase tracking-wider text-sm">Nominal Hadiah</th>
                         <th class="px-6 py-4 text-center font-semibold uppercase tracking-wider text-sm">Aksi</th>
                     </tr>
@@ -45,7 +45,7 @@
                         {{-- Nama Reward --}}
                         <td class="px-6 py-3.5 text-base font-medium text-gray-900">{{ $r->nama_reward }}</td>
 
-                        {{-- Kriteria Kualifikasi (Badge ala Karyawan) --}}
+                        {{-- Kualifikasi (Badge ala Karyawan) --}}
                         <td class="px-6 py-3.5">
                             <span class="px-3 py-1 rounded-lg text-xs font-bold 
                                 {{ str_contains($r->jenis, 'rank') ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-purple-50 text-purple-700 border border-purple-100' }}">

@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
-    /**
-     * Tentukan koordinat kantor secara hardcode.
-     * Silahkan sesuaikan lat & lng dengan lokasi kantor asli.
-     */
     private $office_lat =  -7.678603;
     private $office_lng = 109.035448;
     private $radius_km = 0.1; // 100 meter toleransi jarak

@@ -106,7 +106,7 @@
 
         <button id="btnUlang" onclick="ulangi()"
             class="hidden w-full py-3 rounded-xl text-sm font-bold border border-gray-300 text-gray-500 mt-2">
-            🔄 Ganti File
+            Ganti File
         </button>
     </div>
     @endif

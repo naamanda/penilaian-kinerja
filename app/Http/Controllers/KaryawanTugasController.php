@@ -15,12 +15,22 @@ class KaryawanTugasController extends Controller
     public function index()
     {
         $id_karyawan = Session::get('id_karyawan');
+
+        // KUNCI PERBAIKAN KARYAWAN: Cari tahu karyawan yang login ini dari divisi apa
+        $karyawan = \App\Models\Karyawan::findOrFail($id_karyawan);
+        $id_divisi_karyawan = $karyawan->id_divisi;
+
         $minggu      = Carbon::now()->weekOfMonth;
         $bulan       = Carbon::now()->month;
 
         $pengumpulan = Pengumpulan::with('tugas')
             ->where('id_karyawan', $id_karyawan)
-            ->whereHas('tugas', fn($q) => $q->where('minggu', $minggu)->where('bulan', $bulan))
+            ->whereHas('tugas', function ($q) use ($minggu, $bulan, $id_divisi_karyawan) {
+                // Tugas harus aktif di minggu ini, bulan ini, DAN WAJIB sesuai divisi karyawan!
+                $q->where('minggu', $minggu)
+                    ->where('bulan', $bulan)
+                    ->where('id_divisi', $id_divisi_karyawan);
+            })
             ->get()
             ->map(function ($p) {
                 if (!$p->tugas) return $p;
