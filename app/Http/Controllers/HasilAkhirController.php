@@ -97,25 +97,20 @@ class HasilAkhirController extends Controller
 
         $tidakHadirAbsensi = max(0, $hariKerjaBerjalan - $totalHadir);
 
+        // REVISI MISI: Hanya hitung yang benar-benar berstatus 'tidak_mengerjakan'
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
-            ->where(function ($q) {
-                $q->where('tanggal', '<', Carbon::today())  // hari-hari sebelumnya
-                    ->orWhere(function ($q2) {                // ATAU hari ini tapi waktu misi sudah lewat
-                        $q2->where('tanggal', Carbon::today())
-                            ->whereHas('misi', fn($m) => $m->where('waktu_selesai', '<', Carbon::now()->format('H:i:s')));
-                    });
-            })
+            ->where('status', 'tidak_mengerjakan') // <-- Diubah dari whereIn menjadi where tunggal
             ->count();
 
         $karyawan = Karyawan::findOrFail($idKaryawan);
 
+        // REVISI TUGAS: Hanya hitung yang benar-benar berstatus 'tidak_mengerjakan'
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
             ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
                 ->where('id_divisi', $karyawan->id_divisi))
-            ->whereIn('status', ['tidak_mengerjakan', 'belum_mengerjakan'])
+            ->where('status', 'tidak_mengerjakan') // <-- Diubah dari whereIn menjadi where tunggal
             ->count();
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;
@@ -187,6 +182,24 @@ class HasilAkhirController extends Controller
      */
     public function executeGenerateInternal(int $bulan, int $tahun)
     {
+
+        Pengumpulan::where('status', 'belum_mengerjakan')
+            ->whereHas('tugas', function ($q) {
+                $q->where('deadline', '<', Carbon::now());
+            })->update(['status' => 'tidak_mengerjakan']);
+
+        // 2. TRIGGER OTOMATIS UNTUK MISI
+        // Jika tanggal misi sudah lewat (kemarin/sebelumnya) ATAU hari ini tapi jam 'waktu_selesai' misi sudah lewat
+        Pengerjaan::where('status', 'belum_mengerjakan')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->where(function ($q) {
+                $q->where('tanggal', '<', Carbon::today())
+                    ->orWhere(function ($q2) {
+                        $q2->where('tanggal', Carbon::today())
+                            ->whereHas('misi', fn($m) => $m->where('waktu_selesai', '<', Carbon::now()->format('H:i:s')));
+                    });
+            })->update(['status' => 'tidak_mengerjakan']);
         $karyawans = Karyawan::where('id_role', 2)->get(); // Hanya staff/karyawan
 
         DB::beginTransaction();

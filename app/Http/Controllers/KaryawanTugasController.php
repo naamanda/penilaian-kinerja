@@ -16,7 +16,6 @@ class KaryawanTugasController extends Controller
     {
         $id_karyawan = Session::get('id_karyawan');
 
-        // KUNCI PERBAIKAN KARYAWAN: Cari tahu karyawan yang login ini dari divisi apa
         $karyawan = \App\Models\Karyawan::findOrFail($id_karyawan);
         $id_divisi_karyawan = $karyawan->id_divisi;
 
@@ -26,7 +25,6 @@ class KaryawanTugasController extends Controller
         $pengumpulan = Pengumpulan::with('tugas')
             ->where('id_karyawan', $id_karyawan)
             ->whereHas('tugas', function ($q) use ($minggu, $bulan, $id_divisi_karyawan) {
-                // Tugas harus aktif di minggu ini, bulan ini, DAN WAJIB sesuai divisi karyawan!
                 $q->where('minggu', $minggu)
                     ->where('bulan', $bulan)
                     ->where('id_divisi', $id_divisi_karyawan);
@@ -39,8 +37,11 @@ class KaryawanTugasController extends Controller
                 $deadline = Carbon::parse($p->tugas->deadline);
 
                 $p->sudah_lewat = $now->gt($deadline);
+
+                // REVISI LOGIKA: Karyawan hanya bisa upload jika waktunya belum lewat 
+                // DAN statusnya 'belum_mengerjakan' atau 'ditolak'. Jika 'tidak_mengerjakan' berarti sudah diblok (hangus).
                 $p->bisa_upload = !$p->sudah_lewat
-                    && in_array($p->status, ['belum_mengerjakan', 'belum_mengumpulkan', 'ditolak']);
+                    && in_array($p->status, ['belum_mengerjakan', 'ditolak']);
 
                 return $p;
             });
@@ -60,8 +61,9 @@ class KaryawanTugasController extends Controller
         $now      = Carbon::now();
         $deadline = Carbon::parse($pengumpulan->tugas->deadline);
 
+        // REVISI LOGIKA: Sesuaikan pengecekan status di halaman detail tugas karyawan
         $bisaUpload = $now->lte($deadline)
-            && in_array($pengumpulan->status, ['belum_mengerjakan', 'belum_mengumpulkan', 'ditolak']);
+            && in_array($pengumpulan->status, ['belum_mengerjakan', 'ditolak']);
 
         return view('karyawan.tugas.detail', compact('pengumpulan', 'bisaUpload', 'deadline'));
     }
@@ -76,7 +78,7 @@ class KaryawanTugasController extends Controller
             ->where('id_karyawan', $id_karyawan)
             ->firstOrFail();
 
-        if (!in_array($pengumpulan->status, ['belum_mengerjakan', 'belum_mengumpulkan', 'ditolak'])) {
+        if (!in_array($pengumpulan->status, ['belum_mengerjakan', 'ditolak'])) {
             return response()->json(['message' => 'Tugas ini tidak bisa diupload ulang.'], 403);
         }
 

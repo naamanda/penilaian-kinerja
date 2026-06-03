@@ -24,7 +24,8 @@ class PengumpulanController extends Controller
                 ->whereMonth('tanggal_upload', $bulan)
                 ->whereYear('tanggal_upload', $tahun);
         } elseif ($tab == 'belum_mengerjakan') {
-            $query->where('status', 'belum_mengerjakan')
+            // REVISI: Masukkan 'tidak_mengerjakan' ke dalam query tab agar admin tetap bisa melihat listnya
+            $query->whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
                 ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
                 ->whereRaw('EXISTS (
             SELECT 1 FROM tugas 
@@ -53,7 +54,8 @@ class PengumpulanController extends Controller
         // 2. HITUNG STATISTIK (DIPISAH SENDIRI-SENDIRI BIAR RELEVAN & TIDAK NGACU)
         // =========================================================================
         $stat = [
-            'belum' => Pengumpulan::where('status', 'belum_mengerjakan')
+            // REVISI: Hitung gabungan status 'belum_mengerjakan' dan 'tidak_mengerjakan' untuk counter di atas tab
+            'belum' => Pengumpulan::whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
                 ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
                 ->whereRaw('EXISTS (
             SELECT 1 FROM tugas 

@@ -150,7 +150,7 @@
             </div>
             @else
             <div class="text-center py-4">
-                <p class="text-sm text-gray-400">Waktu pengerjaan telah habis dan belum ada foto bukti yang diunggah.</p>
+                <p class="text-sm text-gray-400">Waktu pengerjaan telah habis.</p>
             </div>
             @endif
         </div>

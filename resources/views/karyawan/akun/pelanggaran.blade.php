@@ -9,7 +9,7 @@
 
     {{-- Kotak Utama Tunggal (All-in-One Card) --}}
     <div class="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-        
+
         {{-- 1. Bagian Header Kotak (Status & Bulan) --}}
         <div class="px-4 py-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
             <div>
@@ -17,18 +17,21 @@
                 <p class="text-sm font-bold text-gray-800">{{ $daftarBulan[$bulan] }} {{ $tahun }}</p>
             </div>
             <div>
-                @if($pelanggaran['status'] === 'SP2')
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Surat Peringatan 2
-                    </span>
-                @elseif($pelanggaran['status'] === 'SP1')
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Surat Peringatan 1
-                    </span>
+                {{-- REVISI: Gunakan strtoupper agar pengecekan string status tidak sensitif huruf besar/kecil --}}
+                @php $statusUser = strtoupper($pelanggaran['status']); @endphp
+
+                @if($statusUser === 'SP2')
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Surat Peringatan 2
+                </span>
+                @elseif($statusUser === 'SP1')
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Surat Peringatan 1
+                </span>
                 @else
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Status Aman
-                    </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Status Aman
+                </span>
                 @endif
             </div>
         </div>
@@ -69,33 +72,32 @@
                 </div>
             </div>
 
-            {{-- 4. Surat Peringatan Resmi (Hanya muncul jika file dari atasan tersedia) --}}
+            {{-- 4. Surat Peringatan Resmi --}}
             @php
-                // Mencari berkas SP khusus untuk bulan dan tahun berjalan ini
-                $spBulanIni = $riwayat->first(fn($r) => $r->bulan == $bulan && $r->tahun == $tahun && !empty($r->file_sp));
+            $spBulanIni = $riwayat->first(fn($r) => $r->bulan == $bulan && $r->tahun == $tahun && !empty($r->file_sp));
             @endphp
 
             @if($spBulanIni)
-                <div class="pt-3 border-t border-gray-100">
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
-                        <div class="max-w-[60%]">
-                            <p class="text-xs font-bold text-gray-800 flex items-center gap-1">
-                                <i class="fas fa-file-signature text-[#1e3f7c]"></i> File SP
-                            </p>
-                            <p class="text-[10px] text-gray-400 truncate mt-0.5">{{ $spBulanIni->file_sp }}</p>
-                        </div>
-                        <a href="{{ asset('uploads/sp_signed/' . $spBulanIni->file_sp) }}"
-                            target="_blank"
-                            class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#1e3f7c] hover:bg-[#152c58] transition shadow-sm">
-                            <i class="fas fa-eye text-[10px]"></i> Lihat Surat
-                        </a>
+            <div class="pt-3 border-t border-gray-100">
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
+                    <div class="max-w-[60%]">
+                        <p class="text-xs font-bold text-gray-800 flex items-center gap-1">
+                            <i class="fas fa-file-signature text-[#1e3f7c]"></i> File SP
+                        </p>
+                        <p class="text-[10px] text-gray-400 truncate mt-0.5">{{ $spBulanIni->file_sp }}</p>
                     </div>
+                    <a href="{{ asset('uploads/sp_signed/' . $spBulanIni->file_sp) }}"
+                        target="_blank"
+                        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#1e3f7c] hover:bg-[#152c58] transition shadow-sm">
+                        <i class="fas fa-eye text-[10px]"></i> Lihat Surat
+                    </a>
                 </div>
-            @elseif($pelanggaran['status'] !== 'AMAN')
-                {{-- Jika mendapat SP tapi berkas belum diupload oleh atasan --}}
-                <div class="pt-2 text-center text-[11px] text-amber-500 font-medium italic">
-                    ⚠️ Berkas fisik Surat Peringatan sedang diproses oleh Atasan.
-                </div>
+            </div>
+            @elseif($statusUser !== 'AMAN')
+            {{-- REVISI: Sudah disesuaikan menggunakan variabel $statusUser hasil kapitalisasi --}}
+            <div class="pt-2 text-center text-[11px] text-amber-500 font-medium italic">
+                ⚠️ Berkas fisik Surat Peringatan sedang diproses oleh Atasan.
+            </div>
             @endif
 
         </div>

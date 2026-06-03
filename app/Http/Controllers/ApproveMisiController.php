@@ -23,7 +23,8 @@ class ApproveMisiController extends Controller
             $query->whereIn('status', ['menunggu', 'ditolak'])
                 ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
         } elseif ($tab == 'belum_mengerjakan') {
-            $query->where('status', 'belum_mengerjakan');
+            $query->where('status', 'belum_mengerjakan')
+                ->whereDate('tanggal', Carbon::today());
         } elseif ($tab == 'selesai') {
             $query->whereIn('status', ['disetujui', 'terlambat']);
         }
@@ -44,7 +45,7 @@ class ApproveMisiController extends Controller
             ->withQueryString();
 
         $stat = [
-            'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
+            'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->whereDate('tanggal', Carbon::today())->count(),
             'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
             'terlambat' => Pengerjaan::where('status', 'terlambat')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
             'disetujui' => Pengerjaan::where('status', 'disetujui')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),

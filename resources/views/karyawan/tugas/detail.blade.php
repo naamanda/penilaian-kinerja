@@ -33,16 +33,19 @@
         </div>
 
         <div class="mt-3">
+            {{-- REVISI: Penambahan handle status visual untuk 'tidak_mengerjakan' --}}
             @if($pengumpulan->status == 'menunggu')
-                <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">Menunggu Persetujuan</span>
+            <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">Menunggu Persetujuan</span>
             @elseif($pengumpulan->status == 'disetujui')
-                <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">✓ Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
+            <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">✓ Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'terlambat')
-                <span class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">Terlambat — +{{ $pengumpulan->poin_didapat }} poin</span>
+            <span class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">Terlambat — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'ditolak')
-                <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full">Ditolak — Upload ulang bukti</span>
+            <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full">Ditolak — Upload ulang bukti</span>
+            @elseif($pengumpulan->status == 'tidak_mengerjakan')
+            <span class="text-xs bg-red-50 text-red-500 border border-red-100 px-3 py-1 rounded-full">❌ Tidak Mengerjakan (Hangus)</span>
             @else
-                <span class="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">Belum Dikerjakan</span>
+            <span class="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">Belum Dikerjakan</span>
             @endif
         </div>
     </div>
@@ -119,14 +122,14 @@
     // ── Toast ──────────────────────────────────────────────
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        const icon  = document.getElementById('toast-icon');
-        const msg   = document.getElementById('toast-message');
+        const icon = document.getElementById('toast-icon');
+        const msg = document.getElementById('toast-message');
 
         toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300
             ${type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`;
 
         icon.textContent = type === 'success' ? '✅' : '❌';
-        msg.textContent  = message;
+        msg.textContent = message;
 
         toast.classList.remove('hidden');
 
@@ -140,7 +143,8 @@
     }
 
     // ── File Handling ──────────────────────────────────────
-    let fotoBase64 = null;
+    // REVISI: Meremajakan penamaan nama variabel dari fotoBase64 menjadi fileBase64 agar sesuai konteks PDF
+    let fileBase64 = null;
 
     function previewFile(event) {
         const file = event.target.files[0];
@@ -160,7 +164,7 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            fotoBase64 = e.target.result;
+            fileBase64 = e.target.result;
 
             document.getElementById('placeholder').innerHTML = `
             <div class="flex flex-col items-center gap-2 px-4">
@@ -175,7 +179,7 @@
             </div>`;
 
             const btnUpload = document.getElementById('btnUpload');
-            btnUpload.disabled  = false;
+            btnUpload.disabled = false;
             btnUpload.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-[#1e3f7c] text-white transition-all active:scale-95';
             document.getElementById('btnUlang').classList.remove('hidden');
         };
@@ -183,7 +187,7 @@
     }
 
     function ulangi() {
-        fotoBase64 = null;
+        fileBase64 = null;
         document.getElementById('inputFile').value = '';
         document.getElementById('placeholder').innerHTML = `
         <div class="flex flex-col items-center gap-2 z-10">
@@ -198,26 +202,28 @@
         </div>`;
 
         const btnUpload = document.getElementById('btnUpload');
-        btnUpload.disabled  = true;
+        btnUpload.disabled = true;
         btnUpload.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed';
         document.getElementById('btnUlang').classList.add('hidden');
     }
 
     async function kirimUpload() {
-        if (!fotoBase64) return;
+        if (!fileBase64) return;
 
         const btn = document.getElementById('btnUpload');
-        btn.disabled    = true;
+        btn.disabled = true;
         btn.textContent = 'Mengupload...';
 
         try {
-            const res  = await fetch('/tugas-mingguan/{{ $pengumpulan->id_pengumpulan }}/upload', {
+            const res = await fetch('/tugas-mingguan/{{ $pengumpulan->id_pengumpulan }}/upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ file: fotoBase64 })
+                body: JSON.stringify({
+                    file: fileBase64
+                })
             });
 
             const data = await res.json();
@@ -227,12 +233,12 @@
                 setTimeout(() => window.location.href = '/tugas-mingguan', 2500);
             } else {
                 showToast(data.message || 'Gagal mengupload tugas.', 'error');
-                btn.disabled    = false;
+                btn.disabled = false;
                 btn.textContent = 'Upload Bukti';
             }
         } catch (e) {
             showToast('Terjadi kesalahan. Coba lagi.', 'error');
-            btn.disabled    = false;
+            btn.disabled = false;
             btn.textContent = 'Upload Bukti';
         }
     }

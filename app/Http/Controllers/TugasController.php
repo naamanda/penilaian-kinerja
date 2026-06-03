@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Tugas;
 use App\Models\Divisi;
 use App\Models\Pengumpulan;
+use Carbon\Carbon;
 
 class TugasController extends Controller
 {
@@ -16,8 +17,8 @@ class TugasController extends Controller
         $tahun  = (int) $request->get('tahun', date('Y'));
 
         $query = Tugas::with('divisi')
-            ->where('bulan', $bulan)         
-            ->whereYear('deadline', $tahun)  
+            ->where('bulan', $bulan)
+            ->whereYear('deadline', $tahun)
             ->orderBy('id_tugas', 'desc');
 
         if ($request->filled('id_divisi')) {
@@ -100,7 +101,7 @@ class TugasController extends Controller
         ]);
 
         $tugas = Tugas::findOrFail($id);
-        $divisiLama = $tugas->id_divisi; // simpan sebelum update
+        $divisiLama = $tugas->id_divisi;
 
         $tugas->update([
             'nama_tugas' => $request->nama_tugas,
@@ -125,6 +126,14 @@ class TugasController extends Controller
                     'poin_didapat' => 0,
                     'file'         => null,
                 ]);
+            }
+        } else {
+            // REVISI LOGIKA UTAMA: Jika divisi tidak berubah tetapi tengat waktu diperpanjang oleh admin,
+            // kembalikan status karyawan yang sempat terkunci di 'tidak_mengerjakan' menjadi 'belum_mengerjakan'
+            if (Carbon::parse($request->deadline)->gt(Carbon::now())) {
+                Pengumpulan::where('id_tugas', $id)
+                    ->where('status', 'tidak_mengerjakan')
+                    ->update(['status' => 'belum_mengerjakan']);
             }
         }
 

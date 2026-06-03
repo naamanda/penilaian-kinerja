@@ -30,23 +30,27 @@
                 </p>
             </div>
 
-            <div>
+            <div class="shrink-0">
+                {{-- WARNA BADGE REAL-TIME SESUAI REQUEST --}}
                 @if($p->status == 'belum_mengerjakan')
-                    @if($p->sudah_lewat)
-                        <span class="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">Terlewat</span>
-                    @elseif($p->bisa_upload)
-                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Kerjakan</span>
+                    @if($p->bisa_upload)
+                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">Kerjakan</span>
                     @else
-                        <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full">Belum Mulai</span>
+                        {{-- ABU-ABU: Untuk yang belum masuk waktu mulai --}}
+                        <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full font-medium">Belum Mengerjakan</span>
                     @endif
+                @elseif($p->status == 'tidak_mengerjakan')
+                    {{-- MERAH: Jika waktu terlewat (Sinkron dengan data pelanggaran) --}}
+                    <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">Tidak Mengerjakan</span>
                 @elseif($p->status == 'menunggu')
-                    <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">Menunggu</span>
+                    <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">Menunggu</span>
                 @elseif($p->status == 'disetujui')
-                    <span class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full">✓ Disetujui</span>
+                    {{-- HIJAU: Misi yang berhasil diselesaikan --}}
+                    <span class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full font-medium">✓ Selesai</span>
                 @elseif($p->status == 'terlambat')
-                    <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">Terlambat</span>
+                    <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full font-medium">Terlambat</span>
                 @elseif($p->status == 'ditolak')
-                    <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">Ditolak</span>
+                    <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">Ditolak</span>
                 @endif
             </div>
         </div>

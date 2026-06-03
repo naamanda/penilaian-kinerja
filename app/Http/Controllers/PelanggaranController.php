@@ -12,9 +12,10 @@ class PelanggaranController extends Controller
 {
     protected HasilAkhirController $hasilAkhir;
 
-    public function __construct()
+    // REVISI: Gunakan Dependency Injection agar penanganan instansiasi class lebih aman
+    public function __construct(HasilAkhirController $hasilAkhir)
     {
-        $this->hasilAkhir = new HasilAkhirController();
+        $this->hasilAkhir = $hasilAkhir;
     }
 
     public function index(Request $request)
@@ -25,20 +26,21 @@ class PelanggaranController extends Controller
         // Ambil semua karyawan aktif
         $karyawans = Karyawan::with('divisi')->where('id_role', 2)->get();
 
-        // Ambil data pelanggaran yang sudah ada di DB (untuk file SP & tanggal_sp)
+        // Ambil data pelanggaran yang sudah ada di DB
         $existingPelanggaran = Pelanggaran::where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get()
-            ->keyBy('id_karyawan'); // index by id_karyawan untuk lookup cepat
+            ->keyBy('id_karyawan');
 
         $pelanggarans = new Collection();
 
         foreach ($karyawans as $k) {
+            // REVISI: Pastikan kalkulasi nilai menggunakan parameter bulan & tahun dari filter request (bukan bulan saat ini saja)
             $dataNilai = $this->hasilAkhir->hitungNilai($k->id_karyawan, $bulan, $tahun);
 
             $poinData   = $dataNilai['pelanggaran'];
-            $totalPoin  = $poinData['total_poin']         ?? 0;
-            $terlambat  = $poinData['terlambat']          ?? 0;
+            $totalPoin  = $poinData['total_poin']          ?? 0;
+            $terlambat  = $poinData['terlambat']           ?? 0;
             $tidakKerja = $poinData['tidak_mengerjakan']   ?? 0;
             $status     = $poinData['status'];
 
@@ -46,7 +48,7 @@ class PelanggaranController extends Controller
 
             $existing = $existingPelanggaran->get($k->id_karyawan);
 
-            // ✅ Auto-create record jika SP1/SP2 tapi belum ada di DB
+            // ✅ Auto-create record jika status SP1/SP2 tapi belum terdaftar di database
             if (!$existing && in_array($statusUpper, ['SP1', 'SP2'])) {
                 $existing = Pelanggaran::create([
                     'id_karyawan' => $k->id_karyawan,
@@ -55,10 +57,11 @@ class PelanggaranController extends Controller
                     'file_sp'     => null,
                     'tanggal_sp'  => null,
                 ]);
-                // Tambahkan ke collection agar lookup berikutnya tetap konsisten
                 $existingPelanggaran->put($k->id_karyawan, $existing);
             }
 
+            // REVISI LOGIKA KEAMANAN: Jika statusnya sudah turun menjadi AMAN tetapi baris data pelanggaran lama masih ada di DB, 
+            // pastikan ID-nya tetap terbawa agar sistem tidak bingung / crash di bagian Blade view.
             $item = new \stdClass();
             $item->id_pelanggaran         = $existing->id_pelanggaran ?? null;
             $item->id_karyawan            = $k->id_karyawan;
@@ -88,7 +91,6 @@ class PelanggaranController extends Controller
         $pelanggaran = Pelanggaran::findOrFail($id);
 
         if ($request->hasFile('file_sp')) {
-            // Hapus file lama jika ada
             if ($pelanggaran->file_sp) {
                 $oldPath = public_path('uploads/sp_signed/' . $pelanggaran->file_sp);
                 if (file_exists($oldPath)) {
@@ -113,7 +115,6 @@ class PelanggaranController extends Controller
     {
         $pelanggaran = Pelanggaran::findOrFail($id);
 
-        // Hapus file fisik dari direktori uploads/sp_signed
         if ($pelanggaran->file_sp) {
             $filePath = public_path('uploads/sp_signed/' . $pelanggaran->file_sp);
             if (file_exists($filePath)) {

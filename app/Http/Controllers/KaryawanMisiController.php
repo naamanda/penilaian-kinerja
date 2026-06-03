@@ -18,7 +18,7 @@ class KaryawanMisiController extends Controller
     public function index()
     {
         $id    = Session::get('id_karyawan');
-        $today = Carbon::today()->toDateString(); // Otomatis mengikuti timezone config/app.php
+        $today = Carbon::today()->toDateString();
 
         $pengerjaan = Pengerjaan::with('misi')
             ->where('id_karyawan', $id)
@@ -28,11 +28,19 @@ class KaryawanMisiController extends Controller
         $pengerjaan = $pengerjaan->map(function ($p) {
             if (!$p->misi) return $p;
 
-            $now       = Carbon::now(); // Otomatis waktu lokal saat ini
+            $now       = Carbon::now();
             $mulai     = Carbon::parse($p->misi->waktu_mulai);
             $selesai   = Carbon::parse($p->misi->waktu_selesai);
             $toleransi = $selesai->copy()->addMinutes(10);
 
+            // --- LOGIKA UTAMA REAL-TIME ---
+            // Jika status di database 'belum_mengerjakan' namun waktu toleransi sudah terlewat,
+            // paksa status objeknya menjadi 'tidak_mengerjakan' demi visual dan perhitungan pelanggaran.
+            if ($p->status == 'belum_mengerjakan' && $now->gt($toleransi)) {
+                $p->status = 'tidak_mengerjakan';
+            }
+
+            // Tentukan hak akses upload bukti
             $p->bisa_upload = $now->between($mulai, $toleransi)
                 && in_array($p->status, ['belum_mengerjakan', 'ditolak']);
 
@@ -42,14 +50,23 @@ class KaryawanMisiController extends Controller
             return $p;
         });
 
-        // Proses pengurutan: Kerjakan -> Belum Mulai -> Terlewat -> Status Lainnya
+        // --- LOGIKA SORTING REAL-TIME ---
+        // Mengurutkan item: 
+        // 1. Yang bisa dikerjakan berada di PALING ATAS.
+        // 2. Yang belum mulai berada di bawahnya.
+        // 3. Status aktif/menunggu verifikasi/ditolak berada di tengah.
+        // 4. Selesai (disetujui/terlambat) dan Tidak Mengerjakan berada di PALING BAWAH.
         $pengerjaan = $pengerjaan->sortBy(function ($p) {
             if ($p->status == 'belum_mengerjakan') {
-                if ($p->bisa_upload) return 1;
-                if ($p->belum_mulai) return 2;
-                if ($p->sudah_lewat) return 3;
+                if ($p->bisa_upload) return 1; // Kerjakan (Top)
+                if ($p->belum_mulai) return 2; // Belum Mulai (Abu-abu)
             }
-            return 4;
+            if ($p->status == 'ditolak') return 3;
+            if ($p->status == 'menunggu') return 4;
+            if (in_array($p->status, ['disetujui', 'terlambat'])) return 5; // Selesai (Hijau)
+            if ($p->status == 'tidak_mengerjakan') return 6; // Tidak Mengerjakan (Merah - Bottom)
+
+            return 7;
         })->values();
 
         return view('karyawan.misi.index', compact('pengerjaan'));
