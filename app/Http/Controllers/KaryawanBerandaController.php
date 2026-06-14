@@ -7,12 +7,12 @@ use App\Models\Karyawan;
 use App\Models\Absensi;
 use App\Models\Tugas;
 use App\Models\Pengumpulan;
+use App\Models\Pengerjaan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 
 class KaryawanBerandaController extends Controller
 {
-    // Inject HasilAkhirController sebagai sumber perhitungan
     protected HasilAkhirController $hasilAkhir;
 
     public function __construct()
@@ -26,9 +26,9 @@ class KaryawanBerandaController extends Controller
         $bulan = Carbon::now()->month;
         $tahun = Carbon::now()->year;
 
-        $karyawan  = Karyawan::findOrFail($id);
+        $karyawan = Karyawan::findOrFail($id);
 
-        // ── Nilai realtime — memanggil HasilAkhirController ──
+        // ── Nilai realtime ────────────────────────────────────
         $nilaiData = $this->hasilAkhir->hitungNilai($id, $bulan, $tahun);
         $nilai     = $nilaiData['akhir'];
 
@@ -40,7 +40,6 @@ class KaryawanBerandaController extends Controller
                 return $k;
             })
             ->sortByDesc('total_nilai')
-            ->take(5)
             ->values();
 
         // ── Kehadiran bulan ini ───────────────────────────────
@@ -49,42 +48,83 @@ class KaryawanBerandaController extends Controller
             ->whereYear('tanggal', $tahun)
             ->get();
 
-        // 1. Ambil tanggal hari ini dan tentukan apakah hari ini sudah dihitung atau belum
-        $hariIni = Carbon::now()->day;
+        $hariIni     = Carbon::now()->day;
         $jamSekarang = Carbon::now()->format('H:i');
 
-        // Jika belum lewat jam 08:00, batas pengecekan hanya sampai kemarin (hari ini jangan dihitung dulu)
         $batasHariPengecekan = ($jamSekarang >= '08:10') ? $hariIni : $hariIni - 1;
 
-        // 2. LOGIKA BARU: Hitung berapa jumlah hari Senin-Jumat yang sudah terlewat dari tanggal 1 sampai batas hari ini
         $hariKerjaBerjalan = 0;
         for ($d = 1; $d <= $batasHariPengecekan; $d++) {
             $tanggalCheck = Carbon::create($tahun, $bulan, $d);
-
-            // isWeekday() memastikan hanya hari Senin s.d Jumat yang dihitung (Sabtu & Minggu di-skip)
-            if ($tanggalCheck->isWeekday()) {
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalCheck)) {
                 $hariKerjaBerjalan++;
             }
         }
 
-        $realHadir = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
-
-        // 3. Logika otomatis: Hari kerja efektif yang sudah lewat dikurangi kehadiran asli
+        $realHadir          = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
         $tidakHadirOtomatis = max(0, $hariKerjaBerjalan - $realHadir);
 
         $kehadiran = [
             'total'       => $realHadir,
-            'hari_kerja'  => 22, // Target total sebulan untuk tampilan UI
+            'hari_kerja'  => \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun),
             'hadir'       => $absensi->where('status', 'hadir')->count(),
             'terlambat'   => $absensi->where('status', 'terlambat')->count(),
             'tidak_hadir' => $tidakHadirOtomatis,
         ];
 
+        // ── Detail Pelanggaran (breakdown per kategori) ────────
+        $detailTerlambat = [
+            'absensi' => Absensi::where('id_karyawan', $id)
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->where('status', 'terlambat')
+                ->count(),
+            'misi' => Pengerjaan::where('id_karyawan', $id)
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->where('status', 'terlambat')
+                ->count(),
+            'tugas' => Pengumpulan::where('id_karyawan', $id)
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
+                ->where('status', 'terlambat')
+                ->count(),
+        ];
+
+        $detailTidakMengerjakan = [
+            'absensi' => count(/* hasil loop tidak hadir, hitung dulu di bawah */[]),
+            'misi'    => Pengerjaan::where('id_karyawan', $id)
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->where('status', 'tidak_mengerjakan')
+                ->count(),
+            'tugas'   => Pengumpulan::where('id_karyawan', $id)
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
+                ->where('status', 'tidak_mengerjakan')
+                ->count(),
+        ];
+
+        // Hitung tidak hadir absensi dari loop hari kerja
+        $tidakHadirAbsensi = 0;
+        for ($d = 1; $d <= $batasHariPengecekan; $d++) {
+            $tanggalObj    = Carbon::create($tahun, $bulan, $d);
+            $formatTanggal = $tanggalObj->format('Y-m-d');
+
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)) {
+                $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
+                    ->where('tanggal', $formatTanggal)
+                    ->count();
+                if (!$adaAbsensi) {
+                    $tidakHadirAbsensi++;
+                }
+            }
+        }
+        $detailTidakMengerjakan['absensi'] = $tidakHadirAbsensi;
+
         // ── Target tugas mingguan ─────────────────────────────
         $minggu = Carbon::now()->weekOfMonth;
         $tugas  = Tugas::where('minggu', $minggu)
             ->where('bulan', $bulan)
-            ->where('id_divisi', $karyawan->id_divisi) // ← tambah ini
+            ->where('id_divisi', $karyawan->id_divisi)
             ->get()
             ->map(function ($t) use ($id) {
                 $t->selesai = Pengumpulan::where('id_tugas', $t->id_tugas)
@@ -101,7 +141,9 @@ class KaryawanBerandaController extends Controller
             'nilaiData',
             'leaderboard',
             'kehadiran',
-            'tugas'
+            'tugas',
+            'detailTerlambat',
+            'detailTidakMengerjakan'
         ));
     }
 }

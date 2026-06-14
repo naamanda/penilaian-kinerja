@@ -1,226 +1,247 @@
 @extends('layouts.karyawan')
 
 @section('content')
-<div class="px-4 py-4 pb-24 space-y-5">
-    
-    {{-- Tombol Kembali --}}
-    <a href="{{ route('karyawan.akun') }}" class="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-[#1e3f7c] transition">
-        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Akun
-    </a>
+<div class="px-4 py-4 pb-24 space-y-4">
 
-    {{-- Filter Bulan --}}
-    <form action="{{ route('karyawan.akun.unduh') }}" method="GET" id="filterForm" class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Periode Evaluasi</label>
-        <select name="bulan" onchange="document.getElementById('filterForm').submit()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-sm">
-            @foreach($daftarBulan as $key => $namaBulan)
-                <option value="{{ $key }}" {{ $bulan == $key ? 'selected' : '' }}>
-                    {{ $namaBulan }} {{ $tahun }}
-                </option>
-            @endforeach
-        </select>
-        <input type="hidden" name="tahun" value="{{ $tahun }}">
-    </form>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-md font-bold text-gray-800 mb-1">Laporan Hasil Kinerja</h3>
+        <p class="text-xs text-gray-400 mb-4">Pilih periode untuk melihat detail aktivitas Anda</p>
 
-    @if($hasilAkhir)
-    {{-- TAMPILAN INTERAKTIF DI LAYAR APLIKASI HP --}}
-    <div class="space-y-4">
-        <div class="bg-gradient-to-br from-[#1e3f7c] to-blue-800 rounded-3xl p-5 text-white shadow-md relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl font-black">
-                {{ $hasilAkhir->predikat }}
-            </div>
-            <p class="text-xs font-medium text-blue-200 uppercase tracking-widest">Nilai Akhir Akumulasi</p>
-            <div class="flex items-baseline space-x-2 mt-1">
-                <span class="text-4xl font-black tracking-tight">{{ number_format($hasilAkhir->nilai_akhir, 2) }}</span>
-                <span class="text-sm text-blue-200">/ 100</span>
-            </div>
-            <div class="mt-4 inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
-                <i class="fas fa-award text-yellow-300 text-xs"></i>
-                <span class="text-xs font-bold tracking-wide">Predikat:  {{ $hasilAkhir->predikat }}</span>
-            </div>
-        </div>
+        <form action="{{ route('karyawan.akun.unduh') }}" method="GET" class="flex items-center space-x-2 mb-4">
+            <input type="hidden" name="section" id="input-section" value="{{ request('section', '') }}">
+            <select name="bulan" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none w-full">
+                @foreach($daftarBulan as $num => $nama)
+                <option value="{{ $num }}" {{ $bulan == $num ? 'selected' : '' }}>{{ $nama }}</option>
+                @endforeach
+            </select>
+            <select name="tahun" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none w-28">
+                @for($y = date('Y'); $y >= date('Y')-2; $y--)
+                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
+            <button type="submit" class="bg-[#1e3f7c] text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-sm hover:bg-opacity-90">Cari</button>
+        </form>
 
-        <div class="space-y-2.5">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Rincian Performa Pilar</p>
-            
-            <div class="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-50 text-blue-600 p-3 rounded-xl">
-                        <i class="fas fa-calendar-check text-base"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-800">Kehadiran</h4>
-                        <p class="text-[11px] text-gray-400">Rekapitulasi Absensi Bulanan</p>
-                    </div>
-                </div>
-                <span class="text-sm font-extrabold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-lg">{{ number_format($hasilAkhir->nilai_kehadiran, 2) }}</span>
-            </div>
-
-            <div class="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-orange-50 text-orange-600 p-3 rounded-xl">
-                        <i class="fas fa-bolt text-base"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-800">Kedisiplinan</h4>
-                        <p class="text-[11px] text-gray-400">Pengerjaan Misi Harian</p>
-                    </div>
-                </div>
-                <span class="text-sm font-extrabold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-lg">{{ number_format($hasilAkhir->nilai_kedisiplinan, 2) }}</span>
-            </div>
-
-            <div class="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-green-50 text-green-600 p-3 rounded-xl">
-                        <i class="fas fa-tasks text-base"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-800">Tugas</h4>
-                        <p class="text-[11px] text-gray-400">Pengumpulan Tugas Mingguan</p>
-                    </div>
-                </div>
-                <span class="text-sm font-extrabold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-lg">{{ number_format($hasilAkhir->nilai_tugas, 2) }}</span>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 pt-2">
-            <button type="button" onclick="downloadPDF()" class="flex items-center justify-center space-x-2 py-3.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl transition text-xs font-bold shadow-sm cursor-pointer border-none">
-                <i class="fas fa-file-pdf text-sm"></i>
-                <span>Unduh PDF</span>
-            </button>
-            <button type="button" onclick="downloadExcel()" class="flex items-center justify-center space-x-2 py-3.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-xl transition text-xs font-bold shadow-sm cursor-pointer border-none">
-                <i class="fas fa-file-excel text-sm"></i>
-                <span>Unduh Excel</span>
-            </button>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+            <a href="{{ route('karyawan.akun.cetak_pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="bg-red-500 text-white text-center rounded-xl py-2.5 text-xs font-bold shadow-sm hover:bg-red-600 transition">Cetak PDF</a>
+            <a href="{{ route('karyawan.akun.cetak_excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="bg-emerald-600 text-white text-center rounded-xl py-2.5 text-xs font-bold shadow-sm hover:bg-emerald-700 transition">Ekspor Excel</a>
         </div>
     </div>
 
-
-    {{-- TAMPILAN KHUSUS STRUKTUR PDF (Sengaja Dihidden dari layar HP agar tidak merusak visual app) --}}
-    <div class="hidden">
-        <div id="areaCetak" style="font-family: Arial, sans-serif; color: #333333; padding: 40px; background: #ffffff;">
-            <div style="border-b: 2px solid #1e3f7c; padding-bottom: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="font-size: 24px; font-weight: bold; color: #1e3f7c; margin: 0; letter-spacing: 0.5px;">LAPORAN HASIL KINERJA KARYAWAN</h1>
-                    <p style="font-size: 13px; color: #666666; margin: 5px 0 0 0;">Sistem Penilaian Kinerja Karyawan — LifeSync</p>
-                </div>
-            </div>
-
-            <table style="width: 100%; font-size: 13px; margin-bottom: 30px; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 4px 0; color: #666666; width: 120px;">Periode Penilaian</td>
-                    <td style="padding: 4px 0; font-weight: bold; color: #1e3f7c;">: {{ $daftarBulan[$bulan] }} {{ $tahun }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 4px 0; color: #666666;">Waktu Cetak</td>
-                    <td style="padding: 4px 0; font-weight: bold;">: {{ date('d-m-Y H:i') }} WIB</td>
-                </tr>
-            </table>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px;">
+    {{-- SECTION ABSENSI --}}
+    <div id="section-absensi" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
+        <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <h4>Log & Riwayat Absensi</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
                 <thead>
-                    <tr style="background-color: #1e3f7c; color: #ffffff; text-align: left;">
-                        <th style="padding: 12px; font-weight: bold; border: 1px solid #1e3f7c;">PARAMETER EVALUASI UTAMA</th>
-                        <th style="padding: 12px; font-weight: bold; border: 1px solid #1e3f7c; text-align: right; width: 120px;">BOBOT NILAI</th>
+                    <tr class="text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                        <th class="pb-2 font-semibold">Tanggal</th>
+                        <th class="pb-2 font-semibold text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr style="background-color: #fcfcfc;">
-                        <td style="padding: 12px; border: 1px solid #e5e7eb;">Nilai Kehadiran (Rekapitulasi Absensi Kerja)</td>
-                        <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;">{{ number_format($hasilAkhir->nilai_kehadiran, 2) }}</td>
+                <tbody class="divide-y divide-gray-50 text-gray-700">
+                    @forelse($detailAbsensi as $abs)
+                    @php
+                        $absStatus = $abs->status;
+                        $absLabel = match(strtolower($absStatus)) {
+                            'hadir'                      => 'Hadir',
+                            'tepat waktu'                => 'Tepat Waktu',
+                            'terlambat'                  => 'Terlambat',
+                            'tidak hadir', 'tidak_hadir' => 'Tidak Hadir',
+                            default                      => ucfirst(str_replace('_', ' ', $absStatus)),
+                        };
+                        $absClass = match(strtolower($absStatus)) {
+                            'hadir', 'tepat waktu' => 'bg-green-50 text-green-600',
+                            'terlambat'            => 'bg-blue-50 text-blue-600',
+                            default                => 'bg-red-50 text-red-600',
+                        };
+                    @endphp
+                    <tr>
+                        <td class="py-3">{{ date('d F Y', strtotime($abs->tanggal)) }}</td>
+                        <td class="py-3 text-right">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold {{ $absClass }}">
+                                {{ $absLabel }}
+                            </span>
+                        </td>
                     </tr>
-                    <tr style="background-color: #ffffff;">
-                        <td style="padding: 12px; border: 1px solid #e5e7eb;">Nilai Kedisiplinan (Akumulasi Misi Harian)</td>
-                        <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;">{{ number_format($hasilAkhir->nilai_kedisiplinan, 2) }}</td>
+                    @empty
+                    <tr>
+                        <td colspan="2" class="py-4 text-center text-gray-400">Tidak ada log absensi bulan ini.</td>
                     </tr>
-                    <tr style="background-color: #fcfcfc;">
-                        <td style="padding: 12px; border: 1px solid #e5e7eb;">Nilai Tugas (Pengumpulan Modul Mingguan)</td>
-                        <td style="padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;">{{ number_format($hasilAkhir->nilai_tugas, 2) }}</td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
-
-            <div style="border-top: 2px dashed #dddddd; margin-bottom: 20px;"></div>
-
-            <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-                <tr style="background-color: #f0f4fa;">
-                    <td style="padding: 14px; font-weight: bold; color: #333333; border: 1px solid #d0dff2;">NILAI AKHIR RATA-RATA</td>
-                    <td style="padding: 14px; font-weight: 900; color: #1e3f7c; text-align: right; font-size: 18px; border: 1px solid #d0dff2; width: 120px;">
-                        {{ number_format($hasilAkhir->nilai_akhir, 2) }}
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding: 14px; font-weight: bold; color: #333333; border: 1px solid #e5e7eb;">PREDIKAT KOMPETENSI</td>
-                    <td style="padding: 14px; font-weight: bold; color: #ffffff; background-color: #1e3f7c; text-align: center; border: 1px solid #1e3f7c;">
-                        {{ $hasilAkhir->predikat }}
-                    </td>
-                </tr>
-            </table>
-
-            <div style="margin-top: 60px; text-align: right; font-size: 11px; color: #999999; border-top: 1px solid #eeeeee; padding-top: 10px;">
-                * Dokumen elektronik ini diterbitkan secara sah oleh sistem manajemen performa LifeSync.
-            </div>
         </div>
     </div>
 
-    {{-- Data Element Excel Shadow --}}
-    <table id="tabelExcelSembunyi" class="hidden">
-        <thead>
-            <tr><th colspan="2" style="font-size: 16px; font-weight: bold;">LAPORAN HASIL KINERJA KARYAWAN</th></tr>
-            <tr><td>Periode Penilaian:</td><td>{{ $daftarBulan[$bulan] }} {{ $tahun }}</td></tr>
-            <tr><td>Waktu Unduh:</td><td>{{ date('d-m-Y H:i') }}</td></tr>
-        </thead>
-        <tbody>
-            <tr><td>Nilai Kehadiran (Absensi)</td><td>{{ $hasilAkhir->nilai_kehadiran }}</td></tr>
-            <tr><td>Nilai Kedisiplinan (Misi Harian)</td><td>{{ $hasilAkhir->nilai_kedisiplinan }}</td></tr>
-            <tr><td>Nilai Tugas (Tugas Mingguan)</td><td>{{ $hasilAkhir->nilai_tugas }}</td></tr>
-            <tr style="font-weight: bold; background-color: #f3f4f6;"><td>Nilai Akhir</td><td>{{ $hasilAkhir->nilai_akhir }}</td></tr>
-            <tr style="font-weight: bold;"><td>Predikat</td><td>{{ $hasilAkhir->predikat }}</td></tr>
-        </tbody>
-    </table>
-
-    @else
-    <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex items-start space-x-3">
-        <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5"></i>
-        <p class="text-xs text-yellow-800 font-medium">Data performa dan laporan untuk bulan ini belum tersedia.</p>
+    {{-- SECTION MISI --}}
+    <div id="section-misi" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
+        <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
+            <h4>Log Misi Harian</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                        <th class="pb-2 font-semibold">Tanggal</th>
+                        <th class="pb-2 font-semibold">Nama Misi</th>
+                        <th class="pb-2 font-semibold text-center">Poin</th>
+                        <th class="pb-2 font-semibold text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-gray-700">
+                    @forelse($detailMisi as $dm)
+                    @php
+                        $misiStatus = $dm->status;
+                        $misiLabel = match($misiStatus) {
+                            'disetujui'         => 'Disetujui',
+                            'terlambat'         => 'Terlambat',
+                            'tidak_mengerjakan' => 'Tidak Mengerjakan',
+                            'belum_mengerjakan' => 'Belum Mengerjakan',
+                            default             => ucfirst(str_replace('_', ' ', $misiStatus)),
+                        };
+                        $misiClass = match($misiStatus) {
+                            'disetujui'         => 'bg-green-50 text-green-600',
+                            'terlambat'         => 'bg-blue-50 text-blue-600',
+                            'tidak_mengerjakan' => 'bg-red-50 text-red-600',
+                            default             => 'bg-amber-50 text-amber-600',
+                        };
+                        $poinTampil = in_array($misiStatus, ['disetujui', 'terlambat'])
+                            ? $dm->poin_didapat
+                            : 0;
+                        $poinMisi = $dm->misi->poin ?? '-';
+                    @endphp
+                    <tr>
+                        <td class="py-3 pr-2 text-gray-500 whitespace-nowrap">{{ date('d M Y', strtotime($dm->tanggal)) }}</td>
+                        <td class="py-3 pr-2 max-w-[120px] truncate">{{ $dm->misi->nama_misi ?? '-' }}</td>
+                        <td class="py-3 text-center font-medium">
+                            {{ $poinTampil }}<span class="text-gray-400">/{{ $poinMisi }}</span>
+                        </td>
+                        <td class="py-3 text-right">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $misiClass }}">
+                                {{ $misiLabel }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="py-4 text-center text-gray-400">Tidak ada log misi harian bulan ini.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-    @endif
+
+    {{-- SECTION TUGAS --}}
+    <div id="section-tugas" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
+        <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+            <h4>Log Pengumpulan Tugas</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                        <th class="pb-2 font-semibold">Minggu</th>
+                        <th class="pb-2 font-semibold">Nama Tugas</th>
+                        <th class="pb-2 font-semibold text-center">Pengumpulan</th>
+                        <th class="pb-2 font-semibold text-center">Poin</th>
+                        <th class="pb-2 font-semibold text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-gray-700">
+                    @forelse($detailTugas as $dt)
+                    @php
+                        $tugasStatus = $dt->status;
+                        $tugasLabel = match($tugasStatus) {
+                            'disetujui'         => 'Disetujui',
+                            'terlambat'         => 'Terlambat',
+                            'tidak_mengerjakan' => 'Tidak Mengerjakan',
+                            'belum_mengerjakan' => 'Belum Mengerjakan',
+                            'selesai'           => 'Selesai',
+                            default             => ucfirst(str_replace('_', ' ', $tugasStatus)),
+                        };
+                        $tugasClass = match($tugasStatus) {
+                            'disetujui', 'selesai' => 'bg-green-50 text-green-600',
+                            'terlambat'            => 'bg-blue-50 text-blue-600',
+                            'tidak_mengerjakan'    => 'bg-red-50 text-red-600',
+                            default                => 'bg-amber-50 text-amber-600',
+                        };
+                        $poinTampil = in_array($tugasStatus, ['disetujui', 'terlambat', 'selesai'])
+                            ? $dt->poin_didapat
+                            : 0;
+                        $poinTugas = $dt->tugas->poin ?? '-';
+                        $tglKumpul = $dt->tanggal_upload ? date('d M Y', strtotime($dt->tanggal_upload)) : '-';
+                    @endphp
+                    <tr>
+                        <td class="py-3 pr-2 whitespace-nowrap text-gray-500">Minggu {{ $dt->tugas->minggu ?? '-' }}</td>
+                        <td class="py-3 pr-2 max-w-[120px] truncate">{{ $dt->tugas->nama_tugas ?? '-' }}</td>
+                        <td class="py-3 text-center text-gray-500 whitespace-nowrap">{{ $tglKumpul }}</td>
+                        <td class="py-3 text-center font-medium">
+                            {{ $poinTampil }}<span class="text-gray-400">/{{ $poinTugas }}</span>
+                        </td>
+                        <td class="py-3 text-right">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold {{ $tugasClass }}">
+                                {{ $tugasLabel }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-4 text-center text-gray-400">Tidak ada log pengumpulan tugas bulan ini.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="pt-2">
+        <a href="{{ route('karyawan.akun.index') }}" class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold py-3 rounded-xl transition">Kembali ke Menu Utama</a>
+    </div>
+
 </div>
 
-{{-- Script Compiler html2pdf --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <script>
-    function downloadPDF() {
-        const element = document.getElementById('areaCetak');
-        const opsiKonfigurasi = {
-            margin:       [15, 15, 15, 15],
-            filename:     'Laporan_Kinerja_{{ $daftarBulan[$bulan] }}_{{ $tahun }}.pdf',
-            image:        { type: 'jpeg', quality: 1.0 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                logging: false,
-                letterRendering: true
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sectionParam = urlParams.get('section') || '';
+        const hash = window.location.hash || (sectionParam ? '#' + sectionParam : '');
 
-        // Mengambil container cetak tersembunyi untuk diexport menjadi berkas formal
-        html2pdf().set(opsiKonfigurasi).from(element).save();
-    }
+        const secAbsensi = document.getElementById('section-absensi');
+        const secMisi    = document.getElementById('section-misi');
+        const secTugas   = document.getElementById('section-tugas');
 
-    function downloadExcel() {
-        var table = document.getElementById("tabelExcelSembunyi");
-        var html = table.outerHTML;
-        var blob = new Blob([html], { type: "application/vnd.ms-excel" });
-        var url = URL.createObjectURL(blob);
-        
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = "Laporan_Kinerja_{{ $daftarBulan[$bulan] }}_{{ $tahun }}.xls";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+        if (hash === '#absensi') {
+            if (secMisi)    secMisi.remove();
+            if (secTugas)   secTugas.remove();
+        } else if (hash === '#misi') {
+            if (secAbsensi) secAbsensi.remove();
+            if (secTugas)   secTugas.remove();
+        } else if (hash === '#tugas') {
+            if (secAbsensi) secAbsensi.remove();
+            if (secMisi)    secMisi.remove();
+        }
+
+        // Simpan hash ke hidden input sebelum form submit
+        const inputSection = document.getElementById('input-section');
+        const form = document.querySelector('form');
+        if (form && inputSection) {
+            form.addEventListener('submit', function() {
+                const currentHash = window.location.hash.replace('#', '');
+                if (currentHash) inputSection.value = currentHash;
+            });
+        }
+
+        // Restore hash di URL setelah page load dari query param
+        if (sectionParam && !window.location.hash) {
+            history.replaceState(null, '', window.location.pathname + window.location.search + '#' + sectionParam);
+        }
+    });
 </script>
 @endsection

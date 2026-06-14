@@ -1,8 +1,5 @@
 <?php
-// app/Http/Controllers/KaryawanAbsensiController.php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Absensi;
 use Carbon\Carbon;
@@ -11,26 +8,38 @@ use Illuminate\Support\Facades\Storage;
 
 class KaryawanAbsensiController extends Controller
 {
-    // Tambahkan properti radius koordinat yang sama persis seperti di Blade & Admin Controller
     private $office_lat =  -7.678603;
-    private $office_lng =  109.035448;
+    private $office_lng = 109.035448;
     private $radius_km  = 0.1; // 100 meter toleransi jarak
 
     public function index()
     {
-        $id          = Session::get('id_karyawan');
-        $today       = Carbon::today()->toDateString();
+        $id    = Session::get('id_karyawan');
+        $today = Carbon::today();
+
+        // Cek apakah hari ini hari libur (Sabtu/Minggu)
+        if (!\App\Helpers\HariLiburHelper::isHariKerja($today)) {
+            return view('karyawan.absensi', [
+                'sudahAbsen'   => false,
+                'fotoAbsensi'  => null,
+                'waktuAbsen'   => null,
+                'statusAbsen'  => null,
+                'liburHariIni' => true,
+            ]);
+        }
+
         $absensiHari = Absensi::where('id_karyawan', $id)
-            ->where('tanggal', $today)
+            ->where('tanggal', $today->toDateString())
             ->first();
 
         return view('karyawan.absensi', [
-            'sudahAbsen'  => (bool) $absensiHari,
-            'fotoAbsensi' => $absensiHari?->foto ?? null,
-            'waktuAbsen'  => $absensiHari
+            'sudahAbsen'   => (bool) $absensiHari,
+            'fotoAbsensi'  => $absensiHari?->foto ?? null,
+            'waktuAbsen'   => $absensiHari
                 ? Carbon::parse($absensiHari->waktu)->format('H:i') . ' WIB'
                 : null,
-            'statusAbsen' => $absensiHari?->status ?? null,
+            'statusAbsen'  => $absensiHari?->status ?? null,
+            'liburHariIni' => false,
         ]);
     }
 
@@ -40,7 +49,12 @@ class KaryawanAbsensiController extends Controller
         $now   = Carbon::now();
         $today = $now->toDateString();
 
-        // 1. Validasi Input Ge geolocation
+        // Tolak absensi di hari libur
+        if (!\App\Helpers\HariLiburHelper::isHariKerja($now)) {
+            return response()->json(['message' => 'Hari ini bukan hari kerja, absensi tidak tersedia.'], 403);
+        }
+
+        // 1. Validasi Input Geolocation
         $request->validate([
             'latitude'  => 'required',
             'longitude' => 'required',
@@ -88,9 +102,6 @@ class KaryawanAbsensiController extends Controller
         ]);
     }
 
-    /**
-     * Tambahkan fungsi helper hitung rumus Haversine/Lingkaran Besar di bawah ini
-     */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;

@@ -14,6 +14,27 @@
     <div class="bg-white rounded-2xl shadow-md p-5">
 
         <p class="font-bold text-gray-800 text-base">Absensi</p>
+
+        @if($liburHariIni)
+        <p class="text-xs text-gray-400 mt-0.5">Hari ini libur, tidak ada absensi.</p>
+        <p class="text-xs text-gray-500 mt-1 mb-4">
+            {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
+        </p>
+
+        {{-- Tampilan Hari Libur --}}
+        <div class="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50
+                    flex flex-col items-center justify-center mb-2">
+            <div class="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-400">Selamat menikmati hari libur 🎉</p>
+        </div>
+
+        @else
+
         <p class="text-xs text-gray-400 mt-0.5">Silahkan absen untuk membuka misi harian!</p>
         <p class="text-xs text-gray-500 mt-1 mb-4">
             {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
@@ -94,6 +115,7 @@
             @endif
         </div>
 
+        @endif
         @endif
 
     </div>
@@ -256,7 +278,6 @@ function ulangi() {
     btnAbsen.className = 'w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed transition-all';
 }
 
-// Fungsi kontrol Pop-up Modal
 function bukaPopup() {
     const modal = document.getElementById('popupRadius');
     modal.classList.remove('hidden');
@@ -281,7 +302,6 @@ async function kirimAbsensi() {
         return;
     }
 
-    // Mengganti alert() dengan pemanggilan Pop-up Modal Custom
     if (!lokasiValid) {
         bukaPopup();
         return;

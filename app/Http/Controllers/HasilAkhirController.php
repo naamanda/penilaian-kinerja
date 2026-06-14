@@ -84,7 +84,7 @@ class HasilAkhirController extends Controller
         $hariKerjaBerjalan = 0;
         for ($d = 1; $d <= $hariIni; $d++) {
             $tanggal = Carbon::create($tahun, $bulan, $d);
-            if ($tanggal->isWeekday() && $tanggal->lte(Carbon::today())) {
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggal) && $tanggal->lte(Carbon::today())) {
                 $hariKerjaBerjalan++;
             }
         }
@@ -182,28 +182,83 @@ class HasilAkhirController extends Controller
      */
     public function executeGenerateInternal(int $bulan, int $tahun)
     {
+        // 0. GENERATE ROW PENGERJAAN OTOMATIS untuk setiap karyawan & misi per hari kerja
+        $karyawans = Karyawan::where('id_role', 2)->get();
+        $misiList  = \App\Models\Misi::all();
 
+        $hariMax = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year)
+            ? Carbon::now()->day
+            : Carbon::create($tahun, $bulan)->daysInMonth;
+
+        foreach ($karyawans as $karyawan) {
+            for ($d = 1; $d <= $hariMax; $d++) {
+                $tanggalObj = Carbon::create($tahun, $bulan, $d);
+
+                // Hanya hari kerja (bukan weekend & bukan tanggal merah) dan tidak melebihi hari ini
+                if (!\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) || $tanggalObj->gt(Carbon::today())) {
+                    continue;
+                }
+
+                $formatTanggal = $tanggalObj->format('Y-m-d');
+
+                foreach ($misiList as $misi) {
+                    // Hanya insert jika belum ada record untuk karyawan+misi+tanggal ini
+                    Pengerjaan::firstOrCreate(
+                        [
+                            'id_karyawan' => $karyawan->id_karyawan,
+                            'id_misi'     => $misi->id_misi,
+                            'tanggal'     => $formatTanggal,
+                        ],
+                        [
+                            'waktu_upload' => null,
+                            'foto'         => null,
+                            'poin_didapat' => 0,
+                            'status'       => 'belum_mengerjakan',
+                        ]
+                    );
+                }
+            }
+        }
+
+        // 1. TRIGGER OTOMATIS UNTUK TUGAS
         Pengumpulan::where('status', 'belum_mengerjakan')
             ->whereHas('tugas', function ($q) {
                 $q->where('deadline', '<', Carbon::now());
             })->update(['status' => 'tidak_mengerjakan']);
 
         // 2. TRIGGER OTOMATIS UNTUK MISI
-        // Jika tanggal misi sudah lewat (kemarin/sebelumnya) ATAU hari ini tapi jam 'waktu_selesai' misi sudah lewat
+        $liburBulan = [];
+        $daysInMonth = Carbon::create($tahun, $bulan)->daysInMonth;
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $tgl = Carbon::create($tahun, $bulan, $d);
+            if (!\App\Helpers\HariLiburHelper::isHariKerja($tgl)) {
+                $liburBulan[] = $tgl->format('Y-m-d');
+            }
+        }
+
         Pengerjaan::where('status', 'belum_mengerjakan')
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
+            ->whereNotIn('tanggal', $liburBulan)
             ->where(function ($q) {
                 $q->where('tanggal', '<', Carbon::today())
                     ->orWhere(function ($q2) {
                         $q2->where('tanggal', Carbon::today())
-                            ->whereHas('misi', fn($m) => $m->where('waktu_selesai', '<', Carbon::now()->format('H:i:s')));
+                            ->whereHas('misi', fn($m) => $m->where(
+                                'waktu_selesai',
+                                '<',
+                                Carbon::now()->subMinutes(10)->format('H:i:s')
+                            ));
                     });
             })->update(['status' => 'tidak_mengerjakan']);
-        $karyawans = Karyawan::where('id_role', 2)->get(); // Hanya staff/karyawan
+
+        // sisa kode tetap sama...
+        $karyawans = Karyawan::where('id_role', 2)->get();
 
         DB::beginTransaction();
         try {
+            $totalHariKerja = \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun);
+
             foreach ($karyawans as $karyawan) {
                 $data = $this->hitungNilai($karyawan->id_karyawan, $bulan, $tahun);
 
@@ -214,11 +269,11 @@ class HasilAkhirController extends Controller
                         'tahun'       => $tahun,
                     ],
                     [
-                        'total_harikerja'    => 22,
+                        'total_harikerja'    => $totalHariKerja,
                         'nilai_kehadiran'    => $data['kehadiran'],
-                        'nilai_kedisiplinan' => $data['kedisiplinan'], // Menyimpan nilai misi harian secara terpisah
-                        'nilai_tugas'        => $data['tugas'],        // Menyimpan nilai tugas mingguan secara terpisah
-                        'nilai_akhir'        => $data['akhir'],        // Hasil bagi rata rata 3 pilar komponen
+                        'nilai_kedisiplinan' => $data['kedisiplinan'],
+                        'nilai_tugas'        => $data['tugas'],
+                        'nilai_akhir'        => $data['akhir'],
                         'predikat'           => $data['predikat']['kode'],
                     ]
                 );
@@ -250,7 +305,7 @@ class HasilAkhirController extends Controller
             ->whereYear('tanggal', $tahun)
             ->get();
 
-        $hariKerja   = 22;
+        $hariKerja   = \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun);
         $jumlahHadir = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
 
         return $hariKerja > 0 ? round(($jumlahHadir / $hariKerja) * 100, 2) : 0;
