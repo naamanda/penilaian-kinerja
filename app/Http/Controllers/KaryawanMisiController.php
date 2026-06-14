@@ -18,11 +18,17 @@ class KaryawanMisiController extends Controller
     public function index()
     {
         $id    = Session::get('id_karyawan');
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today();
+
+        // Jika hari ini bukan hari kerja, tampilkan kosong
+        if (!\App\Helpers\HariLiburHelper::isHariKerja($today)) {
+            $pengerjaan = collect();
+            return view('karyawan.misi.index', compact('pengerjaan'));
+        }
 
         $pengerjaan = Pengerjaan::with('misi')
             ->where('id_karyawan', $id)
-            ->where('tanggal', $today)
+            ->where('tanggal', $today->toDateString())
             ->get();
 
         $pengerjaan = $pengerjaan->map(function ($p) {

@@ -137,7 +137,7 @@
                     style="width: {{ $t->total > 0 ? ($t->selesai / $t->total) * 100 : 0 }}%"></div>
             </div>
             <p class="text-xs text-gray-400 mt-1">
-                Deadline: {{ \Carbon\Carbon::parse($t->deadline)->locale('id')->translatedFormat('l, H:i') }}
+                Deadline: {{ \Carbon\Carbon::parse($t->deadline)->locale('id')->translatedFormat('l, d F Y') }}
             </p>
         </div>
         @empty

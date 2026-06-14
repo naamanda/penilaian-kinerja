@@ -62,14 +62,23 @@ class KaryawanBerandaController extends Controller
         }
 
         $realHadir          = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
-        $tidakHadirOtomatis = max(0, $hariKerjaBerjalan - $realHadir);
+        $tidakHadirAbsensi = 0;
+        for ($d = 1; $d <= $batasHariPengecekan; $d++) {
+            $tanggalObj = Carbon::create($tahun, $bulan, $d);
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)) {
+                $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
+                    ->where('tanggal', $tanggalObj->format('Y-m-d'))
+                    ->count();
+                if (!$adaAbsensi) $tidakHadirAbsensi++;
+            }
+        }
 
         $kehadiran = [
             'total'       => $realHadir,
             'hari_kerja'  => \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun),
             'hadir'       => $absensi->where('status', 'hadir')->count(),
             'terlambat'   => $absensi->where('status', 'terlambat')->count(),
-            'tidak_hadir' => $tidakHadirOtomatis,
+            'tidak_hadir' => $tidakHadirAbsensi,
         ];
 
         // ── Detail Pelanggaran (breakdown per kategori) ────────

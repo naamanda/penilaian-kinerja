@@ -191,10 +191,18 @@ class HasilAkhirController extends Controller
             : Carbon::create($tahun, $bulan)->daysInMonth;
 
         foreach ($karyawans as $karyawan) {
-            for ($d = 1; $d <= $hariMax; $d++) {
+            // ← tambah ini
+            $tanggalBergabung = Carbon::parse($karyawan->created_at);
+            $awalBulan        = Carbon::create($tahun, $bulan, 1);
+            $mulaiHari        = $tanggalBergabung->gt($awalBulan) ? $tanggalBergabung->day : 1;
+
+            if ($tanggalBergabung->month > $bulan && $tanggalBergabung->year >= $tahun) {
+                continue;
+            }
+
+            for ($d = $mulaiHari; $d <= $hariMax; $d++) { // ← ubah 1 jadi $mulaiHari
                 $tanggalObj = Carbon::create($tahun, $bulan, $d);
 
-                // Hanya hari kerja (bukan weekend & bukan tanggal merah) dan tidak melebihi hari ini
                 if (!\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) || $tanggalObj->gt(Carbon::today())) {
                     continue;
                 }
@@ -202,7 +210,6 @@ class HasilAkhirController extends Controller
                 $formatTanggal = $tanggalObj->format('Y-m-d');
 
                 foreach ($misiList as $misi) {
-                    // Hanya insert jika belum ada record untuk karyawan+misi+tanggal ini
                     Pengerjaan::firstOrCreate(
                         [
                             'id_karyawan' => $karyawan->id_karyawan,
@@ -316,6 +323,7 @@ class HasilAkhirController extends Controller
         $totalPoin = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
+            ->whereNotIn('status', ['belum_mengerjakan']) // ← tambah ini
             ->join('misi', 'pengerjaan.id_misi', '=', 'misi.id_misi')
             ->sum('misi.poin');
 

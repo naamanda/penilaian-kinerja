@@ -3,7 +3,7 @@
 @section('content')
 <div class="px-4 py-4 pb-24 space-y-4">
     {{-- Tombol Kembali --}}
-    <a href="{{ route('karyawan.akun') }}" class="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-[#1e3f7c] transition-colors">
+    <a href="{{ route('karyawan.akun.index') }}" class="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-[#1e3f7c] transition-colors">
         <i class="fas fa-arrow-left mr-2"></i> Kembali ke Akun
     </a>
 

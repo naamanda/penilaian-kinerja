@@ -35,6 +35,9 @@ class KaryawanAkunController extends Controller
         $bulanSekarang = date('n');
         $tahunSekarang = date('Y');
 
+        $hasilAkhirCtrl = new HasilAkhirController();
+        $hasilAkhirCtrl->executeGenerateInternal($bulanSekarang, $tahunSekarang);
+
         $hasilAkhir = HasilAkhir::where('id_karyawan', $idKaryawan)
             ->where('bulan', $bulanSekarang)
             ->where('tahun', $tahunSekarang)
