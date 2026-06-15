@@ -150,7 +150,7 @@
 {{-- MODAL PELANGGARAN --}}
 <div id="modal-pelanggaran" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/40"
     onclick="if(event.target===this) this.classList.add('hidden')">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl p-5 max-h-[80vh] overflow-y-auto">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl p-5 max-h-[92vh] overflow-y-auto">
 
         <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-gray-800 text-base">Detail Pelanggaran Bulan Ini</h3>
@@ -159,66 +159,49 @@
         </div>
 
         {{-- Absensi --}}
-        <div class="mb-4">
+        <div class="mb-3">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📋 Absensi</p>
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-orange-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-orange-500">{{ $detailTerlambat['absensi'] }}</p>
+                <div class="bg-orange-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-orange-500">{{ $detailTerlambat['absensi'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Terlambat</p>
                 </div>
-                <div class="bg-rose-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-rose-500">{{ $detailTidakMengerjakan['absensi'] }}</p>
+                <div class="bg-rose-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-rose-500">{{ $detailTidakMengerjakan['absensi'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Tidak Hadir</p>
                 </div>
             </div>
         </div>
 
         {{-- Misi --}}
-        <div class="mb-4">
+        <div class="mb-3">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🎯 Misi Harian</p>
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-orange-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-orange-500">{{ $detailTerlambat['misi'] }}</p>
+                <div class="bg-orange-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-orange-500">{{ $detailTerlambat['misi'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Terlambat</p>
                 </div>
-                <div class="bg-rose-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-rose-500">{{ $detailTidakMengerjakan['misi'] }}</p>
+                <div class="bg-rose-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-rose-500">{{ $detailTidakMengerjakan['misi'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Tidak Mengerjakan</p>
                 </div>
             </div>
         </div>
 
         {{-- Tugas --}}
-        <div class="mb-4">
+        <div class="mb-3">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📝 Tugas Mingguan</p>
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-orange-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-orange-500">{{ $detailTerlambat['tugas'] }}</p>
+                <div class="bg-orange-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-orange-500">{{ $detailTerlambat['tugas'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Terlambat</p>
                 </div>
-                <div class="bg-rose-50 rounded-xl p-3 text-center">
-                    <p class="text-lg font-bold text-rose-500">{{ $detailTidakMengerjakan['tugas'] }}</p>
+                <div class="bg-rose-50 rounded-xl p-2.5 text-center">
+                    <p class="text-base font-bold text-rose-500">{{ $detailTidakMengerjakan['tugas'] }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">Tidak Mengerjakan</p>
                 </div>
             </div>
         </div>
-
-        {{-- Total --}}
-        <div class="border-t border-gray-100 pt-3 mt-2">
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-bold text-gray-700">Total Poin Pelanggaran</p>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-lg
-                    {{ $nilaiData['pelanggaran']['status'] == 'aman' ? 'bg-emerald-100 text-emerald-600' :
-                      ($nilaiData['pelanggaran']['status'] == 'SP1'  ? 'bg-orange-100 text-orange-600' :
-                       'bg-rose-100 text-rose-600') }}">
-                    {{ $nilaiData['pelanggaran']['total_poin'] }} Poin — {{ strtoupper($nilaiData['pelanggaran']['status']) }}
-                </span>
-            </div>
-            <p class="text-xs text-gray-400 mt-2">
-                Lihat detail tanggal lengkap di menu <span class="font-semibold text-blue-500">Akun → Log & Riwayat</span>.
-            </p>
-        </div>
-
     </div>
 </div>
 

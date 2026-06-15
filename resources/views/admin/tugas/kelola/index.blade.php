@@ -1,10 +1,6 @@
 @extends('layouts.admin')
 
 @section('content')
-<style>
-    html { scrollbar-gutter: stable; }
-    body { padding-right: 0px !important; }
-</style>
 
 <div class="pt-2 px-6 pb-6">
 

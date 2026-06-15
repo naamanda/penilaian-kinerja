@@ -47,7 +47,7 @@
             </div>
             <div class="flex items-baseline justify-between mt-1">
                 <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ $totalKaryawan }}</h3>
-                <span class="text-[11px] font-medium text-gray-400">Karyawan aktif</span>
+                <span class="text-[11px] font-medium text-gray-400">Karyawan</span>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
             </div>
             <div class="flex items-baseline justify-between mt-1">
                 <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ $totalDivisi }}</h3>
-                <span class="text-[11px] font-medium text-gray-400">Unit organisasi</span>
+                <span class="text-[11px] font-medium text-gray-400">Divisi</span>
             </div>
         </div>
 

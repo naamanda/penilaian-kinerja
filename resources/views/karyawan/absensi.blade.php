@@ -50,50 +50,66 @@
 
         @if(!$sudahAbsen)
 
-        {{-- Area Kamera --}}
-        <div id="kameraArea"
-            class="w-full aspect-square rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
-                    flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
-            onclick="bukaKamera()">
-            <canvas id="fotoCanvas" class="absolute inset-0 w-full h-full object-cover rounded-2xl hidden"></canvas>
-            <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
-                <div class="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center">
-                    <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            @if($sudahTutup)
+            {{-- Absensi sudah ditutup --}}
+            <div class="w-full aspect-square rounded-2xl border-2 border-dashed border-red-200 bg-red-50
+                        flex flex-col items-center justify-center mb-4">
+                <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                    <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-sm font-semibold text-blue-500">Klik Untuk Ambil Foto</p>
+                <p class="text-sm font-semibold text-red-400">Absensi sudah ditutup</p>
+                <p class="text-xs text-red-300 mt-1">Batas waktu absensi 08:10</p>
             </div>
-        </div>
 
-        {{-- Video kamera --}}
-        <video id="video" class="hidden w-full rounded-2xl mb-3" autoplay playsinline></video>
+            @else
+            {{-- Area Kamera --}}
+            <div id="kameraArea"
+                class="w-full aspect-square rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
+                        flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
+                onclick="bukaKamera()">
+                <canvas id="fotoCanvas" class="absolute inset-0 w-full h-full object-cover rounded-2xl hidden"></canvas>
+                <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
+                    <div class="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-semibold text-blue-500">Klik Untuk Ambil Foto</p>
+                </div>
+            </div>
 
-        {{-- Tombol ambil foto --}}
-        <button id="btnCapture" onclick="ambilFoto()"
-            class="hidden w-full py-3 rounded-xl text-sm font-bold bg-blue-500 text-white mb-3">
-            📸 Ambil Foto
-        </button>
+            {{-- Video kamera --}}
+            <video id="video" class="hidden w-full rounded-2xl mb-3" autoplay playsinline></video>
 
-        {{-- Info lokasi --}}
-        <div id="infoLokasi" class="text-xs text-center mb-3 hidden">
-            <span id="lokasiText" class="text-gray-400">📍 Mengambil lokasi...</span>
-        </div>
+            {{-- Tombol ambil foto --}}
+            <button id="btnCapture" onclick="ambilFoto()"
+                class="hidden w-full py-3 rounded-xl text-sm font-bold bg-blue-500 text-white mb-3">
+                📸 Ambil Foto
+            </button>
 
-        {{-- Tombol absen --}}
-        <button id="btnAbsen"
-            class="w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed transition-all"
-            disabled onclick="kirimAbsensi()">
-            Absen Sekarang
-        </button>
+            {{-- Info lokasi --}}
+            <div id="infoLokasi" class="text-xs text-center mb-3 hidden">
+                <span id="lokasiText" class="text-gray-400">📍 Mengambil lokasi...</span>
+            </div>
 
-        {{-- Tombol ulangi --}}
-        <button id="btnUlang" onclick="ulangi()"
-            class="hidden w-full py-3 rounded-xl text-sm font-bold border border-gray-300 text-gray-500 mt-2">
-            🔄 Ulangi Foto
-        </button>
+            {{-- Tombol absen --}}
+            <button id="btnAbsen"
+                class="w-full py-3.5 rounded-xl text-sm font-bold bg-gray-200 text-gray-400 cursor-not-allowed transition-all"
+                disabled onclick="kirimAbsensi()">
+                Absen Sekarang
+            </button>
+
+            {{-- Tombol ulangi --}}
+            <button id="btnUlang" onclick="ulangi()"
+                class="hidden w-full py-3 rounded-xl text-sm font-bold border border-gray-300 text-gray-500 mt-2">
+                🔄 Ulangi Foto
+            </button>
+            @endif
 
         @else
 
@@ -149,7 +165,7 @@ let lokasiValid = false;
 
 const OFFICE_LAT =  -7.678603;
 const OFFICE_LNG = 109.035448;
-const RADIUS_KM  = 0.1; // 100 meter
+const RADIUS_KM  = 0.1;
 
 function hitungJarak(lat1, lon1, lat2, lon2) {
     const theta = lon1 - lon2;

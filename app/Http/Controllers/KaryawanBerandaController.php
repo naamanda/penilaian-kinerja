@@ -53,19 +53,25 @@ class KaryawanBerandaController extends Controller
 
         $batasHariPengecekan = ($jamSekarang >= '08:10') ? $hariIni : $hariIni - 1;
 
+        $tanggalBergabung = $karyawan->tanggal_bergabung
+            ? Carbon::parse($karyawan->tanggal_bergabung)
+            : Carbon::create($tahun, $bulan, 1);
+
         $hariKerjaBerjalan = 0;
         for ($d = 1; $d <= $batasHariPengecekan; $d++) {
             $tanggalCheck = Carbon::create($tahun, $bulan, $d);
-            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalCheck)) {
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalCheck)
+                && $tanggalCheck->gte($tanggalBergabung)) {
                 $hariKerjaBerjalan++;
             }
         }
 
-        $realHadir          = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
+        $realHadir         = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
         $tidakHadirAbsensi = 0;
         for ($d = 1; $d <= $batasHariPengecekan; $d++) {
             $tanggalObj = Carbon::create($tahun, $bulan, $d);
-            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)) {
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
+                && $tanggalObj->gte($tanggalBergabung)) {
                 $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
                     ->where('tanggal', $tanggalObj->format('Y-m-d'))
                     ->count();
@@ -100,7 +106,7 @@ class KaryawanBerandaController extends Controller
         ];
 
         $detailTidakMengerjakan = [
-            'absensi' => count(/* hasil loop tidak hadir, hitung dulu di bawah */[]),
+            'absensi' => count([]),
             'misi'    => Pengerjaan::where('id_karyawan', $id)
                 ->whereMonth('tanggal', $bulan)
                 ->whereYear('tanggal', $tahun)
@@ -118,7 +124,8 @@ class KaryawanBerandaController extends Controller
             $tanggalObj    = Carbon::create($tahun, $bulan, $d);
             $formatTanggal = $tanggalObj->format('Y-m-d');
 
-            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)) {
+            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
+                && $tanggalObj->gte($tanggalBergabung)) {
                 $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
                     ->where('tanggal', $formatTanggal)
                     ->count();

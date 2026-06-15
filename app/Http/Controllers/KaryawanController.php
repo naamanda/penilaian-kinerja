@@ -37,6 +37,7 @@ class KaryawanController extends Controller
             'password' => md5($request->password), // tambah md5
             'id_role' => $request->id_role,
             'id_divisi' => $request->id_divisi,
+            'tanggal_bergabung'  => \Carbon\Carbon::today()->toDateString(),
         ]);
         return redirect('/data-karyawan');
     }

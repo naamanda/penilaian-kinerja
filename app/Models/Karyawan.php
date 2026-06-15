@@ -15,7 +15,8 @@ class Karyawan extends Model
         'username',
         'password',
         'id_role',
-        'id_divisi'
+        'id_divisi',
+        'tanggal_bergabung',
     ];
 
     protected $hidden = [

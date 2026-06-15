@@ -81,10 +81,19 @@ class HasilAkhirController extends Controller
             ? Carbon::now()->day
             : Carbon::create($tahun, $bulan)->daysInMonth;
 
+        $karyawanData     = Karyawan::findOrFail($idKaryawan);
+        $tanggalBergabung = $karyawanData->tanggal_bergabung
+            ? Carbon::parse($karyawanData->tanggal_bergabung)
+            : Carbon::create($tahun, $bulan, 1);
+
         $hariKerjaBerjalan = 0;
         for ($d = 1; $d <= $hariIni; $d++) {
             $tanggal = Carbon::create($tahun, $bulan, $d);
-            if (\App\Helpers\HariLiburHelper::isHariKerja($tanggal) && $tanggal->lte(Carbon::today())) {
+            if (
+                \App\Helpers\HariLiburHelper::isHariKerja($tanggal)
+                && $tanggal->lte(Carbon::today())
+                && $tanggal->gte($tanggalBergabung)
+            ) { // ← tambah ini
                 $hariKerjaBerjalan++;
             }
         }
@@ -192,11 +201,16 @@ class HasilAkhirController extends Controller
 
         foreach ($karyawans as $karyawan) {
             // ← tambah ini
-            $tanggalBergabung = Carbon::parse($karyawan->created_at);
+            $tanggalBergabung = $karyawan->tanggal_bergabung
+                ? Carbon::parse($karyawan->tanggal_bergabung)
+                : Carbon::create($tahun, $bulan, 1);
             $awalBulan        = Carbon::create($tahun, $bulan, 1);
             $mulaiHari        = $tanggalBergabung->gt($awalBulan) ? $tanggalBergabung->day : 1;
 
-            if ($tanggalBergabung->month > $bulan && $tanggalBergabung->year >= $tahun) {
+            if (
+                $tanggalBergabung->year > $tahun ||
+                ($tanggalBergabung->year == $tahun && $tanggalBergabung->month > $bulan)
+            ) {
                 continue;
             }
 
@@ -288,7 +302,11 @@ class HasilAkhirController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Gagal sinkronisasi otomatis hasil akhir: " . $e->getMessage());
+            \Log::error("Gagal sinkronisasi otomatis hasil akhir: " . $e->getMessage(), [
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
     }
 
@@ -340,6 +358,7 @@ class HasilAkhirController extends Controller
     {
         $totalPoin = Pengumpulan::where('id_karyawan', $idKaryawan)
             ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan))
+            ->whereNotIn('status', ['belum_mengerjakan'])
             ->join('tugas', 'pengumpulan.id_tugas', '=', 'tugas.id_tugas')
             ->sum('tugas.poin');
 

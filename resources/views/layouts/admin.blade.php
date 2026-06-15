@@ -6,20 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeSync - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Menghilangkan scrollbar secara visual untuk Chrome, Safari dan Opera */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Menghilangkan scrollbar untuk IE, Edge dan Firefox */
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            /* IE and Edge */
-            scrollbar-width: none;
-            /* Firefox */
-        }
-    </style>
 </head>
 <script>
     function konfirmasiLogout() {
@@ -157,9 +143,9 @@
 
     <div style="margin-left:224px; min-height:100vh; display:flex; flex-direction:column;">
         <!-- Bagian Header yang diperbarui -->
-        <header class="bg-white shadow-sm px-8 py-4 flex items-center justify-between sticky top-0 z-30">
+        <header class="bg-white shadow-sm px-8 pr-4 flex items-center justify-between sticky top-0 z-30 h-[72px] w-full flex-shrink-0">
             <!-- w-md atau w-lg untuk melebarkan search bar ke samping -->
-            {{-- layouts/admin.blade.php --}}
+            @if(!request()->is('dashboard-admin'))
             <form method="GET" action="{{ url()->current() }}" class="w-full max-w-md">
                 <div class="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-2.5">
                     <span class="text-gray-400 text-base">🔍</span>
@@ -168,6 +154,9 @@
                         class="bg-transparent outline-none text-base text-gray-600 w-full placeholder:text-gray-400">
                 </div>
             </form>
+            @else
+            <div class="w-full max-w-md"></div>
+            @endif
 
             <div class="font-bold text-[#1e3f7c] text-base flex items-center gap-2">
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs">👤</div>
@@ -178,7 +167,7 @@
             </div>
         </header>
 
-        <main class="flex-1 p-6 bg-gray-100">
+        <main class="flex-1 px-6 pb-6 pt-5 bg-gray-100">
             @yield('content')
         </main>
     </div>

@@ -2,8 +2,11 @@
 
 @section('content')
 <div class="px-4 py-4 pb-24 space-y-4">
-    <a href="{{ route('karyawan.akun.index') }}" class="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-[#1e3f7c]">
-        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Akun
+    <a href="{{ route('karyawan.akun.index') }}" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition duration-200 shadow-sm w-fit">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Kembali ke Akun
     </a>
 
     <div>

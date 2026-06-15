@@ -20,7 +20,7 @@ class AbsensiController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $tab    = $request->input('tab', 'semua');
+        $tab    = $request->input('tab', 'hadir'); // ← ubah default ke 'hadir'
         $today  = Carbon::today()->toDateString();
         $bulan  = (int) $request->get('bulan', date('n'));
         $tahun  = (int) $request->get('tahun', date('Y'));
@@ -31,7 +31,6 @@ class AbsensiController extends Controller
                 ->whereIn('status', ['hadir', 'terlambat'])
                 ->pluck('id_karyawan');
 
-            // Hanya karyawan (id_role = 2), bukan atasan/admin
             $karyawanTidakHadir = \App\Models\Karyawan::where('id_role', 2)
                 ->whereNotIn('id_karyawan', $sudahAbsenIds)
                 ->when($search, fn($q) => $q->where('nama', 'like', "%{$search}%"))
@@ -48,16 +47,18 @@ class AbsensiController extends Controller
             ]);
         }
 
-        // ── Tab: Hadir & Terlambat Hari Ini ───────────────────────────────
         $query = Absensi::with('karyawan');
 
-        if ($tab === 'hari_ini') {
+        if ($tab === 'hadir') {
             $query->whereDate('tanggal', $today)
-                ->whereIn('status', ['hadir', 'terlambat']);
+                ->where('status', 'hadir');
+        } elseif ($tab === 'terlambat') {
+            $query->whereDate('tanggal', $today)
+                ->where('status', 'terlambat');
         } else {
-            // Tab: Semua — filter bulan/tahun default + filter opsional
-            $query->whereMonth('tanggal', $bulan)   // ← tambah ini
-                ->whereYear('tanggal', $tahun);    // ← tambah ini
+            // Tab: Semua
+            $query->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun);
 
             if ($search) {
                 $query->where(function ($q) use ($search) {

@@ -24,9 +24,15 @@ class ApproveMisiController extends Controller
                 ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
         } elseif ($tab == 'belum_mengerjakan') {
             $query->where('status', 'belum_mengerjakan')
-                ->whereDate('tanggal', Carbon::today());
+                ->whereDate('tanggal', Carbon::today())
+                ->whereHas('misi', fn($m) => $m->where(
+                    'waktu_selesai',
+                    '>',
+                    Carbon::now()->subMinutes(10)->format('H:i:s')
+                ));
         } elseif ($tab == 'selesai') {
-            $query->whereIn('status', ['disetujui', 'terlambat']);
+            $query->whereIn('status', ['disetujui', 'terlambat'])
+                ->whereDate('tanggal', Carbon::today());
         }
 
         if ($search) {
@@ -47,8 +53,8 @@ class ApproveMisiController extends Controller
         $stat = [
             'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->whereDate('tanggal', Carbon::today())->count(),
             'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
-            'terlambat' => Pengerjaan::where('status', 'terlambat')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
-            'disetujui' => Pengerjaan::where('status', 'disetujui')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
+            'terlambat' => Pengerjaan::where('status', 'terlambat')->whereDate('tanggal', Carbon::today())->count(), // ← ubah ke today
+            'disetujui' => Pengerjaan::where('status', 'disetujui')->whereDate('tanggal', Carbon::today())->count(), // ← ubah ke today
         ];
 
         return view('admin.misi.approve.index', compact('data', 'stat', 'tab', 'bulan', 'tahun'));

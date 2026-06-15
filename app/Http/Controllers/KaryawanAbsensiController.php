@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Absensi;
 use Carbon\Carbon;
@@ -40,6 +42,7 @@ class KaryawanAbsensiController extends Controller
                 : null,
             'statusAbsen'  => $absensiHari?->status ?? null,
             'liburHariIni' => false,
+            'sudahTutup'   => Carbon::now()->format('H:i') > '08:10',
         ]);
     }
 
@@ -67,6 +70,10 @@ class KaryawanAbsensiController extends Controller
 
         if ($now->format('H:i') < '07:30') {
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu Besok jam 07:30.'], 403);
+        }
+
+        if ($now->format('H:i') > '08:10') {
+            return response()->json(['message' => 'Absensi sudah ditutup. Batas waktu absensi adalah 08:10.'], 403);
         }
 
         // 2. Validasi Geofencing Jarak Kantor di Backend Karyawan

@@ -73,6 +73,9 @@ class RewardController extends Controller
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(1)->take(1)->get();
         } elseif (str_contains($kriteriaNama, 'ranking 3') || str_contains($kriteriaNama, 'peringkat 3') || str_contains($kriteriaNama, 'rank 3')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(2)->take(1)->get();
+        } elseif ($reward->jenis === 'disiplin' || str_contains($kriteriaNama, 'disiplin')) {
+            // Pemenang = karyawan dengan nilai kedisiplinan tertinggi
+            $pemenang = $queryHasil->orderByDesc('nilai_kedisiplinan')->take(1)->get();
         }
 
         // 3. KUNCI UTAMA: Update id_hasilakhir di tabel reward secara permanen ke database

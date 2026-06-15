@@ -67,6 +67,12 @@ class KaryawanAkunController extends Controller
             ->where('tahun', $tahun)
             ->first();
 
+        // Ambil data karyawan untuk cek tanggal bergabung
+        $karyawan = Karyawan::where('id_karyawan', $idKaryawan)->first();
+        $tanggalBergabung = $karyawan->tanggal_bergabung
+            ? \Carbon\Carbon::parse($karyawan->tanggal_bergabung)
+            : \Carbon\Carbon::create($tahun, $bulan, 1);
+
         // Ambil data absensi dari database
         $absensiData = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -79,12 +85,16 @@ class KaryawanAkunController extends Controller
             ? \Carbon\Carbon::now()->day
             : \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
 
-        // Generate log absensi hanya hari kerja
+        // Generate log absensi hanya hari kerja & setelah tanggal bergabung
         $detailAbsensi = [];
         for ($d = 1; $d <= $hariMax; $d++) {
             $tanggalObj = \Carbon\Carbon::create($tahun, $bulan, $d);
 
-            if ($tanggalObj->isWeekday() && $tanggalObj->lte(\Carbon\Carbon::today())) {
+            if (
+                $tanggalObj->isWeekday()
+                && $tanggalObj->lte(\Carbon\Carbon::today())
+                && $tanggalObj->gte($tanggalBergabung)
+            ) {
                 $formatTanggal = $tanggalObj->format('Y-m-d');
 
                 if (isset($absensiData[$formatTanggal])) {
@@ -99,7 +109,6 @@ class KaryawanAkunController extends Controller
         }
 
         // Log Misi dengan relasi misi (untuk ambil nama & poin)
-        // Ambil data misi dari DB, group by tanggal
         $misiRawData = Pengerjaan::with('misi')
             ->where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -108,12 +117,16 @@ class KaryawanAkunController extends Controller
             ->get()
             ->groupBy('tanggal');
 
-        // Generate log misi hanya hari kerja (sama seperti absensi)
+        // Generate log misi hanya hari kerja & setelah tanggal bergabung
         $detailMisi = collect();
         for ($d = 1; $d <= $hariMax; $d++) {
             $tanggalObj = \Carbon\Carbon::create($tahun, $bulan, $d);
 
-            if ($tanggalObj->isWeekday() && $tanggalObj->lte(\Carbon\Carbon::today())) {
+            if (
+                $tanggalObj->isWeekday()
+                && $tanggalObj->lte(\Carbon\Carbon::today())
+                && $tanggalObj->gte($tanggalBergabung)
+            ) {
                 $formatTanggal = $tanggalObj->format('Y-m-d');
 
                 if (isset($misiRawData[$formatTanggal])) {
@@ -275,6 +288,12 @@ class KaryawanAkunController extends Controller
             return back()->with('error', 'Data laporan tidak ditemukan.');
         }
 
+        // Ambil data karyawan untuk cek tanggal bergabung
+        $karyawan = $hasilAkhir->karyawan;
+        $tanggalBergabung = $karyawan->tanggal_bergabung
+            ? \Carbon\Carbon::parse($karyawan->tanggal_bergabung)
+            : \Carbon\Carbon::create($tahun, $bulan, 1);
+
         $absensiData = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -290,7 +309,11 @@ class KaryawanAkunController extends Controller
         for ($d = 1; $d <= $hariMax; $d++) {
             $tanggalObj = \Carbon\Carbon::create($tahun, $bulan, $d);
 
-            if ($tanggalObj->isWeekday() && $tanggalObj->lte(\Carbon\Carbon::today())) {
+            if (
+                $tanggalObj->isWeekday()
+                && $tanggalObj->lte(\Carbon\Carbon::today())
+                && $tanggalObj->gte($tanggalBergabung)
+            ) {
                 $formatTanggal = $tanggalObj->format('Y-m-d');
 
                 if (isset($absensiData[$formatTanggal])) {
@@ -308,6 +331,7 @@ class KaryawanAkunController extends Controller
             ->where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
+            ->where('tanggal', '>=', $tanggalBergabung->format('Y-m-d'))
             ->orderBy('tanggal', 'asc')
             ->get();
 

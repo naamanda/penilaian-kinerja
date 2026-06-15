@@ -15,20 +15,20 @@
                 class="w-[180px] h-10 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm focus:border-[#1e3f7c] focus:ring-1 focus:ring-[#1e3f7c] outline-none transition-all">
             <select name="status" class="w-[180px] h-10 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm focus:border-[#1e3f7c] focus:ring-1 focus:ring-[#1e3f7c] outline-none transition-all">
                 <option value="">Semua Status</option>
-                <option value="hadir"      {{ request('status') == 'hadir'      ? 'selected' : '' }}>Hadir</option>
-                <option value="terlambat"  {{ request('status') == 'terlambat'  ? 'selected' : '' }}>Terlambat</option>
-                <option value="tidak_hadir"{{ request('status') == 'tidak_hadir'? 'selected' : '' }}>Tidak Hadir</option>
+                <option value="hadir" {{ request('status') == 'hadir'      ? 'selected' : '' }}>Hadir</option>
+                <option value="terlambat" {{ request('status') == 'terlambat'  ? 'selected' : '' }}>Terlambat</option>
+                <option value="tidak_hadir" {{ request('status') == 'tidak_hadir'? 'selected' : '' }}>Tidak Hadir</option>
             </select>
             <button type="submit" class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold h-10 px-5 rounded-xl shadow-sm transition-all flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v5l-4 2v-7L3 6V4z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v5l-4 2v-7L3 6V4z" />
                 </svg>
                 Filter
             </button>
             @if(request('tanggal') || request('status'))
-                <a href="/absensi" class="bg-white border border-gray-200 text-gray-700 text-sm font-semibold h-10 px-5 rounded-xl shadow-sm hover:bg-blue-50/60 transition-all flex items-center justify-center gap-2">
-                    Reset
-                </a>
+            <a href="/absensi" class="bg-white border border-gray-200 text-gray-700 text-sm font-semibold h-10 px-5 rounded-xl shadow-sm hover:bg-blue-50/60 transition-all flex items-center justify-center gap-2">
+                Reset
+            </a>
             @endif
         </form>
         @endif
@@ -36,33 +36,34 @@
 
     {{-- ===== TABS ===== --}}
     <div class="flex items-center gap-1 mb-4 bg-gray-100 p-1 rounded-xl w-fit">
-        <a href="/absensi?tab=semua"
-           class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
-                  {{ $tab === 'semua' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
-            Semua
+        <a href="/absensi?tab=hadir"
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
+              {{ $tab === 'hadir' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+            Hadir
+            @php $jumlahHadir = \App\Models\Absensi::whereDate('tanggal', $today)->where('status','hadir')->count(); @endphp
+            @if($jumlahHadir > 0)
+            <span class="ml-1.5 bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahHadir }}</span>
+            @endif
         </a>
-        <a href="/absensi?tab=hari_ini"
-           class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
-                  {{ $tab === 'hari_ini' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
-            Hadir & Terlambat
-            {{-- Badge jumlah hari ini --}}
-            @php
-                $jumlahHariIni = \App\Models\Absensi::whereDate('tanggal', $today)->whereIn('status',['hadir','terlambat'])->count();
-            @endphp
-            @if($jumlahHariIni > 0)
-                <span class="ml-1.5 bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahHariIni }}</span>
+        <a href="/absensi?tab=terlambat"
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
+              {{ $tab === 'terlambat' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+            Terlambat
+            @php $jumlahTerlambat = \App\Models\Absensi::whereDate('tanggal', $today)->where('status','terlambat')->count(); @endphp
+            @if($jumlahTerlambat > 0)
+            <span class="ml-1.5 bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahTerlambat }}</span>
             @endif
         </a>
         <a href="/absensi?tab=tidak_hadir"
-           class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
-                  {{ $tab === 'tidak_hadir' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-all
+              {{ $tab === 'tidak_hadir' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
             Tidak Hadir
             @php
-                $sudahIds   = \App\Models\Absensi::whereDate('tanggal', $today)->whereIn('status',['hadir','terlambat'])->pluck('id_karyawan');
-                $jumlahTidak = \App\Models\Karyawan::whereNotIn('id_karyawan', $sudahIds)->count();
+            $sudahIds = \App\Models\Absensi::whereDate('tanggal', $today)->whereIn('status',['hadir','terlambat'])->pluck('id_karyawan');
+            $jumlahTidak = \App\Models\Karyawan::where('id_role', 2)->whereNotIn('id_karyawan', $sudahIds)->count();
             @endphp
             @if($jumlahTidak > 0)
-                <span class="ml-1.5 bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahTidak }}</span>
+            <span class="ml-1.5 bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahTidak }}</span>
             @endif
         </a>
     </div>
@@ -91,19 +92,19 @@
                         <td class="px-6 py-3.5 text-sm text-gray-600 whitespace-nowrap">{{ $a->waktu ?? '-' }}</td>
                         <td class="px-6 py-3.5 whitespace-nowrap">
                             @if($a->status == 'hadir')
-                                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">Hadir</span>
+                            <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">Hadir</span>
                             @elseif($a->status == 'terlambat')
-                                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">Terlambat</span>
+                            <span class="px-3 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">Terlambat</span>
                             @else
-                                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">Tidak Hadir</span>
+                            <span class="px-3 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">Tidak Hadir</span>
                             @endif
                         </td>
                         <td class="px-6 py-3.5 text-center whitespace-nowrap">
                             <div class="flex justify-center items-center gap-4">
                                 <a href="/absensi/{{ $a->id_absensi }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition group">
                                     <svg class="w-4 h-4 text-blue-500 group-hover:text-blue-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                     <span class="hover:underline decoration-2 underline-offset-4">Lihat Detail</span>
                                 </a>
@@ -111,7 +112,7 @@
                                     @csrf @method('DELETE')
                                     <button type="button" onclick="openDeleteModal('{{ $a->id_absensi }}', '{{ $a->karyawan->nama ?? '-' }}')" class="text-rose-500 hover:text-rose-600 transition flex items-center">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
                                     </button>
                                 </form>
@@ -119,9 +120,11 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="px-6 py-10 text-center text-gray-400 font-medium">
-                        {{ $tab === 'hari_ini' ? 'Belum ada karyawan yang absen hari ini.' : 'Belum ada data absensi.' }}
-                    </td></tr>
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-400 font-medium">
+                            {{ $tab === 'hari_ini' ? 'Belum ada karyawan yang absen hari ini.' : 'Belum ada data absensi.' }}
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -146,9 +149,11 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="3" class="px-6 py-10 text-center text-gray-400 font-medium">
-                        🎉 Semua karyawan sudah hadir hari ini!
-                    </td></tr>
+                    <tr>
+                        <td colspan="3" class="px-6 py-10 text-center text-gray-400 font-medium">
+                            🎉 Semua karyawan sudah hadir hari ini!
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -170,7 +175,7 @@
                     <a href="{{ $paginator->url($i) }}" class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all {{ $paginator->currentPage() == $i ? 'bg-[#1e3f7c] text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-blue-50/60' }}">
                         {{ $i }}
                     </a>
-                @endfor
+                    @endfor
             </div>
         </div>
         @endif
@@ -185,7 +190,7 @@
                     <div class="sm:flex sm:items-start">
                         <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 sm:mx-0 sm:h-10 sm:w-10">
                             <svg class="h-6 w-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -206,21 +211,25 @@
 
     <script>
         let activeDeleteFormId = null;
+
         function openDeleteModal(id, name) {
             activeDeleteFormId = `delete-form-${id}`;
             document.getElementById('modal-absensi').innerText = name;
             document.getElementById('delete-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
+
         function closeDeleteModal() {
             document.getElementById('delete-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             activeDeleteFormId = null;
         }
-        document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+        document.getElementById('confirm-delete-btn').addEventListener('click', function() {
             if (activeDeleteFormId) document.getElementById(activeDeleteFormId).submit();
         });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDeleteModal(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
     </script>
 </div>
 @endsection
