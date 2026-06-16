@@ -19,9 +19,11 @@ class DashboardController extends Controller
         $bulan = Carbon::now()->month;
         $tahun = Carbon::now()->year;
         $today = Carbon::today()->toDateString();
+        $hariIniLibur = \App\Helpers\HariLiburHelper::isLibur(Carbon::today()) || Carbon::today()->isWeekend();
 
-        $hadirHariIni     = Absensi::whereDate('tanggal', $today)->whereIn('status', ['hadir', 'terlambat'])->count();
-        $terlambatHariIni = Absensi::whereDate('tanggal', $today)->where('status', 'terlambat')->count();
+        $hadirHariIni     = $hariIniLibur ? 0 : Absensi::whereDate('tanggal', $today)->whereIn('status', ['hadir', 'terlambat'])->count();
+        $terlambatHariIni = $hariIniLibur ? 0 : Absensi::whereDate('tanggal', $today)->where('status', 'terlambat')->count();
+        $tidakHadirHariIni = $hariIniLibur ? 0 : ($totalKaryawan - $hadirHariIni);
         $menungguMisi     = Pengerjaan::where('status', 'menunggu')->whereDate('tanggal', $today)->count();
         $menungguTugas    = Pengumpulan::where('status', 'menunggu')->count();
 
@@ -36,9 +38,14 @@ class DashboardController extends Controller
             ->values();
 
         return view('admin.dashboard', compact(
-            'totalKaryawan', 'totalDivisi',
-            'hadirHariIni', 'terlambatHariIni',
-            'menungguMisi', 'menungguTugas',
+            'totalKaryawan',
+            'totalDivisi',
+            'hadirHariIni',
+            'hariIniLibur',
+            'terlambatHariIni',
+            'tidakHadirHariIni',
+            'menungguMisi',
+            'menungguTugas',
             'leaderboard'
         ));
     }

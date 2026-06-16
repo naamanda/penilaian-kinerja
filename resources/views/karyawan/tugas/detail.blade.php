@@ -84,8 +84,8 @@
         </p>
 
         <div id="previewArea"
-            class="w-full aspect-square rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
-                    flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
+            class="w-full h-40 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
+            flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
             onclick="document.getElementById('inputFile').click()">
             <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
                 <div class="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center">

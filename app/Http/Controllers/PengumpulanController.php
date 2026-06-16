@@ -24,9 +24,10 @@ class PengumpulanController extends Controller
                 ->whereMonth('tanggal_upload', $bulan)
                 ->whereYear('tanggal_upload', $tahun);
         } elseif ($tab == 'belum_mengerjakan') {
-            // REVISI: Masukkan 'tidak_mengerjakan' ke dalam query tab agar admin tetap bisa melihat listnya
             $query->whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
-                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
+                    ->whereYear('deadline', $tahun)
+                    ->where('deadline', '>=', Carbon::now())) // ← tambah ini
                 ->whereRaw('EXISTS (
             SELECT 1 FROM tugas 
             JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
@@ -54,14 +55,15 @@ class PengumpulanController extends Controller
         // 2. HITUNG STATISTIK (DIPISAH SENDIRI-SENDIRI BIAR RELEVAN & TIDAK NGACU)
         // =========================================================================
         $stat = [
-            // REVISI: Hitung gabungan status 'belum_mengerjakan' dan 'tidak_mengerjakan' untuk counter di atas tab
             'belum' => Pengumpulan::whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
-                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)->whereYear('deadline', $tahun))
+                ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
+                    ->whereYear('deadline', $tahun)
+                    ->where('deadline', '>=', Carbon::now()))
                 ->whereRaw('EXISTS (
-            SELECT 1 FROM tugas 
-            JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
-            WHERE tugas.id_tugas = pengumpulan.id_tugas
-            AND karyawan.id_karyawan = pengumpulan.id_karyawan)')
+        SELECT 1 FROM tugas 
+        JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
+        WHERE tugas.id_tugas = pengumpulan.id_tugas
+        AND karyawan.id_karyawan = pengumpulan.id_karyawan)')
                 ->count(),
 
             'menunggu' => Pengumpulan::where('status', 'menunggu')

@@ -200,7 +200,6 @@ class HasilAkhirController extends Controller
             : Carbon::create($tahun, $bulan)->daysInMonth;
 
         foreach ($karyawans as $karyawan) {
-            // ← tambah ini
             $tanggalBergabung = $karyawan->tanggal_bergabung
                 ? Carbon::parse($karyawan->tanggal_bergabung)
                 : Carbon::create($tahun, $bulan, 1);
@@ -214,11 +213,18 @@ class HasilAkhirController extends Controller
                 continue;
             }
 
-            for ($d = $mulaiHari; $d <= $hariMax; $d++) { // ← ubah 1 jadi $mulaiHari
+            for ($d = $mulaiHari; $d <= $hariMax; $d++) {
                 $tanggalObj = Carbon::create($tahun, $bulan, $d);
 
                 if (!\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) || $tanggalObj->gt(Carbon::today())) {
+                    if ($tanggalObj->format('Y-m-d') === '2026-06-16') {
+                        \Log::info('16 Juni diblock: isHariKerja=' . (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) ? 'true' : 'false'));
+                    }
                     continue;
+                }
+
+                if ($tanggalObj->format('Y-m-d') === '2026-06-16') {
+                    \Log::info('16 Juni LOLOS generate!');
                 }
 
                 $formatTanggal = $tanggalObj->format('Y-m-d');
@@ -273,7 +279,7 @@ class HasilAkhirController extends Controller
                     });
             })->update(['status' => 'tidak_mengerjakan']);
 
-        // sisa kode tetap sama...
+        // 3. HITUNG & SIMPAN HASIL AKHIR
         $karyawans = Karyawan::where('id_role', 2)->get();
 
         DB::beginTransaction();
@@ -309,7 +315,6 @@ class HasilAkhirController extends Controller
             ]);
         }
     }
-
     // =========================================================
     //  ATASAN — SHOW
     // =========================================================

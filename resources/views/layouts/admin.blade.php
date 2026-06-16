@@ -78,7 +78,7 @@
                     <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    Absensi
+                    Data Absensi
                 </a>
 
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Kedisiplinan</p>

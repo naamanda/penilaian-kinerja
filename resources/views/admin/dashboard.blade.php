@@ -43,6 +43,13 @@
         {{-- Kehadiran Hari Ini --}}
         <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100">
             <p class="font-bold text-gray-700 text-sm mb-3">Kehadiran Hari Ini</p>
+            @if($hariIniLibur)
+            <div class="flex flex-col items-center justify-center py-4 text-center gap-2">
+                <span class="text-3xl">🎉</span>
+                <p class="text-sm font-semibold text-gray-400">Hari ini libur</p>
+                <p class="text-xs text-gray-300">Tidak ada absensi hari ini</p>
+            </div>
+            @else
             <div class="flex flex-col gap-2">
                 <div class="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-2.5">
                     <p class="text-xs text-gray-500">Hadir</p>
@@ -54,9 +61,10 @@
                 </div>
                 <div class="flex items-center justify-between bg-rose-50 rounded-xl px-4 py-2.5">
                     <p class="text-xs text-gray-500">Tidak Hadir</p>
-                    <p class="text-lg font-bold text-rose-500">{{ $totalKaryawan - $hadirHariIni }}</p>
+                    <p class="text-lg font-bold text-rose-500">{{ $tidakHadirHariIni }}</p>
                 </div>
             </div>
+            @endif
         </div>
 
         {{-- Menunggu Persetujuan --}}

@@ -20,13 +20,27 @@ class AbsensiController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $tab    = $request->input('tab', 'hadir'); // ← ubah default ke 'hadir'
+        $tab    = $request->input('tab', 'hadir');
         $today  = Carbon::today()->toDateString();
         $bulan  = (int) $request->get('bulan', date('n'));
         $tahun  = (int) $request->get('tahun', date('Y'));
+        $hariIniLibur = \App\Helpers\HariLiburHelper::isLibur(Carbon::today()) || Carbon::today()->isWeekend();
 
-        // ── Tab: Tidak Hadir Hari Ini ──────────────────────────────────────
+        // Tab: Tidak Hadir Hari Ini
         if ($tab === 'tidak_hadir') {
+            if ($hariIniLibur) {
+                // Hari libur: tidak ada yang tidak hadir
+                return view('admin.absensi.index', [
+                    'data'               => Absensi::query()->paginate(5),
+                    'karyawanTidakHadir' => collect(),
+                    'tab'                => $tab,
+                    'today'              => $today,
+                    'bulan'              => $bulan,
+                    'tahun'              => $tahun,
+                    'hariIniLibur'       => true,
+                ]);
+            }
+
             $sudahAbsenIds = Absensi::whereDate('tanggal', $today)
                 ->whereIn('status', ['hadir', 'terlambat'])
                 ->pluck('id_karyawan');
@@ -44,6 +58,7 @@ class AbsensiController extends Controller
                 'today'              => $today,
                 'bulan'              => $bulan,
                 'tahun'              => $tahun,
+                'hariIniLibur'       => $hariIniLibur,
             ]);
         }
 
@@ -84,6 +99,7 @@ class AbsensiController extends Controller
             'today'              => $today,
             'bulan'              => $bulan,
             'tahun'              => $tahun,
+            'hariIniLibur'       => $hariIniLibur, // Dikirim ke view untuk tab hadir, terlambat, dan semua
         ]);
     }
 

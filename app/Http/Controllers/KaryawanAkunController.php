@@ -58,6 +58,10 @@ class KaryawanAkunController extends Controller
         $bulan = $request->get('bulan', date('n'));
         $tahun = $request->get('tahun', date('Y'));
 
+        $detailAbsensi = [];
+        $detailMisi = collect();
+        $detailTugas = collect();
+
         // Normalisasi status otomatis sebelum tampil
         $hasilAkhirCtrl = new HasilAkhirController();
         $hasilAkhirCtrl->executeGenerateInternal($bulan, $tahun);
@@ -73,6 +77,11 @@ class KaryawanAkunController extends Controller
             ? \Carbon\Carbon::parse($karyawan->tanggal_bergabung)
             : \Carbon\Carbon::create($tahun, $bulan, 1);
 
+        // Hitung jumlah hari berjalan
+        $hariMax = ($bulan == \Carbon\Carbon::now()->month && $tahun == \Carbon\Carbon::now()->year)
+            ? \Carbon\Carbon::now()->day
+            : \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
+
         // Ambil data absensi dari database
         $absensiData = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -80,18 +89,12 @@ class KaryawanAkunController extends Controller
             ->get()
             ->keyBy('tanggal');
 
-        // Hitung jumlah hari berjalan
-        $hariMax = ($bulan == \Carbon\Carbon::now()->month && $tahun == \Carbon\Carbon::now()->year)
-            ? \Carbon\Carbon::now()->day
-            : \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
-
         // Generate log absensi hanya hari kerja & setelah tanggal bergabung
-        $detailAbsensi = [];
         for ($d = 1; $d <= $hariMax; $d++) {
             $tanggalObj = \Carbon\Carbon::create($tahun, $bulan, $d);
 
             if (
-                $tanggalObj->isWeekday()
+                \App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
                 && $tanggalObj->lte(\Carbon\Carbon::today())
                 && $tanggalObj->gte($tanggalBergabung)
             ) {
@@ -108,7 +111,7 @@ class KaryawanAkunController extends Controller
             }
         }
 
-        // Log Misi dengan relasi misi (untuk ambil nama & poin)
+        // Log Misi dengan relasi misi
         $misiRawData = Pengerjaan::with('misi')
             ->where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -118,12 +121,11 @@ class KaryawanAkunController extends Controller
             ->groupBy('tanggal');
 
         // Generate log misi hanya hari kerja & setelah tanggal bergabung
-        $detailMisi = collect();
         for ($d = 1; $d <= $hariMax; $d++) {
             $tanggalObj = \Carbon\Carbon::create($tahun, $bulan, $d);
 
             if (
-                $tanggalObj->isWeekday()
+                \App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
                 && $tanggalObj->lte(\Carbon\Carbon::today())
                 && $tanggalObj->gte($tanggalBergabung)
             ) {

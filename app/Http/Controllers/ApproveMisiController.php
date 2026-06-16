@@ -15,6 +15,9 @@ class ApproveMisiController extends Controller
         $bulan  = (int) $request->get('bulan', date('n'));
         $tahun  = (int) $request->get('tahun', date('Y'));
 
+        // Cek apakah hari ini Libur Nasional atau Weekend
+        $hariIniLibur = \App\Helpers\HariLiburHelper::isLibur(Carbon::today()) || Carbon::today()->isWeekend();
+
         $query = Pengerjaan::with(['misi', 'karyawan'])
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun);
@@ -23,13 +26,18 @@ class ApproveMisiController extends Controller
             $query->whereIn('status', ['menunggu', 'ditolak'])
                 ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
         } elseif ($tab == 'belum_mengerjakan') {
-            $query->where('status', 'belum_mengerjakan')
-                ->whereDate('tanggal', Carbon::today())
-                ->whereHas('misi', fn($m) => $m->where(
-                    'waktu_selesai',
-                    '>',
-                    Carbon::now()->subMinutes(10)->format('H:i:s')
-                ));
+            if ($hariIniLibur) {
+                // Hari libur: kosongkan query pengerjaan belum_mengerjakan
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where('status', 'belum_mengerjakan')
+                    ->whereDate('tanggal', Carbon::today())
+                    ->whereHas('misi', fn($m) => $m->where(
+                        'waktu_selesai',
+                        '>',
+                        Carbon::now()->subMinutes(10)->format('H:i:s')
+                    ));
+            }
         } elseif ($tab == 'selesai') {
             $query->whereIn('status', ['disetujui', 'terlambat'])
                 ->whereDate('tanggal', Carbon::today());
@@ -50,14 +58,15 @@ class ApproveMisiController extends Controller
             ->paginate(5)
             ->withQueryString();
 
+        // Mengatur statistik counter berdasarkan kondisi hari libur harian
         $stat = [
-            'belum'     => Pengerjaan::where('status', 'belum_mengerjakan')->whereDate('tanggal', Carbon::today())->count(),
-            'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(),
-            'terlambat' => Pengerjaan::where('status', 'terlambat')->whereDate('tanggal', Carbon::today())->count(), // ← ubah ke today
-            'disetujui' => Pengerjaan::where('status', 'disetujui')->whereDate('tanggal', Carbon::today())->count(), // ← ubah ke today
+            'belum'     => $hariIniLibur ? 0 : Pengerjaan::where('status', 'belum_mengerjakan')->whereDate('tanggal', Carbon::today())->count(),
+            'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(), // Antrean bulanan tetap dihitung
+            'terlambat' => $hariIniLibur ? 0 : Pengerjaan::where('status', 'terlambat')->whereDate('tanggal', Carbon::today())->count(),
+            'disetujui' => $hariIniLibur ? 0 : Pengerjaan::where('status', 'disetujui')->whereDate('tanggal', Carbon::today())->count(),
         ];
 
-        return view('admin.misi.approve.index', compact('data', 'stat', 'tab', 'bulan', 'tahun'));
+        return view('admin.misi.approve.index', compact('data', 'stat', 'tab', 'bulan', 'tahun', 'hariIniLibur'));
     }
 
     public function show($id)

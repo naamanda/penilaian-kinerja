@@ -59,14 +59,34 @@
               {{ $tab === 'tidak_hadir' ? 'bg-white text-[#1e3f7c] shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
             Tidak Hadir
             @php
+            // 1. Cek terlebih dahulu apakah hari ini libur
+            if (isset($hariIniLibur) && $hariIniLibur) {
+            $jumlahTidak = 0; // Jika libur, otomatis set counter menjadi 0
+            } else {
+            // 2. Jika hari kerja biasa, lakukan perhitungan normal
             $sudahIds = \App\Models\Absensi::whereDate('tanggal', $today)->whereIn('status',['hadir','terlambat'])->pluck('id_karyawan');
             $jumlahTidak = \App\Models\Karyawan::where('id_role', 2)->whereNotIn('id_karyawan', $sudahIds)->count();
+            }
             @endphp
+
+            {{-- Badge angka hanya akan muncul jika jumlahnya di atas 0 --}}
             @if($jumlahTidak > 0)
             <span class="ml-1.5 bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-full">{{ $jumlahTidak }}</span>
             @endif
         </a>
     </div>
+
+    {{-- ===== ALERT HARI LIBUR ===== --}}
+    @if(isset($hariIniLibur) && $hariIniLibur)
+    <div class="mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm font-medium shadow-sm">
+        <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div>
+            <span class="font-bold">Informasi Sistem:</span> Hari ini Libur atau Tanggal Merah.
+        </div>
+    </div>
+    @endif
 
     {{-- ===== TABLE CARD ===== --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -122,7 +142,11 @@
                     @empty
                     <tr>
                         <td colspan="5" class="px-6 py-10 text-center text-gray-400 font-medium">
+                            @if(isset($hariIniLibur) && $hariIniLibur && $tab !== 'semua')
+                            <span class="text-amber-600 font-semibold">Hari ini libur/tanggal merah. Tidak ada jadwal absensi.</span>
+                            @else
                             {{ $tab === 'hari_ini' ? 'Belum ada karyawan yang absen hari ini.' : 'Belum ada data absensi.' }}
+                            @endif
                         </td>
                     </tr>
                     @endforelse
@@ -151,7 +175,11 @@
                     @empty
                     <tr>
                         <td colspan="3" class="px-6 py-10 text-center text-gray-400 font-medium">
+                            @if(isset($hariIniLibur) && $hariIniLibur)
+                            <span class="text-amber-600 font-semibold">Hari ini libur/tanggal merah. Tidak ada jadwal absensi.</span>
+                            @else
                             🎉 Semua karyawan sudah hadir hari ini!
+                            @endif
                         </td>
                     </tr>
                     @endforelse
@@ -165,7 +193,9 @@
     {{-- Pagination --}}
     <div class="mt-4 flex justify-end">
         @php $paginator = $tab === 'tidak_hadir' ? $karyawanTidakHadir : $data; @endphp
-        @if($paginator->lastPage() > 1)
+
+        {{-- PASTIKAN AKTIF HANYA JIKA OBJEK ADALAH PAGINATOR (Bukan Collection biasa) --}}
+        @if($paginator instanceof \Illuminate\Pagination\LengthAwarePaginator && $paginator->lastPage() > 1)
         <div class="flex items-center gap-3">
             <span class="text-sm text-gray-500">
                 Showing {{ $paginator->firstItem() }} to {{ $paginator->lastItem() }} of {{ $paginator->total() }} results
@@ -181,7 +211,7 @@
         @endif
     </div>
 
-    {{-- Modal Hapus (sama persis seperti sebelumnya) --}}
+    {{-- Modal Hapus --}}
     <div id="delete-modal" class="fixed inset-0 z-[9999] hidden overflow-y-auto">
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 font-sans">
