@@ -161,7 +161,7 @@ class AbsensiController extends Controller
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu jam 07:30.'], 403);
         }
 
-        $status = ($jamMenit <= '08:00') ? 'hadir' : 'terlambat';
+        $status = ($jamMenit <= '09:00') ? 'hadir' : 'terlambat';
 
         // 5. EKSEKUSI DATABASE
         return DB::transaction(function () use ($request, $tanggal, $now, $status) {

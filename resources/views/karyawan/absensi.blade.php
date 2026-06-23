@@ -35,7 +35,7 @@
 
         @else
 
-        <p class="text-xs text-gray-400 mt-0.5">Silahkan absen untuk membuka misi harian!</p>
+        <p class="text-xs text-gray-400 mt-0.5">Absensi Hari Ini</p>
         <p class="text-xs text-gray-500 mt-1 mb-4">
             {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
         </p>
@@ -45,7 +45,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Batas Waktu: 08:00
+            Batas Waktu: 09:00
         </div>
 
         @if(!$sudahAbsen)
@@ -61,16 +61,13 @@
                 </svg>
             </div>
             <p class="text-sm font-semibold text-red-400">Absensi sudah ditutup</p>
-            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 08:10</p>
+            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 09:00</p>
         </div>
 
         @else
         {{-- Area Kamera --}}
-        <div id="kameraArea"
-            class="w-full h-40 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50
-            flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative"
-            onclick="bukaKamera()">
-            <canvas id="fotoCanvas" class="absolute inset-0 w-full h-full object-cover rounded-2xl hidden"></canvas>
+        <div id="kameraArea" class="w-full h-96 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative" onclick="bukaKamera()">
+            <canvas id="fotoCanvas" class="absolute inset-0 w-full h-96 object-cover rounded-2xl hidden"></canvas>
             <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
                 <div class="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center">
                     <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +81,7 @@
         </div>
 
         {{-- Video kamera --}}
-        <video id="video" class="hidden w-full h-40 rounded-2xl mb-3 object-cover" autoplay playsinline></video>
+        <video id="video" class="hidden w-full h-72 rounded-2xl mb-3 object-cover" autoplay playsinline></video>
 
         {{-- Tombol ambil foto --}}
         <button id="btnCapture" onclick="ambilFoto()"
@@ -114,7 +111,7 @@
         @else
 
         {{-- Sudah absen --}}
-        <div class="w-full h-40 rounded-2xl overflow-hidden mb-4 bg-gray-100">
+        <div class="w-full h-72 rounded-2xl overflow-hidden mb-4 bg-gray-100">
             @if($fotoAbsensi)
             <img src="{{ url('uploads/absensi/' . $fotoAbsensi) }}" class="w-full h-full object-cover">
             @else
@@ -242,10 +239,21 @@
         try {
             stream = await navigator.mediaDevices.getUserMedia({
                 video: {
-                    facingMode: 'user'
+                    facingMode: 'user',
+                    // KUNCI DI SINI: Memaksa resolusi ideal agar aspek rasio lebih tinggi
+                    width: {
+                        ideal: 1280
+                    },
+                    height: {
+                        ideal: 720
+                    }
                 }
             });
             video.srcObject = stream;
+
+            // Ubah class ke h-96 atau h-[450px] agar kotak benar-benar besar ke bawah
+            video.className = "w-full h-96 rounded-2xl mb-3 object-cover";
+
             video.classList.remove('hidden');
             kameraArea.classList.add('hidden');
             btnCapture.classList.remove('hidden');

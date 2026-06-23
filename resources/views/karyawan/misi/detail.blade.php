@@ -73,7 +73,7 @@
         <h2 class="font-bold text-gray-800 text-sm mb-4">Bukti Pengerjaan Misi</h2>
 
         @if($bisaUpload)
-        <div id="camera-container" class="relative w-full h-48 bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center">
+        <div id="camera-container" class="relative w-full h-80 bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center">
             <button type="button" id="btn-start-init" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md z-10">
                 📷 Aktifkan Kamera
             </button>

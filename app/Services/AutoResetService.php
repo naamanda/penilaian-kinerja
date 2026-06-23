@@ -18,19 +18,21 @@ class AutoResetService
         $minggu    = Carbon::now()->weekOfMonth;
         $bulan     = Carbon::now()->month;
 
-        // Ambil data karyawan khusus role id 2 (Karyawan)
         $karyawanList = Karyawan::where('id_role', 2)->get();
+
+        // Pindah ke sini, sejajar dengan $karyawanList
+        $tugasList = Tugas::where('minggu', $minggu)
+            ->where('bulan', $bulan)
+            ->get();
 
         // 1. ─── LOGIKA RESET HARIAN (MISI) ───
         $sudahResetHariIni = Pengerjaan::where('tanggal', $today)->exists();
 
         if (!$sudahResetHariIni) {
-            // Auto-reject misi kemarin yang statusnya masih 'menunggu'
             Pengerjaan::where('tanggal', $yesterday)
                 ->where('status', 'menunggu')
                 ->update(['status' => 'ditolak']);
 
-            // Buat record misi baru hari ini untuk semua karyawan
             $misiList = Misi::all();
             foreach ($karyawanList as $k) {
                 foreach ($misiList as $m) {
@@ -46,22 +48,13 @@ class AutoResetService
         }
 
         // 2. ─── LOGIKA RESET MINGGUAN (TUGAS MINGGUAN) ───
-        $tugasList = Tugas::where('minggu', $minggu)
-            ->where('bulan', $bulan)
-            ->get();
-
         foreach ($karyawanList as $k) {
             foreach ($tugasList as $t) {
-                // ✅ FIX: Gunakan firstOrCreate agar jika data sudah ada, status 'disetujui' tidak ter-reset kembali ke 'belum_mengerjakan'
+                if ($k->id_divisi != $t->id_divisi) continue;
+
                 Pengumpulan::firstOrCreate(
-                    [
-                        'id_karyawan' => $k->id_karyawan,
-                        'id_tugas'    => $t->id_tugas,
-                    ],
-                    [
-                        'status'       => 'belum_mengerjakan',
-                        'poin_didapat' => 0,
-                    ]
+                    ['id_karyawan' => $k->id_karyawan, 'id_tugas' => $t->id_tugas],
+                    ['status' => 'belum_mengerjakan', 'poin_didapat' => 0]
                 );
             }
         }

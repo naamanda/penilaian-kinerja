@@ -14,24 +14,24 @@ class RewardController extends Controller
      */
     public function index(Request $request)
     {
-        $reward = Reward::paginate(10);
-        $bulanAktif = date('n');
-        $tahunAktif = date('Y');
+        // Mengambil bulan dan tahun aktif dari request filter, default ke bulan berjalan saat ini
+        $bulanAktif = $request->input('bulan', date('n'));
+        $tahunAktif = $request->input('tahun', date('Y'));
+
+        // Saring data reward berdasarkan bulan dan tahun yang ada di dalam relasi hasilakhir
+        $reward = Reward::whereHas('hasilakhir', function ($query) use ($bulanAktif, $tahunAktif) {
+            $query->where('bulan', $bulanAktif)
+                ->where('tahun', $tahunAktif);
+        })->paginate(10);
 
         return view('atasan.reward.index', compact('reward', 'bulanAktif', 'tahunAktif'));
     }
 
-    /**
-     * Tampilkan Halaman Formulir Tambah Program Reward Baru
-     */
     public function create()
     {
         return view('atasan.reward.create');
     }
 
-    /**
-     * Proses Simpan Kategori Reward Baru ke Database
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -40,10 +40,15 @@ class RewardController extends Controller
             'nominal'     => 'required|numeric|min:0',
         ]);
 
-        Reward::create($request->only(['nama_reward', 'jenis', 'nominal']));
+        // 1. Buat data reward terlebih dahulu
+        $reward = Reward::create($request->only(['nama_reward', 'jenis', 'nominal']));
 
-        return redirect('/reward-atasan');
+        // 2. OTOMATISASI: Langsung panggil fungsi detail untuk mencari pemenang bulan ini
+        // Ini agar reward yang baru dibuat langsung mendapatkan 'id_hasilakhir' sesuai bulan berjalan
+        return $this->detail($reward->id_reward);
     }
+
+
 
     /**
      * Fitur Otomatisasi Pencarian Pemenang Berdasarkan Kriteria & Kalkulasi Live Sistem

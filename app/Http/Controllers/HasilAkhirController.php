@@ -76,55 +76,57 @@ class HasilAkhirController extends Controller
 
         $totalTerlambat = $terlambatAbsensi + $terlambatMisi + $terlambatTugas;
 
-        // ── 2. Tidak mengerjakan / Tidak Hadir (2 poin) ─────────
-        $hariIni = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year)
-            ? Carbon::now()->day
-            : Carbon::create($tahun, $bulan)->daysInMonth;
-
+        // ── 2. Tidak Hadir Absensi ───────────────────────────────
         $karyawanData     = Karyawan::findOrFail($idKaryawan);
         $tanggalBergabung = $karyawanData->tanggal_bergabung
             ? Carbon::parse($karyawanData->tanggal_bergabung)
             : Carbon::create($tahun, $bulan, 1);
 
-        $hariKerjaBerjalan = 0;
-        for ($d = 1; $d <= $hariIni; $d++) {
-            $tanggal = Carbon::create($tahun, $bulan, $d);
+        // Samakan dengan logika beranda: pertimbangkan batas jam 09:00
+        $isCurrentMonth = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year);
+        if ($isCurrentMonth) {
+            $jamSekarang         = Carbon::now()->format('H:i');
+            $hariIni             = Carbon::now()->day;
+            $batasHariPengecekan = ($jamSekarang >= '09:00') ? $hariIni : $hariIni - 1;
+        } else {
+            $batasHariPengecekan = Carbon::create($tahun, $bulan)->daysInMonth;
+        }
+
+        $absensi = Absensi::where('id_karyawan', $idKaryawan)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get();
+
+        $tidakHadirAbsensi = 0;
+        for ($d = 1; $d <= $batasHariPengecekan; $d++) {
+            $tanggalObj = Carbon::create($tahun, $bulan, $d);
             if (
-                \App\Helpers\HariLiburHelper::isHariKerja($tanggal)
-                && $tanggal->lte(Carbon::today())
-                && $tanggal->gte($tanggalBergabung)
-            ) { // ← tambah ini
-                $hariKerjaBerjalan++;
+                \App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
+                && $tanggalObj->gte($tanggalBergabung)
+            ) {
+                $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
+                    ->where('tanggal', $tanggalObj->format('Y-m-d'))
+                    ->count();
+                if (!$adaAbsensi) $tidakHadirAbsensi++;
             }
         }
 
-        $totalHadir = Absensi::where('id_karyawan', $idKaryawan)
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->whereIn('status', ['hadir', 'terlambat'])
-            ->count();
-
-        $tidakHadirAbsensi = max(0, $hariKerjaBerjalan - $totalHadir);
-
-        // REVISI MISI: Hanya hitung yang benar-benar berstatus 'tidak_mengerjakan'
+        // ── 3. Tidak Mengerjakan Misi & Tugas ───────────────────
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->where('status', 'tidak_mengerjakan') // <-- Diubah dari whereIn menjadi where tunggal
+            ->where('status', 'tidak_mengerjakan')
             ->count();
 
-        $karyawan = Karyawan::findOrFail($idKaryawan);
-
-        // REVISI TUGAS: Hanya hitung yang benar-benar berstatus 'tidak_mengerjakan'
         $tidakMengerjakanTugas = Pengumpulan::where('id_karyawan', $idKaryawan)
             ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
-                ->where('id_divisi', $karyawan->id_divisi))
-            ->where('status', 'tidak_mengerjakan') // <-- Diubah dari whereIn menjadi where tunggal
+                ->where('id_divisi', $karyawanData->id_divisi))
+            ->where('status', 'tidak_mengerjakan')
             ->count();
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;
 
-        // ── 3. Total Poin & Status Pelanggaran ─────────────────
+        // ── 4. Total Poin & Status ──────────────────────────────
         $totalPoin = ($totalTerlambat * 1) + ($totalTidakMengerjakan * 2);
 
         return [

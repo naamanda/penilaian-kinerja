@@ -4,7 +4,7 @@
 <div class="pt-2 px-6 pb-6">
 
     {{-- Header Section --}}
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Pelanggaran Karyawan</h1>
             <p class="text-xs text-gray-500 mt-0.5">
@@ -13,21 +13,26 @@
             </p>
         </div>
 
-        {{-- Filter Bulan & Tahun --}}
-        <form method="GET" action="{{ route('pelanggaran.index') }}" class="flex items-center gap-2">
-            <select name="bulan" class="text-sm border border-gray-200 rounded-xl px-3 py-2 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e3f7c]/20">
+        {{-- Filter Bulan & Tahun ala Kotak Reward --}}
+        <form method="GET" action="{{ route('pelanggaran.index') }}" class="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200 native-layout w-fit self-end md:self-auto">
+            {{-- Dropdown Bulan --}}
+            <select name="bulan" class="bg-gray-50 border border-gray-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-[#1e3f7c] outline-none cursor-pointer text-gray-700 font-medium">
                 @foreach(range(1,12) as $m)
                 <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
                     {{ DateTime::createFromFormat('!m', $m)->format('F') }}
                 </option>
                 @endforeach
             </select>
-            <select name="tahun" class="text-sm border border-gray-200 rounded-xl px-3 py-2 text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e3f7c]/20">
+
+            {{-- Dropdown Tahun --}}
+            <select name="tahun" class="bg-gray-50 border border-gray-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-[#1e3f7c] outline-none cursor-pointer text-gray-700 font-medium">
                 @foreach(range(date('Y')-2, date('Y')) as $y)
                 <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="bg-[#1e3f7c] hover:bg-[#152c58] text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+
+            {{-- Tombol Submit Filter --}}
+            <button type="submit" class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-all shadow-sm">
                 Filter
             </button>
         </form>
@@ -144,42 +149,42 @@
                         {{-- Kolom Aksi Tunggal (Upload / Lihat + Cancel) --}}
                         <td class="px-6 py-4 text-center">
                             @if($p->id_pelanggaran)
-                                @if($p->file_sp)
-                                    <div class="flex items-center justify-center gap-2 mx-auto">
-                                        {{-- Tombol Lihat Berkas --}}
-                                        <a href="{{ asset('uploads/sp_signed/' . $p->file_sp) }}" target="_blank"
-                                            class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition shadow-sm">
-                                            📄 Lihat File
-                                        </a>
-                                        {{-- Tombol Cancel / Hapus Berkas --}}
-                                        <form action="{{ route('pelanggaran.deleteSp', $p->id_pelanggaran) }}" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus/membatalkan file Surat Peringatan ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition" title="Hapus Berkas SP">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    {{-- Jika Status SP1/SP2 tapi belum upload berkas --}}
-                                    @if(strtoupper($p->status) !== 'AMAN')
-                                        <button
-                                            onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.remove('hidden')"
-                                            class="p-2 bg-[#1e3f7c]/10 text-[#1e3f7c] rounded-xl hover:bg-[#1e3f7c]/20 transition flex items-center justify-center mx-auto"
-                                            title="Unggah Surat Peringatan">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                            </svg>
-                                        </button>
-                                    @else
-                                        <span class="text-xs text-gray-300">-</span>
-                                    @endif
-                                @endif
+                            @if($p->file_sp)
+                            <div class="flex items-center justify-center gap-2 mx-auto">
+                                {{-- Tombol Lihat Berkas --}}
+                                <a href="{{ asset('uploads/sp_signed/' . $p->file_sp) }}" target="_blank"
+                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition shadow-sm">
+                                    📄 Lihat File
+                                </a>
+                                {{-- Tombol Cancel / Hapus Berkas --}}
+                                <form action="{{ route('pelanggaran.deleteSp', $p->id_pelanggaran) }}" method="POST"
+                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus/membatalkan file Surat Peringatan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition inline-flex items-center justify-center" title="Hapus Berkas SP">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
                             @else
-                                <span class="text-xs text-amber-400 italic">ID Kosong</span>
+                            {{-- Jika Status SP1/SP2 tapi belum upload berkas --}}
+                            @if(strtoupper($p->status) !== 'AMAN')
+                            <button
+                                onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.remove('hidden')"
+                                class="p-2 bg-[#1e3f7c]/10 text-[#1e3f7c] rounded-xl hover:bg-[#1e3f7c]/20 transition flex items-center justify-center mx-auto"
+                                title="Unggah Surat Peringatan">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </button>
+                            @else
+                            <span class="text-xs text-gray-300">-</span>
+                            @endif
+                            @endif
+                            @else
+                            <span class="text-xs text-amber-400 italic">ID Kosong</span>
                             @endif
                         </td>
 
@@ -208,54 +213,54 @@
 
 {{-- Modal Upload --}}
 @foreach($pelanggarans as $p)
-    @if($p->id_pelanggaran)
-    <div id="modal-{{ $p->id_pelanggaran }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="text-base font-bold text-gray-800">Unggah Surat Peringatan</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">
-                        {{ $p->karyawan->nama ?? '-' }} &middot;
-                        <span class="font-semibold text-[#1e3f7c]">{{ $p->status }}</span>
-                    </p>
-                </div>
-                <button onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+@if($p->id_pelanggaran)
+<div id="modal-{{ $p->id_pelanggaran }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-base font-bold text-gray-800">Unggah Surat Peringatan</h3>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    {{ $p->karyawan->nama ?? '-' }} &middot;
+                    <span class="font-semibold text-[#1e3f7c]">{{ $p->status }}</span>
+                </p>
+            </div>
+            <button onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form action="{{ route('pelanggaran.uploadSp', $p->id_pelanggaran) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center mb-4 hover:border-[#1e3f7c]/40 transition">
+                <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <label class="cursor-pointer">
+                    <span class="text-sm font-semibold text-[#1e3f7c]">Pilih file berkas SP</span>
+                    <input type="file" name="file_sp" accept=".pdf,.jpg,.png" class="hidden" required
+                        onchange="document.getElementById('filename-{{ $p->id_pelanggaran }}').textContent = this.files[0]?.name ?? ''">
+                </label>
+                <p id="filename-{{ $p->id_pelanggaran }}" class="text-xs text-gray-400 mt-1 truncate px-2"></p>
             </div>
 
-            <form action="{{ route('pelanggaran.uploadSp', $p->id_pelanggaran) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center mb-4 hover:border-[#1e3f7c]/40 transition">
-                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <label class="cursor-pointer">
-                        <span class="text-sm font-semibold text-[#1e3f7c]">Pilih file berkas SP</span>
-                        <input type="file" name="file_sp" accept=".pdf,.jpg,.png" class="hidden" required
-                            onchange="document.getElementById('filename-{{ $p->id_pelanggaran }}').textContent = this.files[0]?.name ?? ''">
-                    </label>
-                    <p id="filename-{{ $p->id_pelanggaran }}" class="text-xs text-gray-400 mt-1 truncate px-2"></p>
-                </div>
-
-                <div class="flex gap-2">
-                    <button type="button"
-                        onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.add('hidden')"
-                        class="flex-1 border border-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="flex-1 bg-[#1e3f7c] hover:bg-[#152c58] text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-sm">
-                        Simpan Berkas
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex gap-2">
+                <button type="button"
+                    onclick="document.getElementById('modal-{{ $p->id_pelanggaran }}').classList.add('hidden')"
+                    class="flex-1 border border-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="flex-1 bg-[#1e3f7c] hover:bg-[#152c58] text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-sm">
+                    Simpan Berkas
+                </button>
+            </div>
+        </form>
     </div>
-    @endif
+</div>
+@endif
 @endforeach
 
 <script>

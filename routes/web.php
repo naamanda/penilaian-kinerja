@@ -18,6 +18,7 @@ use App\Http\Controllers\DashboardAtasanController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\KaryawanAkunController;
+use App\Http\Controllers\AdminRekapController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -126,3 +127,6 @@ Route::post('/karyawan/akun/pelanggaran/{id}/upload', [KaryawanAkunController::c
 
 Route::get('/akun-karyawan/cetak-pdf', [KaryawanAkunController::class, 'cetakPdf'])->name('karyawan.akun.cetak_pdf');
 Route::get('/akun-karyawan/cetak-excel', [KaryawanAkunController::class, 'cetakExcel'])->name('karyawan.akun.cetak_excel');
+
+Route::get('/admin/rekap-kinerja', [AdminRekapController::class, 'index'])->name('admin.rekap.index');
+Route::get('/admin/rekap-kinerja/download', [AdminRekapController::class, 'downloadPdf'])->name('admin.rekap.download');

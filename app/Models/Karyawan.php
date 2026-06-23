@@ -64,4 +64,14 @@ class Karyawan extends Model
     {
         return $this->hasMany(Reward::class, 'id_karyawan');
     }
+
+    public function pengerjaan()
+    {
+        return $this->hasMany(Pengerjaan::class, 'id_karyawan', 'id_karyawan');
+    }
+
+    public function pengumpulan()
+    {
+        return $this->hasMany(Pengumpulan::class, 'id_karyawan', 'id_karyawan');
+    }
 }

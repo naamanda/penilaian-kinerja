@@ -41,7 +41,7 @@
             <span style="font-size:25px; font-weight:600; letter-spacing:0.02em;">LifeSync</span>
         </div>
 
-        <div class="no-scrollbar" style="flex:1; overflow-y:auto; padding:8px 0;">
+        <div class="no-scrollbar" style="flex:1; overflow-y: hidden; padding:4px 0;">
             <nav>
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:12px 16px 4px; font-weight:500;">Menu Utama</p>
 
@@ -79,6 +79,15 @@
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
                     Data Absensi
+                </a>
+
+                {{-- MENU BARU: REKAP KINERJA (ADMIN) --}}
+                <a href="/admin/rekap-kinerja" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('admin/rekap-kinerja*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
+                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('admin/rekap-kinerja*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                    Rekap Kinerja
                 </a>
 
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Kedisiplinan</p>
@@ -142,9 +151,7 @@
     </aside>
 
     <div style="margin-left:224px; min-height:100vh; display:flex; flex-direction:column;">
-        <!-- Bagian Header yang diperbarui -->
         <header class="bg-white shadow-sm px-8 pr-4 flex items-center justify-between sticky top-0 z-30 h-[72px] w-full flex-shrink-0">
-            <!-- w-md atau w-lg untuk melebarkan search bar ke samping -->
             @if(!request()->is('dashboard-admin'))
             <form method="GET" action="{{ url()->current() }}" class="w-full max-w-md">
                 <div class="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-2.5">

@@ -3,21 +3,51 @@
 @section('content')
 <div class="pt-2 px-6 pb-6">
 
-    {{-- Header Section --}}
-    <div class="flex justify-between items-center mb-4">
+    {{-- Header Section dengan Filter Rekap Dropdown --}}
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Kelola Reward</h1>
             <p class="text-xs text-gray-500 mt-0.5">
-                Periode Aktif Penilaian: <span class="font-semibold text-[#1e3f7c]">Bulan {{ $bulanAktif }} / {{ $tahunAktif }}</span>
+                Monitoring program reward otomatis untuk periode: <span class="font-semibold text-[#1e3f7c]">Bulan {{ $bulanAktif }} / {{ $tahunAktif }}</span>
             </p>
         </div>
-        <a href="/reward-atasan/tambah"
-            class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Data
-        </a>
+        
+        {{-- Form Filter Periode & Tombol Tambah --}}
+        <div class="flex flex-wrap items-center gap-3 native-layout">
+            <form action="/reward-atasan" method="GET" class="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
+                {{-- Dropdown Bulan --}}
+                <select name="bulan" class="bg-gray-50 border border-gray-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-[#1e3f7c] outline-none cursor-pointer text-gray-700 font-medium">
+                    @for ($m = 1; $m <= 12; $m++)
+                        <option value="{{ $m }}" {{ $bulanAktif == $m ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endfor
+                </select>
+
+                {{-- Dropdown Tahun --}}
+                <select name="tahun" class="bg-gray-50 border border-gray-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-[#1e3f7c] outline-none cursor-pointer text-gray-700 font-medium">
+                    @for ($y = date('Y') - 3; $y <= date('Y') + 1; $y++)
+                        <option value="{{ $y }}" {{ $tahunAktif == $y ? 'selected' : '' }}>
+                            {{ $y }}
+                        </option>
+                    @endfor
+                </select>
+
+                {{-- Tombol Submit Filter --}}
+                <button type="submit" class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-all shadow-sm">
+                    Filter
+                </button>
+            </form>
+
+            {{-- Tombol Tambah Data --}}
+            <a href="/reward-atasan/tambah"
+                class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Tambah Data
+            </a>
+        </div>
     </div>
 
     {{-- Flash Message Success --}}
@@ -93,7 +123,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-10 text-center text-gray-400 font-medium">Belum ada data program reward yang ditambahkan.</td>
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-400 font-medium">Belum ada data program reward yang ditambahkan pada periode ini.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -102,6 +132,7 @@
     </div>
 
     {{-- Showing Halaman & Pagination ala Karyawan --}}
+    @if ($reward->total() > 0)
     <div class="mt-4 flex justify-end">
         <div class="flex items-center gap-3">
             {{-- Showing info --}}
@@ -112,7 +143,7 @@
             {{-- Nomor halaman only --}}
             <div class="flex items-center gap-1">
                 @for($i = 1; $i <= $reward->lastPage(); $i++)
-                    <a href="{{ $reward->url($i) }}"
+                    <a href="{{ $reward->appends(request()->query())->url($i) }}"
                         class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all
                     {{ $reward->currentPage() == $i 
                         ? 'bg-[#1e3f7c] text-white' 
@@ -123,6 +154,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Pop Up Hapus Kustom Tailwind --}}
     <div id="delete-modal" class="fixed inset-0 z-[9999] hidden overflow-hidden">
