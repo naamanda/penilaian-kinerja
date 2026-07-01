@@ -100,7 +100,6 @@
             <tr>
                 <th>Nama Karyawan</th>
                 <th class="text-center">Total Hadir</th>
-                <th class="text-center">Total Terlambat</th>
                 <th class="text-center">Misi Selesai</th>
                 <th class="text-center">Tugas Selesai</th>
             </tr>
@@ -112,17 +111,12 @@
                 <td class="text-center">
                     <span class="badge badge-success">{{ $item->total_hadir }} Hari</span>
                 </td>
-                <td class="text-center">
-                    <span class="badge {{ $item->total_terlambat > 0 ? 'badge-warning' : '' }}">
-                        {{ $item->total_terlambat }}x
-                    </span>
-                </td>
                 <td class="text-center" style="color: #2563eb; font-weight: bold;">{{ $item->misi_count }} Misi</td>
                 <td class="text-center" style="color: #7c3aed; font-weight: bold;">{{ $item->tugas_count }} Tugas</td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center" style="color: #999; padding: 20px;">
+                <td colspan="4" class="text-center" style="color: #999; padding: 20px;">
                     Tidak ada data aktivitas kuantitas pada periode ini.
                 </td>
             </tr>

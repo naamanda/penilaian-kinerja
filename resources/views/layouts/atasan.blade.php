@@ -48,21 +48,17 @@
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
-    <!-- SIDEBAR ATASAN -->
     <aside style="width:224px; height:100vh; background:#1e3f7c; color:white; display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:50;">
 
-        <!-- LOGO COMPANY -->
         <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.12); flex-shrink:0;">
             <img src="{{ asset('assets/logo.png') }}" alt="logo" style="width:40px; height:40px; object-fit:contain;">
             <span style="font-size:25px; font-weight:600; letter-spacing:0.02em;">LifeSync</span>
         </div>
 
-        <!-- NAVIGATION MENU -->
         <div class="no-scrollbar" style="flex:1; overflow-y:auto; padding:8px 0;">
             <nav>
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:12px 16px 4px; font-weight:500;">Menu Atasan</p>
 
-                <!-- Dashboard Atasan -->
                 <a href="/dashboard-atasan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('dashboard-atasan') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('dashboard-atasan') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
                     <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -74,7 +70,6 @@
 
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Manajemen SDM</p>
 
-                <!-- Kelola Reward -->
                 <a href="/reward-atasan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('reward-atasan*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('reward-atasan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
                     <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -83,7 +78,6 @@
                     Kelola Reward
                 </a>
 
-                <!-- Pelanggaran Karyawan -->
                 <a href="/pelanggaran-atasan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('pelanggaran-atasan*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('pelanggaran-atasan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
                     <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -96,7 +90,6 @@
             </nav>
         </div>
 
-        <!-- LOGOUT SECTION -->
         <div style="border-top:1px solid rgba(255,255,255,0.12); padding:12px 0; flex-shrink:0;">
             <a href="#" onclick="konfirmasiLogout()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; margin:0 8px; border-radius:8px; font-size:13px; color:#fca5a5; text-decoration:none;"
                 onmouseover="this.style.background='rgba(220,38,38,0.2)'; this.style.color='#fecaca';"
@@ -107,17 +100,15 @@
                     <line x1="21" y1="12" x2="9" y2="12" />
                 </svg>
                 Logout
-                </a>
+            </a>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT CONTAINER -->
     <div style="margin-left:224px; min-height:100vh; display:flex; flex-direction:column;">
-        
-        <!-- HEADER -->
+
         <header class="bg-white shadow-sm px-8 py-4 flex items-center justify-between sticky top-0 z-30">
-            
-            <!-- SEARCH BAR (SINKRON DENGAN FITUR CARI) -->
+
+            @if(!request()->is('dashboard-atasan'))
             <form method="GET" action="{{ url()->current() }}" class="w-full max-w-md">
                 <div class="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-2.5">
                     <span class="text-gray-400 text-base">🔍</span>
@@ -126,24 +117,24 @@
                         class="bg-transparent outline-none text-base text-gray-600 w-full placeholder:text-gray-400">
                 </div>
             </form>
+            @else
+            <div></div>
+            @endif
 
-            <!-- PROFILE ATASAN -->
             <div class="font-bold text-[#1e3f7c] text-base flex items-center gap-2">
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs">👤</div>
                 @php
-                    $userLogin = \App\Models\Karyawan::find(Session::get('id_karyawan'));
+                $userLogin = \App\Models\Karyawan::find(Session::get('id_karyawan'));
                 @endphp
                 {{ $userLogin->nama ?? 'Atasan' }}
             </div>
         </header>
 
-        <!-- AREA CONTENT DYNAMIC -->
         <main class="flex-1 p-6 bg-gray-100">
             @yield('content')
         </main>
     </div>
 
-    <!-- JS DEPENDENCIES -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>

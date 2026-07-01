@@ -82,12 +82,12 @@ class HasilAkhirController extends Controller
             ? Carbon::parse($karyawanData->tanggal_bergabung)
             : Carbon::create($tahun, $bulan, 1);
 
-        // Samakan dengan logika beranda: pertimbangkan batas jam 09:00
+        // Samakan dengan logika beranda: pertimbangkan batas jam
         $isCurrentMonth = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year);
         if ($isCurrentMonth) {
             $jamSekarang         = Carbon::now()->format('H:i');
             $hariIni             = Carbon::now()->day;
-            $batasHariPengecekan = ($jamSekarang >= '09:00') ? $hariIni : $hariIni - 1;
+            $batasHariPengecekan = ($jamSekarang >= '17:00') ? $hariIni : $hariIni - 1;
         } else {
             $batasHariPengecekan = Carbon::create($tahun, $bulan)->daysInMonth;
         }
@@ -345,18 +345,35 @@ class HasilAkhirController extends Controller
 
     private function hitungNilaiMisi(int $idKaryawan, int $bulan, int $tahun): float
     {
-        $totalPoin = Pengerjaan::where('id_karyawan', $idKaryawan)
+        // Total semua misi bulan ini
+        $totalSemuaPoin = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereNotIn('status', ['belum_mengerjakan']) // ← tambah ini
             ->join('misi', 'pengerjaan.id_misi', '=', 'misi.id_misi')
-            ->sum('misi.poin');
+            ->sum('misi.poin'); // 7520
 
-        $poinDidapat = Pengerjaan::where('id_karyawan', $idKaryawan)
-            ->whereIn('status', ['disetujui', 'terlambat'])
+        $poinDisetujui = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->sum('poin_didapat');
+            ->where('status', 'disetujui')
+            ->sum('poin_didapat'); // 270
+
+        $poinTerlambat = Pengerjaan::where('id_karyawan', $idKaryawan)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->where('status', 'terlambat')
+            ->sum('poin_didapat'); // 35
+
+        $poinBelum = Pengerjaan::where('id_karyawan', $idKaryawan)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->where('status', 'belum_mengerjakan')
+            ->join('misi', 'pengerjaan.id_misi', '=', 'misi.id_misi')
+            ->sum('misi.poin'); // 320
+
+        $totalPoin = $totalSemuaPoin - $poinDisetujui - $poinTerlambat - $poinBelum; // 6895
+
+        $poinDidapat = $poinDisetujui + $poinTerlambat; // 305
 
         return $totalPoin > 0 ? round(($poinDidapat / $totalPoin) * 100, 2) : 0;
     }

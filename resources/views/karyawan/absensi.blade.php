@@ -27,7 +27,7 @@
             <div class="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center mb-3">
                 <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                 </svg>
             </div>
             <p class="text-sm font-semibold text-gray-400">Selamat menikmati hari libur 🎉</p>
@@ -45,7 +45,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Batas Waktu: 09:00
+            Batas Waktu: 17:00
         </div>
 
         @if(!$sudahAbsen)
@@ -61,13 +61,13 @@
                 </svg>
             </div>
             <p class="text-sm font-semibold text-red-400">Absensi sudah ditutup</p>
-            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 09:00</p>
+            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 17:00</p>
         </div>
 
         @else
-        {{-- Area Kamera --}}
-        <div id="kameraArea" class="w-full h-96 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative" onclick="bukaKamera()">
-            <canvas id="fotoCanvas" class="absolute inset-0 w-full h-96 object-cover rounded-2xl hidden"></canvas>
+        {{-- Area Kamera (Membuka Kamera / Pratinjau Foto Berhasil Diambil) --}}
+        <div id="kameraArea" class="w-full h-[480px] rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative" onclick="bukaKamera()">
+            <canvas id="fotoCanvas" class="absolute inset-0 w-full h-[480px] object-cover rounded-2xl hidden"></canvas>
             <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
                 <div class="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center">
                     <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,8 +80,8 @@
             </div>
         </div>
 
-        {{-- Video kamera --}}
-        <video id="video" class="hidden w-full h-72 rounded-2xl mb-3 object-cover" autoplay playsinline></video>
+        {{-- Video live kamera --}}
+        <video id="video" class="hidden w-full h-[480px] rounded-2xl mb-3 object-cover" autoplay playsinline></video>
 
         {{-- Tombol ambil foto --}}
         <button id="btnCapture" onclick="ambilFoto()"
@@ -110,8 +110,8 @@
 
         @else
 
-        {{-- Sudah absen --}}
-        <div class="w-full h-72 rounded-2xl overflow-hidden mb-4 bg-gray-100">
+        {{-- Halaman Setelah Absensi Berhasil --}}
+        <div class="w-full h-[480px] rounded-2xl overflow-hidden mb-4 bg-gray-100 shadow-inner">
             @if($fotoAbsensi)
             <img src="{{ url('uploads/absensi/' . $fotoAbsensi) }}" class="w-full h-full object-cover">
             @else
@@ -160,8 +160,8 @@
     let userLng = null;
     let lokasiValid = false;
 
-    const OFFICE_LAT = -7.678603;
-    const OFFICE_LNG = 109.035448;
+    const OFFICE_LAT = -7.717586;
+    const OFFICE_LNG = 109.020001;
     const RADIUS_KM = 0.1;
 
     function hitungJarak(lat1, lon1, lat2, lon2) {
@@ -188,7 +188,7 @@
         lokasiText.className = 'text-gray-400';
 
         if (!navigator.geolocation) {
-            lokasiText.textContent = '📍 Browser tidak mendukung lokasi';
+            locationsText.textContent = '📍 Browser tidak mendukung lokasi';
             lokasiText.className = 'text-yellow-500';
             return;
         }
@@ -240,7 +240,6 @@
             stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'user',
-                    // KUNCI DI SINI: Memaksa resolusi ideal agar aspek rasio lebih tinggi
                     width: {
                         ideal: 1280
                     },
@@ -251,8 +250,8 @@
             });
             video.srcObject = stream;
 
-            // Ubah class ke h-96 atau h-[450px] agar kotak benar-benar besar ke bawah
-            video.className = "w-full h-96 rounded-2xl mb-3 object-cover";
+            // KUNCI PERUBAHAN: Menyesuaikan class video agar tetap h-[480px] secara dinamis di JS
+            video.className = "w-full h-[480px] rounded-2xl mb-3 object-cover";
 
             video.classList.remove('hidden');
             kameraArea.classList.add('hidden');

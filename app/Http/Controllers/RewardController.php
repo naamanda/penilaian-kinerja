@@ -18,11 +18,25 @@ class RewardController extends Controller
         $bulanAktif = $request->input('bulan', date('n'));
         $tahunAktif = $request->input('tahun', date('Y'));
 
+        // Ambil keyword dari search bar navbar
+        $search = $request->input('search');
+
         // Saring data reward berdasarkan bulan dan tahun yang ada di dalam relasi hasilakhir
-        $reward = Reward::whereHas('hasilakhir', function ($query) use ($bulanAktif, $tahunAktif) {
+        $query = Reward::whereHas('hasilakhir', function ($query) use ($bulanAktif, $tahunAktif) {
             $query->where('bulan', $bulanAktif)
                 ->where('tahun', $tahunAktif);
-        })->paginate(10);
+        });
+
+        // JIKA ADA KEYWORD SEARCH, FILTER BERDASARKAN NAMA REWARD ATAU JENIS
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_reward', 'LIKE', "%{$search}%")
+                    ->orWhere('jenis', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Ambil hasil akhir dengan paginate dan pertahankan query parameter di URL
+        $reward = $query->paginate(10)->withQueryString();
 
         return view('atasan.reward.index', compact('reward', 'bulanAktif', 'tahunAktif'));
     }

@@ -20,7 +20,7 @@
 
     @php
     $waktuUploadFull = \Carbon\Carbon::parse(
-        \Carbon\Carbon::parse($pengerjaan->tanggal)->format('Y-m-d') . ' ' . $pengerjaan->waktu_upload
+    \Carbon\Carbon::parse($pengerjaan->tanggal)->format('Y-m-d') . ' ' . $pengerjaan->waktu_upload
     );
     $isTerlambat = $waktuUploadFull->gt(\Carbon\Carbon::parse($toleransi));
     @endphp
@@ -34,27 +34,27 @@
 
             <div>
                 @if($pengerjaan->status == 'belum_mengerjakan')
-                    @if($bisaUpload)
-                        <span class="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full font-medium">Bisa Dikerjakan</span>
-                    @elseif(\Carbon\Carbon::now()->gt($toleransi))
-                        <span class="text-xs bg-gray-100 text-gray-400 px-2.5 py-1 rounded-full font-medium">Terlewat</span>
-                    @else
-                        <span class="text-xs bg-yellow-100 text-yellow-600 px-2.5 py-1 rounded-full font-medium">Belum Mulai</span>
-                    @endif
+                @if($bisaUpload)
+                <span class="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full font-medium">Bisa Dikerjakan</span>
+                @elseif(\Carbon\Carbon::now()->gt($toleransi))
+                <span class="text-xs bg-gray-100 text-gray-400 px-2.5 py-1 rounded-full font-medium">Terlewat</span>
+                @else
+                <span class="text-xs bg-yellow-100 text-yellow-600 px-2.5 py-1 rounded-full font-medium">Belum Mulai</span>
+                @endif
                 @elseif($pengerjaan->status == 'menunggu')
-                    @if($isTerlambat)
-                        <span class="text-xs bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan (Terlambat)</span>
-                    @else
-                        <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan</span>
-                    @endif
+                @if($isTerlambat)
+                <span class="text-xs bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan (Terlambat)</span>
+                @else
+                <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Menunggu Persetujuan</span>
+                @endif
                 @elseif($pengerjaan->status == 'disetujui')
-                    @if($isTerlambat)
-                        <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ Disetujui (Terlambat)</span>
-                    @else
-                        <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">✓ Disetujui</span>
-                    @endif
+                @if($isTerlambat)
+                <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ Disetujui (Terlambat)</span>
+                @else
+                <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">✓ Disetujui</span>
+                @endif
                 @elseif($pengerjaan->status == 'ditolak')
-                    <span class="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">Ditolak (Bisa Upload Ulang)</span>
+                <span class="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">Ditolak (Bisa Upload Ulang)</span>
                 @endif
             </div>
         </div>
@@ -73,7 +73,7 @@
         <h2 class="font-bold text-gray-800 text-sm mb-4">Bukti Pengerjaan Misi</h2>
 
         @if($bisaUpload)
-        <div id="camera-container" class="relative w-full h-80 bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center">
+        <div id="camera-container" class="relative w-full h-[480px] bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center shadow-inner">
             <button type="button" id="btn-start-init" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md z-10">
                 📷 Aktifkan Kamera
             </button>
@@ -115,13 +115,13 @@
                 <div class="flex justify-between items-center">
                     <span class="text-gray-400">Poin Diperoleh:</span>
                     @if($pengerjaan->status == 'disetujui')
-                        <span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->misi->poin }} Poin</span>
+                    <span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->misi->poin }} Poin</span>
                     @elseif($pengerjaan->status == 'terlambat')
-                        <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->poin_didapat }} Poin</span>
+                    <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">+{{ $pengerjaan->poin_didapat }} Poin</span>
                     @elseif($pengerjaan->status == 'ditolak')
-                        <span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">0 Poin</span>
+                    <span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">0 Poin</span>
                     @elseif($pengerjaan->status == 'menunggu')
-                        <span class="font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
+                    <span class="font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
                     @endif
                 </div>
 
@@ -129,13 +129,13 @@
                     <span class="text-gray-400">Status Misi:</span>
                     <div>
                         @if($pengerjaan->status == 'menunggu')
-                            <span class="font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
+                        <span class="font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
                         @elseif($pengerjaan->status == 'disetujui')
-                            <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">✓ Disetujui</span>
+                        <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">✓ Disetujui</span>
                         @elseif($pengerjaan->status == 'terlambat')
-                            <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">✓ Disetujui (Terlambat)</span>
+                        <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">✓ Disetujui (Terlambat)</span>
                         @elseif($pengerjaan->status == 'ditolak')
-                            <span class="font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md">Ditolak</span>
+                        <span class="font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md">Ditolak</span>
                         @endif
                     </div>
                 </div>
@@ -162,15 +162,15 @@
 <script>
     // ── Toast ──────────────────────────────────────────────
     function showToast(message, type = 'success') {
-        const toast   = document.getElementById('toast');
-        const icon    = document.getElementById('toast-icon');
-        const msg     = document.getElementById('toast-message');
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        const msg = document.getElementById('toast-message');
 
         toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[9999] max-w-xs w-full px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 transition-all duration-300
             ${type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`;
 
         icon.textContent = type === 'success' ? '✅' : '❌';
-        msg.textContent  = message;
+        msg.textContent = message;
 
         toast.classList.remove('hidden');
 
@@ -184,17 +184,17 @@
     }
 
     // ── Kamera ────────────────────────────────────────────
-    const video        = document.getElementById('video');
-    const canvas       = document.getElementById('canvas');
-    const preview      = document.getElementById('preview');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
     const btnStartInit = document.getElementById('btn-start-init');
-    const btnCapture   = document.getElementById('btn-capture');
-    const btnRetake    = document.getElementById('btn-retake');
-    const btnSubmit    = document.getElementById('btn-submit');
-    const btnSwitch    = document.getElementById('btn-switch');
+    const btnCapture = document.getElementById('btn-capture');
+    const btnRetake = document.getElementById('btn-retake');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnSwitch = document.getElementById('btn-switch');
 
-    let currentStream    = null;
-    let base64Image      = null;
+    let currentStream = null;
+    let base64Image = null;
     let currentFacingMode = "environment";
 
     function stopCamera() {
@@ -206,7 +206,12 @@
 
     function startCamera(facingMode) {
         stopCamera();
-        navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: false })
+        navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode
+                },
+                audio: false
+            })
             .then(stream => {
                 currentStream = stream;
                 video.srcObject = stream;
@@ -215,7 +220,10 @@
                 btnCapture.classList.remove('hidden');
             })
             .catch(() => {
-                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    })
                     .then(stream => {
                         currentStream = stream;
                         video.srcObject = stream;
@@ -242,7 +250,7 @@
 
     btnCapture.addEventListener('click', () => {
         const ctx = canvas.getContext('2d');
-        canvas.width  = video.videoWidth;
+        canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         base64Image = canvas.toDataURL('image/png');
@@ -272,35 +280,37 @@
             return;
         }
 
-        btnSubmit.disabled   = true;
-        btnSubmit.innerText  = "Mengirim...";
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "Mengirim...";
 
         fetch('/aktivitas-misi/{{ $pengerjaan->id_pengerjaan }}/upload', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ foto: base64Image })
-        })
-        .then(async response => {
-            const isJson = response.headers.get('content-type')?.includes('application/json');
-            const data   = isJson ? await response.json() : null;
-            if (!response.ok) {
-                throw new Error((data && data.message) ? data.message : 'Terjadi kesalahan pada server.');
-            }
-            return data;
-        })
-        .then(data => {
-            showToast(data.message || 'Bukti misi berhasil dikirim!', 'success');
-            setTimeout(() => window.location.href = '/aktivitas-misi', 2500);
-        })
-        .catch(err => {
-            showToast('Gagal: ' + err.message, 'error');
-            btnSubmit.disabled  = false;
-            btnSubmit.innerText = "📤 Kirim Bukti Misi";
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    foto: base64Image
+                })
+            })
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await response.json() : null;
+                if (!response.ok) {
+                    throw new Error((data && data.message) ? data.message : 'Terjadi kesalahan pada server.');
+                }
+                return data;
+            })
+            .then(data => {
+                showToast(data.message || 'Bukti misi berhasil dikirim!', 'success');
+                setTimeout(() => window.location.href = '/aktivitas-misi', 2500);
+            })
+            .catch(err => {
+                showToast('Gagal: ' + err.message, 'error');
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "📤 Kirim Bukti Misi";
+            });
     });
 </script>
 @endif

@@ -53,7 +53,7 @@ class KaryawanBerandaController extends Controller
         $hariIni     = Carbon::now()->day;
         $jamSekarang = Carbon::now()->format('H:i');
 
-        $batasHariPengecekan = ($jamSekarang >= '09:00') ? $hariIni : $hariIni - 1;
+        $batasHariPengecekan = ($jamSekarang >= '17:00') ? $hariIni : $hariIni - 1;
 
         $tanggalBergabung = $karyawan->tanggal_bergabung
             ? Carbon::parse($karyawan->tanggal_bergabung)

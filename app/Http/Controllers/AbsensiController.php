@@ -9,13 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
-    private $office_lat =  -7.678603;
-    private $office_lng = 109.035448;
+    private $office_lat =  -7.717586;
+    private $office_lng = 109.020001;
     private $radius_km = 0.1; // 100 meter toleransi jarak
-
-    // ==========================================
-    // POV ADMIN (Tampilan Desktop)
-    // ==========================================
 
     public function index(Request $request)
     {
@@ -161,7 +157,7 @@ class AbsensiController extends Controller
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu jam 07:30.'], 403);
         }
 
-        $status = ($jamMenit <= '09:00') ? 'hadir' : 'terlambat';
+        $status = ($jamMenit <= '17:00') ? 'hadir' : 'terlambat';
 
         // 5. EKSEKUSI DATABASE
         return DB::transaction(function () use ($request, $tanggal, $now, $status) {

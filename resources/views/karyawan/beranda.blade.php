@@ -9,7 +9,7 @@
         <span class="text-white font-bold text-2xl tracking-wide">LifeSync</span>
     </div>
     <p class="text-blue-200 text-xs">Selamat Datang,</p>
-    <p class="text-white text-xl font-bold mt-0.5">{{ $karyawan->nama }}! 👋</p>
+    <p class="text-white text-xl font-bold mt-0.5">{{ $karyawan->nama }}! </p>
 </div>
 
 {{-- Nilai Card --}}
