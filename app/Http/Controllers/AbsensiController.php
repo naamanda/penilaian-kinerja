@@ -95,7 +95,7 @@ class AbsensiController extends Controller
             'today'              => $today,
             'bulan'              => $bulan,
             'tahun'              => $tahun,
-            'hariIniLibur'       => $hariIniLibur, // Dikirim ke view untuk tab hadir, terlambat, dan semua
+            'hariIniLibur'       => $hariIniLibur,
         ]);
     }
 
@@ -157,7 +157,6 @@ class AbsensiController extends Controller
         // 5. EKSEKUSI DATABASE
         return DB::transaction(function () use ($request, $tanggal, $now, $status) {
 
-            // --- FIXED: PENYIMPANAN FOTO LANGSUNG KE PUBLIC PATH ---
             $img = $request->foto;
             $image_parts = explode(";base64,", $img);
             $image_base64 = base64_decode($image_parts[1]);

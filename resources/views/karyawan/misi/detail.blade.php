@@ -160,7 +160,7 @@
             </div>
             @else
             <div class="text-center py-4">
-                <p class="text-sm text-gray-400">Waktu pengerjaan telah habis.</p>
+                <p class="text-sm text-gray-400">Waktu pengerjaan belum mulai/telah habis.</p>
             </div>
             @endif
         </div>
@@ -170,7 +170,6 @@
 
 @if($bisaUpload)
 <script>
-    // ── Toast ──────────────────────────────────────────────
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
         const icon = document.getElementById('toast-icon');
@@ -193,7 +192,7 @@
         }, 2800);
     }
 
-    // ── Kamera ────────────────────────────────────────────
+    // Kamera
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const preview = document.getElementById('preview');

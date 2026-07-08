@@ -210,7 +210,6 @@
                 if (e.key === 'Escape') closeDeleteModal();
             });
 
-            // Sinkronisasi status scrollbar body saat modal ditutup agar tetap tersembunyi
             window.addEventListener('click', function(e) {
                 if(document.getElementById('delete-modal').classList.contains('hidden')) {
                     document.body.style.scrollbarWidth = 'none';

@@ -127,7 +127,6 @@
 
 @push('scripts')
 <script>
-    // ── Toast ──────────────────────────────────────────────
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
         const icon = document.getElementById('toast-icon');
@@ -150,8 +149,6 @@
         }, 2800);
     }
 
-    // ── File Handling ──────────────────────────────────────
-    // REVISI: Meremajakan penamaan nama variabel dari fotoBase64 menjadi fileBase64 agar sesuai konteks PDF
     let fileBase64 = null;
 
     function previewFile(event) {

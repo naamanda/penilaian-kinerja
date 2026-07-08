@@ -146,7 +146,7 @@
                 .innerText = name; // isi nama karyawan
             document.getElementById('delete-modal')
                 .classList.remove('hidden'); // tampilkan modal
-            document.body.style.overflow = 'hidden'; // matikan scroll halaman
+            document.body.style.overflow = 'hidden';
         }
 
         // sembunyiin popup

@@ -138,14 +138,12 @@
 
             const modal = document.getElementById('delete-modal');
             modal.classList.remove('hidden');
-            // Prevent scroll on body
             document.body.style.overflow = 'hidden';
         }
 
         function closeDeleteModal() {
             const modal = document.getElementById('delete-modal');
             modal.classList.add('hidden');
-            // Re-enable scroll
             document.body.style.overflow = 'auto';
             activeDeleteFormId = null;
         }
@@ -156,7 +154,6 @@
             }
         });
 
-        // Close modal on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeDeleteModal();
         });

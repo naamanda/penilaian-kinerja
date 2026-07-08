@@ -136,9 +136,9 @@
         <p class="text-xs text-blue-500 text-right mt-2">Tap untuk lihat detail →</p>
     </div>
 
-    {{-- Target Mingguan --}}
+    {{-- Tugas Mingguan --}}
     <div class="bg-white rounded-2xl shadow-sm p-4">
-        <p class="font-bold text-gray-800 mb-3">Target Mingguan</p>
+        <p class="font-bold text-gray-800 mb-3">Tugas Mingguan</p>
         @forelse($tugas as $t)
         <div class="mb-3 last:mb-0">
             <div class="flex items-center justify-between mb-1">
