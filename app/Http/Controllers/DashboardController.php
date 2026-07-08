@@ -25,7 +25,10 @@ class DashboardController extends Controller
         $terlambatHariIni = $hariIniLibur ? 0 : Absensi::whereDate('tanggal', $today)->where('status', 'terlambat')->count();
         $tidakHadirHariIni = $hariIniLibur ? 0 : ($totalKaryawan - $hadirHariIni);
         $menungguMisi     = Pengerjaan::where('status', 'menunggu')->whereDate('tanggal', $today)->count();
-        $menungguTugas    = Pengumpulan::where('status', 'menunggu')->count();
+        $menungguTugas    = Pengumpulan::where('status', 'menunggu')
+            ->whereMonth('tanggal_upload', $bulan)
+            ->whereYear('tanggal_upload', $tahun)
+            ->count();
 
         $hasilAkhirCtrl = new HasilAkhirController();
         $leaderboard = Karyawan::where('id_role', 2)

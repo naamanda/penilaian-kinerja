@@ -4,7 +4,13 @@
 {{-- Header --}}
 <div class="bg-[#1e3f7c] px-5 pt-10 pb-6 flex items-center justify-between">
     <a href="/aktivitas-misi" class="text-white flex items-center gap-1 text-sm font-semibold">
-        ← Kembali
+        <span class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 19l-7-7 7-7" />
+            </svg>
+            Kembali
+        </span>
     </a>
     <span class="text-white font-bold text-lg">Detail Misi</span>
     <div class="w-14"></div>
@@ -28,8 +34,12 @@
     {{-- Card Informasi Misi --}}
     <div class="bg-white rounded-2xl shadow-sm p-5 mb-5 border border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold text-yellow-500 bg-yellow-50 px-2.5 py-1 rounded-full">
-                🏅 {{ $pengerjaan->misi->poin }} Poin
+            <span class="inline-flex items-center gap-1 text-xs font-semibold text-yellow-500 bg-yellow-50 px-2.5 py-1 rounded-full">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8l-2 4H6l3 2-1 4 4-2 4 2-1-4 3-2h-4l-2-4z" />
+                </svg>
+                {{ $pengerjaan->misi->poin }} Poin
             </span>
 
             <div>
@@ -63,8 +73,8 @@
         <p class="text-sm text-gray-500 mb-4">{{ $pengerjaan->misi->deskripsi }}</p>
 
         <div class="border-t border-gray-100 pt-3 flex flex-col gap-1.5 text-xs text-gray-400">
-            <p>⏰ Waktu Misi: <strong>{{ \Carbon\Carbon::parse($pengerjaan->misi->waktu_mulai)->format('H:i') }} – {{ \Carbon\Carbon::parse($pengerjaan->misi->waktu_selesai)->format('H:i') }} WIB</strong></p>
-            <p>⏳ Batas Toleransi: <strong class="text-red-400">{{ \Carbon\Carbon::parse($toleransi)->format('H:i') }} WIB</strong></p>
+            <p>Waktu Misi: <strong>{{ \Carbon\Carbon::parse($pengerjaan->misi->waktu_mulai)->format('H:i') }} – {{ \Carbon\Carbon::parse($pengerjaan->misi->waktu_selesai)->format('H:i') }} WIB</strong></p>
+            <p>Batas Toleransi: <strong class="text-red-400">{{ \Carbon\Carbon::parse($toleransi)->format('H:i') }} WIB</strong></p>
         </div>
     </div>
 

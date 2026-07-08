@@ -30,7 +30,13 @@
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
                 </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-400">Selamat menikmati hari libur 🎉</p>
+            <div class="flex items-center gap-2 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l.7 2.154a1 1 0 00.95.69h2.264c.969 0 1.371 1.24.588 1.81l-1.832 1.331a1 1 0 00-.364 1.118l.7 2.154c.3.921-.755 1.688-1.54 1.118l-1.832-1.331a1 1 0 00-1.176 0l-1.832 1.331c-.784.57-1.838-.197-1.539-1.118l.7-2.154a1 1 0 00-.364-1.118L5.597 7.581c-.783-.57-.38-1.81.588-1.81H8.45a1 1 0 00.95-.69l.7-2.154z" />
+                </svg>
+                <p class="text-sm font-semibold">Selamat menikmati hari libur</p>
+            </div>
         </div>
 
         @else
@@ -45,7 +51,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Batas Waktu: 17:00
+            Batas Waktu: 18:00
         </div>
 
         @if(!$sudahAbsen)
@@ -61,7 +67,7 @@
                 </svg>
             </div>
             <p class="text-sm font-semibold text-red-400">Absensi sudah ditutup</p>
-            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 17:00</p>
+            <p class="text-xs text-red-300 mt-1">Batas waktu absensi 18:00</p>
         </div>
 
         @else
@@ -86,12 +92,12 @@
         {{-- Tombol ambil foto --}}
         <button id="btnCapture" onclick="ambilFoto()"
             class="hidden w-full py-3 rounded-xl text-sm font-bold bg-blue-500 text-white mb-3">
-            📸 Ambil Foto
+            Ambil Foto
         </button>
 
         {{-- Info lokasi --}}
         <div id="infoLokasi" class="text-xs text-center mb-3 hidden">
-            <span id="lokasiText" class="text-gray-400">📍 Mengambil lokasi...</span>
+            <span id="lokasiText" class="text-gray-400">Mengambil lokasi...</span>
         </div>
 
         {{-- Tombol absen --}}
@@ -104,7 +110,7 @@
         {{-- Tombol ulangi --}}
         <button id="btnUlang" onclick="ulangi()"
             class="hidden w-full py-3 rounded-xl text-sm font-bold border border-gray-300 text-gray-500 mt-2">
-            🔄 Ulangi Foto
+            Ulangi Foto
         </button>
         @endif
 
@@ -122,9 +128,9 @@
         <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center
             {{ $statusAbsen == 'hadir' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600' }}">
             @if($statusAbsen == 'hadir')
-            ✅ Hadir — {{ $waktuAbsen }}
+            Hadir — {{ $waktuAbsen }}
             @else
-            ⏰ Terlambat — {{ $waktuAbsen }}
+            Terlambat — {{ $waktuAbsen }}
             @endif
         </div>
 
@@ -160,8 +166,8 @@
     let userLng = null;
     let lokasiValid = false;
 
-    const OFFICE_LAT = -7.717586;
-    const OFFICE_LNG = 109.020001;
+    const OFFICE_LAT = -7.678603;
+    const OFFICE_LNG = 109.035448;
     const RADIUS_KM = 0.1;
 
     function hitungJarak(lat1, lon1, lat2, lon2) {
@@ -184,11 +190,11 @@
         if (!infoLokasi) return;
 
         infoLokasi.classList.remove('hidden');
-        lokasiText.textContent = '📍 Mengambil lokasi...';
+        lokasiText.textContent = 'Mengambil lokasi...';
         lokasiText.className = 'text-gray-400';
 
         if (!navigator.geolocation) {
-            locationsText.textContent = '📍 Browser tidak mendukung lokasi';
+            lokasiText.textContent = 'Browser tidak mendukung lokasi';
             lokasiText.className = 'text-yellow-500';
             return;
         }
@@ -202,24 +208,26 @@
 
             if (jarak <= RADIUS_KM) {
                 lokasiValid = true;
-                lokasiText.textContent = `✅ Lokasi sesuai — ${jarakM}m dari kantor`;
+                lokasiText.textContent = `Lokasi sesuai — ${jarakM}m dari kantor`;
                 lokasiText.className = 'text-green-600 font-semibold';
             } else {
                 lokasiValid = false;
-                lokasiText.textContent = `❌ Di luar radius kantor — ${jarakM}m dari kantor (maks. ${RADIUS_KM * 1000}m)`;
+                lokasiText.textContent = `Di luar radius kantor — ${jarakM}m dari kantor (maks. ${RADIUS_KM * 1000}m)`;
                 lokasiText.className = 'text-red-500 font-semibold';
             }
         };
 
-        const gagalLokasi = () => {
-            navigator.geolocation.getCurrentPosition(cekLokasi, () => {
-                lokasiText.textContent = '⚠️ Lokasi tidak tersedia';
-                lokasiText.className = 'text-yellow-500';
-            }, {
-                enableHighAccuracy: false,
-                timeout: 15000,
-                maximumAge: 60000
-            });
+        const gagalLokasi = (error) => {
+
+            console.log(error);
+
+            alert(
+                "Code: " + error.code +
+                "\nMessage: " + error.message
+            );
+
+            lokasiText.textContent = "⚠️ " + error.message;
+            lokasiText.className = "text-red-500";
         };
 
         navigator.geolocation.getCurrentPosition(cekLokasi, gagalLokasi, {

@@ -38,8 +38,6 @@ class KaryawanTugasController extends Controller
 
                 $p->sudah_lewat = $now->gt($deadline);
 
-                // REVISI LOGIKA: Karyawan hanya bisa upload jika waktunya belum lewat 
-                // DAN statusnya 'belum_mengerjakan' atau 'ditolak'. Jika 'tidak_mengerjakan' berarti sudah diblok (hangus).
                 $p->bisa_upload = !$p->sudah_lewat
                     && in_array($p->status, ['belum_mengerjakan', 'ditolak']);
 
@@ -61,7 +59,6 @@ class KaryawanTugasController extends Controller
         $now      = Carbon::now();
         $deadline = Carbon::parse($pengumpulan->tugas->deadline);
 
-        // REVISI LOGIKA: Sesuaikan pengecekan status di halaman detail tugas karyawan
         $bisaUpload = $now->lte($deadline)
             && in_array($pengumpulan->status, ['belum_mengerjakan', 'ditolak']);
 
@@ -91,25 +88,19 @@ class KaryawanTugasController extends Controller
             return response()->json(['message' => 'File bukti wajib diupload.'], 422);
         }
 
-        // Ambil string base64
         $image_parts  = explode(";base64,", $request->file);
         $image_base64 = base64_decode($image_parts[1]);
 
-        // Kunci ekstensi wajib .pdf
         $fileName     = $id_karyawan . '_tugas_' . $id . '_' . time() . '.pdf';
 
-        // Tentukan path tujuan langsung ke folder public/uploads/tugas
         $destinationPath = public_path('uploads/tugas');
 
-        // Buat foldernya otomatis jika belum ada di folder public
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
         }
 
-        // Simpan file fisiknya menggunakan fungsi bawaan PHP asli (file_put_contents)
         file_put_contents($destinationPath . '/' . $fileName, $image_base64);
 
-        // Hapus file lama di folder public jika ada
         if ($pengumpulan->file && file_exists($destinationPath . '/' . $pengumpulan->file)) {
             unlink($destinationPath . '/' . $pengumpulan->file);
         }
@@ -134,7 +125,6 @@ class KaryawanTugasController extends Controller
         }
         $pengumpulan = $pengumpulan->firstOrFail();
 
-        // Arahkan pencarian ke folder public/uploads/tugas
         $path = public_path('uploads/tugas/' . $pengumpulan->file);
 
         if (!file_exists($path) || !$pengumpulan->file) {

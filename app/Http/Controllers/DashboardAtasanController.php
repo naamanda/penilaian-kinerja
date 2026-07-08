@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class DashboardAtasanController extends Controller
 {
-    // Gunakan internal helper atau inject HasilAkhirController untuk hitung realtime
     protected HasilAkhirController $hasilAkhir;
 
     public function __construct()
@@ -24,7 +23,7 @@ class DashboardAtasanController extends Controller
         $bulan = (int) $request->get('bulan', date('n'));
         $tahun = (int) $request->get('tahun', date('Y'));
 
-        // 1. Total Seluruh Karyawan Aktif (Role 2) tanpa batasan pengkondisian tabel lain
+        // 1. Total Seluruh Karyawan (Role 2)
         $totalKaryawan = Karyawan::where('id_role', 2)->count();
 
         // 2. Total Divisi
@@ -50,10 +49,7 @@ class DashboardAtasanController extends Controller
                 $totalPelanggaran++;
             }
 
-            // 4. Hitung estimasi reward berdasarkan nominal kelayakan nilai (jika diperlukan)
-            // Catatan: Jika reward dihitung dari relasi khusus, sesuaikan kueri pemanggilannya di sini.
-
-            // Masukkan data hasil kalkulasi ke dalam collection untuk keperluan leaderboard/peringkat
+            // 4. Hitung estimasi reward berdasarkan nominal kelayakan nilai
             $allKaryawanData->push([
                 'karyawan'    => $k,
                 'nama'        => $k->nama,
@@ -66,7 +62,7 @@ class DashboardAtasanController extends Controller
         // 5. Urutkan peringkat karyawan berdasarkan Nilai Akhir tertinggi (Realtime Leaderboard)
         $peringkatKaryawan = $allKaryawanData->sortByDesc('nilai_akhir')->values();
 
-        // Contoh perhitungan dana reward dari database atau alokasi statis (opsional)
+        // Contoh perhitungan dana reward dari database atau alokasi statis
         $totalDanaReward = Reward::whereHas('hasilakhir', function($q) use ($bulan, $tahun) {
             $q->where('bulan', $bulan)->where('tahun', $tahun);
         })->sum('nominal');

@@ -11,7 +11,6 @@ use App\Models\HasilAkhir;
 use App\Models\Pelanggaran;
 use App\Http\Controllers\HasilAkhirController;
 use Illuminate\Support\Facades\Session;
-// Ganti baris ini agar Intelephense VS Code tidak error:
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class KaryawanAkunController extends Controller
@@ -43,7 +42,6 @@ class KaryawanAkunController extends Controller
             ->where('tahun', $tahunSekarang)
             ->first();
 
-        // Kirim $hasilAkhir ke view index
         return view('karyawan.akun.index', compact('karyawan', 'hasilAkhir'));
     }
 
@@ -62,7 +60,6 @@ class KaryawanAkunController extends Controller
         $detailMisi = collect();
         $detailTugas = collect();
 
-        // Normalisasi status otomatis sebelum tampil
         $hasilAkhirCtrl = new HasilAkhirController();
         $hasilAkhirCtrl->executeGenerateInternal($bulan, $tahun);
 
@@ -302,7 +299,6 @@ class KaryawanAkunController extends Controller
             ->get()
             ->keyBy('tanggal');
 
-        // Tentukan batas hari penulisan PDF sesuai aturan controller pusat
         $hariMax = ($bulan == \Carbon\Carbon::now()->month && $tahun == \Carbon\Carbon::now()->year)
             ? \Carbon\Carbon::now()->day
             : \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
@@ -371,7 +367,7 @@ class KaryawanAkunController extends Controller
         return $pdf->download("Laporan_Kinerja_{$hasilAkhir->karyawan->nama}_{$namaBulan}_{$tahun}.pdf");
     }
 
-    // ── METHOD CETAK EXCEL: Perbaikan Anti ERR_INVALID_RESPONSE ──
+    // METHOD CETAK EXCEL
     public function cetakExcel(Request $request)
     {
         $idKaryawan = Session::get('id_karyawan');
@@ -406,7 +402,6 @@ class KaryawanAkunController extends Controller
 
         $filename = "Laporan_Kinerja_{$hasilAkhir->karyawan->nama}_{$namaBulan}_{$tahun}.xls";
 
-        // Menggunakan standard Response Laravel agar browser langsung mendownload tanpa crash
         return response()->view('karyawan.akun.cetak_excel', compact('hasilAkhir', 'namaBulan', 'tahun'))
             ->header('Content-Type', 'application/vnd.ms-excel')
             ->header('Content-Disposition', "attachment; filename={$filename}")

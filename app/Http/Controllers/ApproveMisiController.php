@@ -27,7 +27,6 @@ class ApproveMisiController extends Controller
                 ->orderByRaw("FIELD(status, 'menunggu', 'ditolak') ASC");
         } elseif ($tab == 'belum_mengerjakan') {
             if ($hariIniLibur) {
-                // Hari libur: kosongkan query pengerjaan belum_mengerjakan
                 $query->whereRaw('1 = 0');
             } else {
                 $query->where('status', 'belum_mengerjakan')
@@ -58,7 +57,6 @@ class ApproveMisiController extends Controller
             ->paginate(5)
             ->withQueryString();
 
-        // Mengatur statistik counter berdasarkan kondisi hari libur harian
         $stat = [
             'belum'     => $hariIniLibur ? 0 : Pengerjaan::where('status', 'belum_mengerjakan')->whereDate('tanggal', Carbon::today())->count(),
             'menunggu'  => Pengerjaan::where('status', 'menunggu')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count(), // Antrean bulanan tetap dihitung
@@ -88,7 +86,6 @@ class ApproveMisiController extends Controller
             $pengerjaan->status       = 'disetujui';
             $pengerjaan->poin_didapat = $misi->poin ?? 0;
         } else {
-            // Pasti dalam toleransi 10 menit, karena kalau lebih sudah dicegah di karyawan
             $pengerjaan->status       = 'terlambat';
             $pengerjaan->poin_didapat = intval(($misi->poin ?? 0) / 2);
         }

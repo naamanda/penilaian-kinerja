@@ -15,18 +15,18 @@ class AuthController extends Controller
 
     public function loginProses(Request $request)
     {
-        // 1. Cari user berdasarkan username & password md5
+        // 1. Cari user berdasarkan username & password
         $user = Karyawan::where('username', $request->username)
             ->where('password', md5($request->password))
             ->first();
 
         if ($user) {
-            // 2. Simpan data ke session pakai key biasa (tanpa prefix)
+            // 2. Simpan data ke session
             Session::put('id_karyawan', $user->id_karyawan);
             Session::put('nama', $user->nama);
             Session::put('id_role', $user->id_role);
 
-            // Menjalankan service auto reset jika diperlukan
+            // Menjalankan service auto reset
             if (class_exists('\App\Services\AutoResetService')) {
                 \App\Services\AutoResetService::jalankan();
             }
@@ -41,7 +41,7 @@ class AuthController extends Controller
             }
         }
 
-        // Jika user tidak ditemukan, balikkan dengan pesan error
+        // Jika user tidak ditemukan
         return back()->with('error', 'Username atau password salah');
     }
 

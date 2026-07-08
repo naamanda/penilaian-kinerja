@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class HasilAkhirController extends Controller
 {
-    // =========================================================
-    //  PUBLIC CALCULATION METHODS
-    //  Dipanggil dari controller lain, termasuk KaryawanBerandaController
-    // =========================================================
 
     /**
      * Hitung semua nilai karyawan untuk bulan & tahun tertentu.
@@ -56,7 +52,7 @@ class HasilAkhirController extends Controller
      */
     public function hitungPelanggaran(int $idKaryawan, int $bulan, int $tahun): array
     {
-        // ── 1. Terlambat (1 poin) ────────────────────────────────
+        // ── 1. Terlambat (1 poin)
         $terlambatAbsensi = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -76,18 +72,17 @@ class HasilAkhirController extends Controller
 
         $totalTerlambat = $terlambatAbsensi + $terlambatMisi + $terlambatTugas;
 
-        // ── 2. Tidak Hadir Absensi ───────────────────────────────
+        // ── 2. Tidak Hadir Absensi
         $karyawanData     = Karyawan::findOrFail($idKaryawan);
         $tanggalBergabung = $karyawanData->tanggal_bergabung
             ? Carbon::parse($karyawanData->tanggal_bergabung)
             : Carbon::create($tahun, $bulan, 1);
 
-        // Samakan dengan logika beranda: pertimbangkan batas jam
         $isCurrentMonth = ($bulan == Carbon::now()->month && $tahun == Carbon::now()->year);
         if ($isCurrentMonth) {
             $jamSekarang         = Carbon::now()->format('H:i');
             $hariIni             = Carbon::now()->day;
-            $batasHariPengecekan = ($jamSekarang >= '17:00') ? $hariIni : $hariIni - 1;
+            $batasHariPengecekan = ($jamSekarang >= '18:00') ? $hariIni : $hariIni - 1;
         } else {
             $batasHariPengecekan = Carbon::create($tahun, $bulan)->daysInMonth;
         }
@@ -151,9 +146,7 @@ class HasilAkhirController extends Controller
         return                   ['kode' => 'D',  'label' => 'Kurang'];
     }
 
-    // =========================================================
     //  ATASAN — INDEX (Otomatis panggil hitung data terbaru)
-    // =========================================================
     public function index(Request $request)
     {
         $bulan = $request->get('bulan', date('n'));
@@ -162,7 +155,7 @@ class HasilAkhirController extends Controller
         // Pemicu Otomatis: Jalankan fungsi generate internal sebelum mengambil data view
         $this->executeGenerateInternal($bulan, $tahun);
 
-        // Ambil data hasil akhir yang sudah dipastikan paling update di DB
+        // Ambil data hasil akhir
         $hasilAkhir = HasilAkhir::with('karyawan')
             ->where('bulan', $bulan)
             ->where('tahun', $tahun)
@@ -172,9 +165,7 @@ class HasilAkhirController extends Controller
         return view('atasan.hasilakhir.index', compact('hasilAkhir', 'bulan', 'tahun'));
     }
 
-    // =========================================================
     //  ATASAN — GENERATE (Fungsi Inti Simpan Ke DB)
-    // =========================================================
     public function generate(Request $request)
     {
         $request->validate([
@@ -193,7 +184,6 @@ class HasilAkhirController extends Controller
      */
     public function executeGenerateInternal(int $bulan, int $tahun)
     {
-        // 0. GENERATE ROW PENGERJAAN OTOMATIS untuk setiap karyawan & misi per hari kerja
         $karyawans = Karyawan::where('id_role', 2)->get();
         $misiList  = \App\Models\Misi::all();
 
@@ -317,9 +307,8 @@ class HasilAkhirController extends Controller
             ]);
         }
     }
-    // =========================================================
+
     //  ATASAN — SHOW
-    // =========================================================
     public function show($id)
     {
         $hasil = HasilAkhir::with(['karyawan', 'reward'])->findOrFail($id);
@@ -327,9 +316,7 @@ class HasilAkhirController extends Controller
         return view('atasan.hasilakhir.show', compact('hasil'));
     }
 
-    // =========================================================
     //  PRIVATE HELPERS
-    // =========================================================
     private function hitungNilaiKehadiran(int $idKaryawan, int $bulan, int $tahun): float
     {
         $absensi = Absensi::where('id_karyawan', $idKaryawan)

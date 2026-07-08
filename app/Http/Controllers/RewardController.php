@@ -9,16 +9,13 @@ use Illuminate\Http\Request;
 
 class RewardController extends Controller
 {
-    /**
-     * Tampilkan List Kategori Program Reward (Halaman Utama)
-     */
+
     public function index(Request $request)
     {
         // Mengambil bulan dan tahun aktif dari request filter, default ke bulan berjalan saat ini
         $bulanAktif = $request->input('bulan', date('n'));
         $tahunAktif = $request->input('tahun', date('Y'));
 
-        // Ambil keyword dari search bar navbar
         $search = $request->input('search');
 
         // Saring data reward berdasarkan bulan dan tahun yang ada di dalam relasi hasilakhir
@@ -27,7 +24,6 @@ class RewardController extends Controller
                 ->where('tahun', $tahunAktif);
         });
 
-        // JIKA ADA KEYWORD SEARCH, FILTER BERDASARKAN NAMA REWARD ATAU JENIS
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_reward', 'LIKE', "%{$search}%")
@@ -35,7 +31,6 @@ class RewardController extends Controller
             });
         }
 
-        // Ambil hasil akhir dengan paginate dan pertahankan query parameter di URL
         $reward = $query->paginate(10)->withQueryString();
 
         return view('atasan.reward.index', compact('reward', 'bulanAktif', 'tahunAktif'));
@@ -57,12 +52,9 @@ class RewardController extends Controller
         // 1. Buat data reward terlebih dahulu
         $reward = Reward::create($request->only(['nama_reward', 'jenis', 'nominal']));
 
-        // 2. OTOMATISASI: Langsung panggil fungsi detail untuk mencari pemenang bulan ini
         // Ini agar reward yang baru dibuat langsung mendapatkan 'id_hasilakhir' sesuai bulan berjalan
         return $this->detail($reward->id_reward);
     }
-
-
 
     /**
      * Fitur Otomatisasi Pencarian Pemenang Berdasarkan Kriteria & Kalkulasi Live Sistem
@@ -85,7 +77,7 @@ class RewardController extends Controller
         $pemenang = collect();
         $kriteriaNama = strtolower($reward->nama_reward);
 
-        // 2. Tentukan pemenang berdasarkan ranking (DIPERBAIKI: Ditambahkan variasi kata 'rank')
+        // 2. Tentukan pemenang berdasarkan ranking
         if (str_contains($kriteriaNama, 'ranking 1') || str_contains($kriteriaNama, 'peringkat 1') || str_contains($kriteriaNama, 'rank 1')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(0)->take(1)->get();
         } elseif (str_contains($kriteriaNama, 'ranking 2') || str_contains($kriteriaNama, 'peringkat 2') || str_contains($kriteriaNama, 'rank 2')) {
@@ -93,14 +85,12 @@ class RewardController extends Controller
         } elseif (str_contains($kriteriaNama, 'ranking 3') || str_contains($kriteriaNama, 'peringkat 3') || str_contains($kriteriaNama, 'rank 3')) {
             $pemenang = $queryHasil->orderByDesc('nilai_akhir')->skip(2)->take(1)->get();
         } elseif ($reward->jenis === 'disiplin' || str_contains($kriteriaNama, 'disiplin')) {
-            // Pemenang = karyawan dengan nilai kedisiplinan tertinggi
             $pemenang = $queryHasil->orderByDesc('nilai_kedisiplinan')->take(1)->get();
         }
 
-        // 3. KUNCI UTAMA: Update id_hasilakhir di tabel reward secara permanen ke database
         if ($pemenang->isNotEmpty()) {
             $reward->id_hasilakhir = $pemenang->first()->id_hasilakhir;
-            $reward->save(); // Menyimpan perubahan ke tabel reward
+            $reward->save();
         }
 
         return view('atasan.reward.detail', compact('reward', 'pemenang', 'bulanAktif', 'tahunAktif'));
@@ -122,7 +112,7 @@ class RewardController extends Controller
     {
         $request->validate([
             'nama_reward' => 'required|string|max:255',
-            'jenis'       => 'required|in:ranking,disiplin', // KOREKSI: Validasi diperketat sesuai ENUM DB
+            'jenis'       => 'required|in:ranking,disiplin',
             'nominal'     => 'required|numeric|min:0',
         ]);
 

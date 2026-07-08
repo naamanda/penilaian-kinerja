@@ -79,7 +79,7 @@
                         <td class="px-6 py-3.5">
                             <span class="px-3 py-1 rounded-lg text-xs font-bold 
                                 {{ str_contains($r->jenis, 'rank') ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-purple-50 text-purple-700 border border-purple-100' }}">
-                                🎯 {{ strtoupper(str_replace('_', ' ', $r->jenis)) }}
+                                {{ strtoupper(str_replace('_', ' ', $r->jenis)) }}
                             </span>
                         </td>
 
@@ -131,7 +131,6 @@
         </div>
     </div>
 
-    {{-- Showing Halaman & Pagination ala Karyawan --}}
     @if ($reward->total() > 0)
     <div class="mt-4 flex justify-end">
         <div class="flex items-center gap-3">
@@ -140,7 +139,6 @@
                 Showing {{ $reward->firstItem() }} to {{ $reward->lastItem() }} of {{ $reward->total() }} results
             </span>
 
-            {{-- Nomor halaman only --}}
             <div class="flex items-center gap-1">
                 @for($i = 1; $i <= $reward->lastPage(); $i++)
                     <a href="{{ $reward->appends(request()->query())->url($i) }}"
@@ -156,7 +154,6 @@
     </div>
     @endif
 
-    {{-- Pop Up Hapus Kustom Tailwind --}}
     <div id="delete-modal" class="fixed inset-0 z-[9999] hidden overflow-hidden">
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
 
@@ -196,7 +193,6 @@
 </div>
 
 <script>
-    // SCRIPT UTAMA UNTUK MENGHILANGKAN SCROLLBAR DI SAMPING KANAN LAYAR UTAMA
     document.body.style.overflow = 'hidden';
 
     let activeDeleteFormId = null;

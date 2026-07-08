@@ -24,13 +24,11 @@ class AdminRekapController extends Controller
                     ->whereYear('tanggal', $tahun)
                     ->where('status', 'terlambat');
             },
-            // pakai 'pengerjaan' bukan 'misi'
             'pengerjaan as misi_count' => function ($query) use ($bulan, $tahun) {
                 $query->whereMonth('tanggal', $bulan)
                     ->whereYear('tanggal', $tahun)
                     ->whereIn('status', ['disetujui', 'terlambat']);
             },
-            // pakai 'pengumpulan' bukan 'tugas'
             'pengumpulan as tugas_count' => function ($query) use ($bulan, $tahun) {
                 $query->whereMonth('tanggal_upload', $bulan)
                     ->whereYear('tanggal_upload', $tahun)

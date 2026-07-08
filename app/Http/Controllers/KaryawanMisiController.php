@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/KaryawanMisiController.php
 
 namespace App\Http\Controllers;
 
@@ -12,8 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class KaryawanMisiController extends Controller
 {
-    // Daftar misi hari ini
-    // app/Http/Controllers/KaryawanMisiController.php
 
     public function index()
     {
@@ -39,9 +36,6 @@ class KaryawanMisiController extends Controller
             $selesai   = Carbon::parse($p->misi->waktu_selesai);
             $toleransi = $selesai->copy()->addMinutes(10);
 
-            // --- LOGIKA UTAMA REAL-TIME ---
-            // Jika status di database 'belum_mengerjakan' namun waktu toleransi sudah terlewat,
-            // paksa status objeknya menjadi 'tidak_mengerjakan' demi visual dan perhitungan pelanggaran.
             if ($p->status == 'belum_mengerjakan' && $now->gt($toleransi)) {
                 $p->status = 'tidak_mengerjakan';
             }
@@ -56,21 +50,20 @@ class KaryawanMisiController extends Controller
             return $p;
         });
 
-        // --- LOGIKA SORTING REAL-TIME ---
         // Mengurutkan item: 
         // 1. Yang bisa dikerjakan berada di PALING ATAS.
         // 2. Yang belum mulai berada di bawahnya.
         // 3. Status aktif/menunggu verifikasi/ditolak berada di tengah.
-        // 4. Selesai (disetujui/terlambat) dan Tidak Mengerjakan berada di PALING BAWAH.
+        // 4. Selesai (disetujui/terlambat) dan Tidak Mengerjakan berada di PALING BAWAH
         $pengerjaan = $pengerjaan->sortBy(function ($p) {
             if ($p->status == 'belum_mengerjakan') {
-                if ($p->bisa_upload) return 1; // Kerjakan (Top)
-                if ($p->belum_mulai) return 2; // Belum Mulai (Abu-abu)
+                if ($p->bisa_upload) return 1;
+                if ($p->belum_mulai) return 2;
             }
             if ($p->status == 'ditolak') return 3;
             if ($p->status == 'menunggu') return 4;
-            if (in_array($p->status, ['disetujui', 'terlambat'])) return 5; // Selesai (Hijau)
-            if ($p->status == 'tidak_mengerjakan') return 6; // Tidak Mengerjakan (Merah - Bottom)
+            if (in_array($p->status, ['disetujui', 'terlambat'])) return 5;
+            if ($p->status == 'tidak_mengerjakan') return 6;
 
             return 7;
         })->values();
@@ -102,11 +95,10 @@ class KaryawanMisiController extends Controller
     }
 
     // Upload bukti misi
-    // Upload bukti misi
     public function upload(Request $request, $id)
     {
         $id_karyawan = Session::get('id_karyawan');
-        $now         = Carbon::now('Asia/Jakarta'); // Set ke timezone lokal kamu
+        $now         = Carbon::now('Asia/Jakarta');
         $today       = Carbon::today()->toDateString();
 
         // 1. Ambil data pengerjaan misi
@@ -121,7 +113,7 @@ class KaryawanMisiController extends Controller
             return response()->json(['message' => 'Misi ini tidak bisa diupload ulang.'], 403);
         }
 
-        // 3. Pastikan data foto dikirim oleh JavaScript
+        // 3. Pastikan data foto dikirim
         if (!$request->has('foto') || empty($request->foto)) {
             return response()->json(['message' => 'Foto bukti wajib diambil.'], 422);
         }
@@ -129,7 +121,6 @@ class KaryawanMisiController extends Controller
         try {
             $imgData = $request->foto;
 
-            // Bersihkan header Base64 data URL bawaan canvas jika ada
             if (str_contains($imgData, 'base64,')) {
                 $imgData = explode('base64,', $imgData)[1];
             }

@@ -69,9 +69,9 @@
                 </p>
                 <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-[10px] text-gray-400">
                     <span class="flex items-center gap-1">• Terlambat: <b class="text-gray-500">1 Poin</b></span>
-                    <span class="flex items-center gap-1">• SP1: <b class="text-amber-600">Poin 5–8</b></span>
+                    <span class="flex items-center gap-1">• SP1: <b class="text-amber-600">Poin ≥ 8</b></span>
                     <span class="flex items-center gap-1">• Tidak Mengerjakan: <b class="text-gray-500">2 Poin</b></span>
-                    <span class="flex items-center gap-1">• SP2: <b class="text-rose-600">Poin ≥ 9</b></span>
+                    <span class="flex items-center gap-1">• SP2: <b class="text-rose-600">Poin ≥ 12</b></span>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@
             @elseif($statusUser !== 'AMAN')
             {{-- REVISI: Sudah disesuaikan menggunakan variabel $statusUser hasil kapitalisasi --}}
             <div class="pt-2 text-center text-[11px] text-amber-500 font-medium italic">
-                ⚠️ Berkas fisik Surat Peringatan sedang diproses oleh Atasan.
+                Berkas fisik Surat Peringatan sedang diproses oleh Atasan.
             </div>
             @endif
 

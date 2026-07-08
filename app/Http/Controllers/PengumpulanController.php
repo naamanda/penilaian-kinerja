@@ -16,7 +16,6 @@ class PengumpulanController extends Controller
         $bulan  = (int) $request->get('bulan', date('n'));
         $tahun  = (int) $request->get('tahun', date('Y'));
 
-        // 1. QUERY UTAMA UNTUK ISI TABEL (DI-FILTER BERDASARKAN TAB YANG DIKLIK)
         $query = Pengumpulan::with(['tugas.divisi', 'karyawan']);
 
         if ($tab == 'antrean') {
@@ -27,7 +26,7 @@ class PengumpulanController extends Controller
             $query->whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
                 ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
                     ->whereYear('deadline', $tahun)
-                    ->where('deadline', '>=', Carbon::now())) // ← tambah ini
+                    ->where('deadline', '>=', Carbon::now()))
                 ->whereRaw('EXISTS (
             SELECT 1 FROM tugas 
             JOIN karyawan ON karyawan.id_divisi = tugas.id_divisi
@@ -39,7 +38,6 @@ class PengumpulanController extends Controller
                 ->whereYear('tanggal_upload', $tahun);
         }
 
-        // Filter Pencarian jika user mengetik nama karyawan/tugas
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('karyawan', fn($q2) => $q2->where('nama', 'like', '%' . $search . '%'))
@@ -47,13 +45,8 @@ class PengumpulanController extends Controller
             });
         }
 
-        // Eksekusi data untuk tabel bawah (Paginasi 5 data per halaman)
         $data = $query->orderBy('id_pengumpulan', 'desc')->paginate(5)->withQueryString();
 
-
-        // =========================================================================
-        // 2. HITUNG STATISTIK (DIPISAH SENDIRI-SENDIRI BIAR RELEVAN & TIDAK NGACU)
-        // =========================================================================
         $stat = [
             'belum' => Pengumpulan::whereIn('status', ['belum_mengerjakan', 'tidak_mengerjakan'])
                 ->whereHas('tugas', fn($q) => $q->where('bulan', $bulan)
@@ -95,7 +88,6 @@ class PengumpulanController extends Controller
         $waktuUpload = Carbon::parse($pengumpulan->waktu_upload);
         $deadline    = Carbon::parse($tugas->deadline);
 
-        // ✅ Fix: lte = tepat waktu, sisanya = terlambat (sudah dicegah kalau lewat toleransi)
         if ($waktuUpload->lte($deadline)) {
             $pengumpulan->status       = 'disetujui';
             $pengumpulan->poin_didapat = $tugas->poin ?? 0;
@@ -122,18 +114,14 @@ class PengumpulanController extends Controller
 
     public function lihatFile($id)
     {
-        // Cari data pengumpulan berdasarkan ID tugas tanpa memfilter ID Karyawan
         $pengumpulan = Pengumpulan::where('id_pengumpulan', $id)->firstOrFail();
 
-        // Arahkan path pencarian langsung ke folder public/uploads/tugas
         $path = public_path('uploads/tugas/' . $pengumpulan->file);
 
-        // Cek apakah file fisik PDF benar-benar ada di folder tersebut
         if (!file_exists($path) || !$pengumpulan->file) {
             abort(404, 'File PDF tidak ditemukan di server.');
         }
 
-        // Tampilkan file PDF secara aman di tab baru browser admin
         return response()->file($path, [
             'Content-Type' => 'application/pdf',
         ]);

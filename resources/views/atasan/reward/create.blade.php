@@ -32,10 +32,10 @@
                             <div class="relative">
                                 <select name="jenis" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#1e3f7c] outline-none appearance-none cursor-pointer">
                                     <option value="" disabled {{ old('jenis') ? '' : 'selected' }}>-- Pilih Kriteria --</option>
-                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>🎯 RANK 1</option>
-                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>🎯 RANK 2</option>
-                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>🎯 RANK 3</option>
-                                    <option value="disiplin" {{ old('jenis') == 'disiplin' ? 'selected' : '' }}>🎯 DISIPLIN</option>
+                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>RANK 1</option>
+                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>RANK 2</option>
+                                    <option value="ranking" {{ old('jenis') == 'ranking' ? 'selected' : '' }}>RANK 3</option>
+                                    <option value="disiplin" {{ old('jenis') == 'disiplin' ? 'selected' : '' }}>DISIPLIN</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

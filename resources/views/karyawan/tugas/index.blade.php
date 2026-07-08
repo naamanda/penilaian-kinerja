@@ -25,9 +25,15 @@
             <div class="flex-1">
                 <p class="font-semibold text-gray-800 text-sm">{{ $p->tugas->nama_tugas }}</p>
                 <p class="text-xs text-gray-400 mt-0.5">{{ $p->tugas->deskripsi }}</p>
-                <p class="text-xs text-gray-400 mt-1">
-                    📅 Deadline: {{ \Carbon\Carbon::parse($p->tugas->deadline)->locale('id')->translatedFormat('l, d F Y') }}
-                </p>
+                <div class="flex items-center gap-1 mt-1 text-xs text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>
+                        Deadline: {{ \Carbon\Carbon::parse($p->tugas->deadline)->locale('id')->translatedFormat('l, d F Y') }}
+                    </span>
+                </div>
             </div>
 
             <div class="shrink-0">
@@ -39,7 +45,13 @@
                 <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Kerjakan</span>
                 @endif
                 @elseif($p->status == 'tidak_mengerjakan')
-                <span class="text-xs bg-red-50 text-red-500 border border-red-100 px-2 py-1 rounded-full">❌ Pelanggaran</span>
+                <span class="inline-flex items-center gap-1 text-xs bg-red-50 text-red-500 border border-red-100 px-2 py-1 rounded-full">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Pelanggaran
+                </span>
                 @elseif($p->status == 'menunggu')
                 <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">Menunggu</span>
                 @elseif($p->status == 'disetujui')
@@ -53,7 +65,13 @@
         </div>
 
         <div class="mt-2 flex items-center justify-between">
-            <span class="text-xs text-yellow-500 font-semibold">🏅 {{ $p->tugas->poin }} poin</span>
+            <span class="inline-flex items-center gap-1 text-xs text-yellow-500 font-semibold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8l-2 4H6l3 2-1 4 4-2 4 2-1-4 3-2h-4l-2-4z" />
+                </svg>
+                {{ $p->tugas->poin }} poin
+            </span>
             @if($p->poin_didapat > 0)
             <span class="text-xs text-green-600 font-semibold">+{{ $p->poin_didapat }} didapat</span>
             @endif

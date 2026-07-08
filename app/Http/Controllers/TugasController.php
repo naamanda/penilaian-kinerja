@@ -113,7 +113,6 @@ class TugasController extends Controller
             'id_divisi'  => $request->id_divisi,
         ]);
 
-        // Jika divisi berubah, hapus pengumpulan lama & generate untuk divisi baru
         if ($request->id_divisi != $divisiLama) {
             Pengumpulan::where('id_tugas', $id)->delete();
 
@@ -128,8 +127,7 @@ class TugasController extends Controller
                 ]);
             }
         } else {
-            // REVISI LOGIKA UTAMA: Jika divisi tidak berubah tetapi tengat waktu diperpanjang oleh admin,
-            // kembalikan status karyawan yang sempat terkunci di 'tidak_mengerjakan' menjadi 'belum_mengerjakan'
+
             if (Carbon::parse($request->deadline)->gt(Carbon::now())) {
                 Pengumpulan::where('id_tugas', $id)
                     ->where('status', 'tidak_mengerjakan')

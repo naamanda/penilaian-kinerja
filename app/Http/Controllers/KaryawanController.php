@@ -34,7 +34,7 @@ class KaryawanController extends Controller
         Karyawan::create([
             'nama' => $request->nama,
             'username' => $request->username,
-            'password' => md5($request->password), // tambah md5
+            'password' => md5($request->password),
             'id_role' => $request->id_role,
             'id_divisi' => $request->id_divisi,
             'tanggal_bergabung'  => \Carbon\Carbon::today()->toDateString(),
@@ -54,7 +54,7 @@ class KaryawanController extends Controller
     {
         $karyawan = Karyawan::find($id);
 
-        $divisiLama = $karyawan->id_divisi; // simpan sebelum update
+        $divisiLama = $karyawan->id_divisi;
 
         $karyawan->nama     = $request->nama;
         $karyawan->username = $request->username;
@@ -65,7 +65,6 @@ class KaryawanController extends Controller
         $karyawan->id_divisi = $request->id_divisi;
         $karyawan->save();
 
-        // Jika divisi berubah, auto-generate pengumpulan untuk tugas aktif di divisi baru
         if ($request->id_divisi != $divisiLama) {
             $minggu = \Carbon\Carbon::now()->weekOfMonth;
             $bulan  = \Carbon\Carbon::now()->month;

@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
-    private $office_lat =  -7.717586;
-    private $office_lng = 109.020001;
+    private $office_lat =  -7.678603;
+    private $office_lng = 109.035448;
     private $radius_km = 0.1; // 100 meter toleransi jarak
 
     public function index(Request $request)
@@ -110,7 +110,6 @@ class AbsensiController extends Controller
     {
         $absensi = Absensi::where('id_absensi', $id)->firstOrFail();
 
-        // --- FIXED: HAPUS FOTO DI PUBLIC PATH ---
         if ($absensi->foto && file_exists(public_path('uploads/absensi/' . $absensi->foto))) {
             unlink(public_path('uploads/absensi/' . $absensi->foto));
         }
@@ -119,10 +118,6 @@ class AbsensiController extends Controller
 
         return back()->with('success', 'Catatan absensi berhasil dihapus tanpa menghapus data karyawan.');
     }
-
-    // ==========================================
-    // POV KARYAWAN (Tampilan Mobile Web)
-    // ==========================================
 
     public function store(Request $request)
     {
@@ -157,7 +152,7 @@ class AbsensiController extends Controller
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu jam 07:30.'], 403);
         }
 
-        $status = ($jamMenit <= '17:00') ? 'hadir' : 'terlambat';
+        $status = ($jamMenit <= '18:00') ? 'hadir' : 'terlambat';
 
         // 5. EKSEKUSI DATABASE
         return DB::transaction(function () use ($request, $tanggal, $now, $status) {
@@ -191,10 +186,6 @@ class AbsensiController extends Controller
             ]);
         });
     }
-
-    // ==========================================
-    // PRIVATE LOGIC (INTERNAL)
-    // ==========================================
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {

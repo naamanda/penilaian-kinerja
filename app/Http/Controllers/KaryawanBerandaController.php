@@ -28,13 +28,13 @@ class KaryawanBerandaController extends Controller
 
         $karyawan = Karyawan::findOrFail($id);
 
-        // ── Nilai + Pelanggaran realtime ──────────────────────
+        // Nilai + Pelanggaran realtime 
         $nilaiData   = $this->hasilAkhir->hitungNilai($id, $bulan, $tahun);
 
         $nilai        = $nilaiData['akhir'];
         $pelanggaran  = $nilaiData['pelanggaran']; // ← pakai hasil hitungPelanggaran()
 
-        // ── Leaderboard realtime ──────────────────────────────
+        // Leaderboard realtime 
         $leaderboard = Karyawan::where('id_role', 2)
             ->get()
             ->map(function ($k) use ($bulan, $tahun) {
@@ -44,7 +44,7 @@ class KaryawanBerandaController extends Controller
             ->sortByDesc('total_nilai')
             ->values();
 
-        // ── Kehadiran bulan ini ───────────────────────────────
+        // Kehadiran bulan ini
         $absensi = Absensi::where('id_karyawan', $id)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -53,7 +53,7 @@ class KaryawanBerandaController extends Controller
         $hariIni     = Carbon::now()->day;
         $jamSekarang = Carbon::now()->format('H:i');
 
-        $batasHariPengecekan = ($jamSekarang >= '17:00') ? $hariIni : $hariIni - 1;
+        $batasHariPengecekan = ($jamSekarang >= '18:00') ? $hariIni : $hariIni - 1;
 
         $tanggalBergabung = $karyawan->tanggal_bergabung
             ? Carbon::parse($karyawan->tanggal_bergabung)
@@ -93,7 +93,7 @@ class KaryawanBerandaController extends Controller
             'tidak_hadir' => $tidakHadirAbsensi,
         ];
 
-        // ── Detail Pelanggaran (breakdown per kategori untuk modal) ───
+        // Detail Pelanggaran
         $detailTerlambat = [
             'absensi' => Absensi::where('id_karyawan', $id)
                 ->whereMonth('tanggal', $bulan)
@@ -112,7 +112,7 @@ class KaryawanBerandaController extends Controller
         ];
 
         $detailTidakMengerjakan = [
-            'absensi' => $tidakHadirAbsensi, // ← langsung pakai hasil loop di atas
+            'absensi' => $tidakHadirAbsensi,
             'misi'    => Pengerjaan::where('id_karyawan', $id)
                 ->whereMonth('tanggal', $bulan)
                 ->whereYear('tanggal', $tahun)
@@ -124,7 +124,7 @@ class KaryawanBerandaController extends Controller
                 ->count(),
         ];
 
-        // ── Target tugas mingguan ─────────────────────────────
+        // Target tugas mingguan
         $minggu = Carbon::now()->weekOfMonth;
         $tugas  = Tugas::where('minggu', $minggu)
             ->where('bulan', $bulan)
@@ -146,7 +146,7 @@ class KaryawanBerandaController extends Controller
             'leaderboard',
             'kehadiran',
             'tugas',
-            'pelanggaran',        // ← summary card pakai ini
+            'pelanggaran',       
             'detailTerlambat',
             'detailTidakMengerjakan'
         ));

@@ -66,12 +66,12 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Surat Peringatan 1</p>
             <p class="text-3xl font-bold text-amber-500">{{ $totalSP1 }}</p>
-            <p class="text-xs text-amber-400 mt-0.5">• Poin 5–8</p>
+            <p class="text-xs text-amber-400 mt-0.5">• Poin ≥ 8</p>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Surat Peringatan 2</p>
             <p class="text-3xl font-bold text-rose-600">{{ $totalSP2 }}</p>
-            <p class="text-xs text-rose-400 mt-0.5">• Poin ≥ 9</p>
+            <p class="text-xs text-rose-400 mt-0.5">• Poin ≥ 12</p>
         </div>
     </div>
 
@@ -205,8 +205,8 @@
     <div class="mt-4 flex flex-wrap gap-3 text-xs text-gray-500">
         <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span> Terlambat = 1 poin</span>
         <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span> Tidak Mengerjakan = 2 poin</span>
-        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> SP1: poin 5–8</span>
-        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> SP2: poin ≥ 9</span>
+        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> SP1: Poin ≥ 8</span>
+        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> SP2: poin ≥ 12</span>
     </div>
 
 </div>

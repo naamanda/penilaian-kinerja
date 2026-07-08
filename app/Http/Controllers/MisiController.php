@@ -18,7 +18,7 @@ class MisiController extends Controller
         })
             ->orderBy('id_misi', 'desc')
             ->paginate(5)
-            ->withQueryString(); // ✅ search term ikut saat ganti halaman pagination
+            ->withQueryString();
 
         return view('admin.misi.kelola.index', compact('data', 'search'));
     }

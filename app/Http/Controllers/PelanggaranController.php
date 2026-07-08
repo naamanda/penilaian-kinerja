@@ -12,7 +12,6 @@ class PelanggaranController extends Controller
 {
     protected HasilAkhirController $hasilAkhir;
 
-    // REVISI: Gunakan Dependency Injection agar penanganan instansiasi class lebih aman
     public function __construct(HasilAkhirController $hasilAkhir)
     {
         $this->hasilAkhir = $hasilAkhir;
@@ -23,18 +22,14 @@ class PelanggaranController extends Controller
         $bulan = (int) $request->get('bulan', date('n'));
         $tahun = (int) $request->get('tahun', date('Y'));
 
-        // TANGKAP INPUT DARI SEARCH BAR
         $search = $request->get('search');
 
-        // Ambil kueri dasar karyawan aktif
         $karyawanQuery = Karyawan::with('divisi')->where('id_role', 2);
 
-        // JIKA USER MENGETIKKAN SESUATU DI SEARCH BAR, FILTER BERDASARKAN NAMA KARYAWAN
         if ($search) {
             $karyawanQuery->where('nama', 'LIKE', "%{$search}%");
         }
 
-        // Eksekusi data karyawan hasil filter pencarian
         $karyawans = $karyawanQuery->get();
 
         // Ambil data pelanggaran yang sudah ada di DB
@@ -46,7 +41,6 @@ class PelanggaranController extends Controller
         $pelanggarans = new Collection();
 
         foreach ($karyawans as $k) {
-            // Pastikan kalkulasi nilai menggunakan parameter bulan & tahun dari filter request
             $dataNilai = $this->hasilAkhir->hitungNilai($k->id_karyawan, $bulan, $tahun);
 
             $poinData   = $dataNilai['pelanggaran'];
@@ -59,7 +53,6 @@ class PelanggaranController extends Controller
 
             $existing = $existingPelanggaran->get($k->id_karyawan);
 
-            // Auto-create record jika status SP1/SP2 tapi belum terdaftar di database
             if (!$existing && in_array($statusUpper, ['SP1', 'SP2'])) {
                 $existing = Pelanggaran::create([
                     'id_karyawan' => $k->id_karyawan,

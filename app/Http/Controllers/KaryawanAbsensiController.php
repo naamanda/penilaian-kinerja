@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class KaryawanAbsensiController extends Controller
 {
-    private $office_lat =  -7.717586;
-    private $office_lng = 109.020001;
+    private $office_lat =  -7.678603;
+    private $office_lng = 109.035448;
     private $radius_km  = 0.1; // 100 meter toleransi jarak
 
     public function index()
@@ -42,7 +42,7 @@ class KaryawanAbsensiController extends Controller
                 : null,
             'statusAbsen'  => $absensiHari?->status ?? null,
             'liburHariIni' => false,
-            'sudahTutup'   => Carbon::now()->format('H:i') > '17:10',
+            'sudahTutup'   => Carbon::now()->format('H:i') > '18:10',
         ]);
     }
 
@@ -72,8 +72,8 @@ class KaryawanAbsensiController extends Controller
             return response()->json(['message' => 'Absensi belum dibuka. Silahkan tunggu Besok jam 07:30.'], 403);
         }
 
-        if ($now->format('H:i') > '17:10') {
-            return response()->json(['message' => 'Absensi sudah ditutup. Batas waktu absensi adalah 17:10.'], 403);
+        if ($now->format('H:i') > '18:10') {
+            return response()->json(['message' => 'Absensi sudah ditutup. Batas waktu absensi adalah 18:10.'], 403);
         }
 
         // 2. Validasi Geofencing Jarak Kantor di Backend Karyawan
@@ -82,7 +82,7 @@ class KaryawanAbsensiController extends Controller
             return response()->json(['message' => 'Gagal! Posisi Anda terdeteksi di luar radius kantor.'], 403);
         }
 
-        $status       = ($now->format('H:i') <= '17:00') ? 'hadir' : 'terlambat';
+        $status       = ($now->format('H:i') <= '18:00') ? 'hadir' : 'terlambat';
         $image_parts  = explode(";base64,", $request->foto);
         $image_base64 = base64_decode($image_parts[1]);
         $fileName     = $id . '_' . time() . '.png';

@@ -20,12 +20,11 @@ class AutoResetService
 
         $karyawanList = Karyawan::where('id_role', 2)->get();
 
-        // Pindah ke sini, sejajar dengan $karyawanList
         $tugasList = Tugas::where('minggu', $minggu)
             ->where('bulan', $bulan)
             ->get();
 
-        // 1. ─── LOGIKA RESET HARIAN (MISI) ───
+        // 1. LOGIKA RESET HARIAN (MISI)
         $sudahResetHariIni = Pengerjaan::where('tanggal', $today)->exists();
 
         if (!$sudahResetHariIni) {
@@ -47,7 +46,7 @@ class AutoResetService
             }
         }
 
-        // 2. ─── LOGIKA RESET MINGGUAN (TUGAS MINGGUAN) ───
+        // 2. LOGIKA RESET MINGGUAN (TUGAS MINGGUAN)
         foreach ($karyawanList as $k) {
             foreach ($tugasList as $t) {
                 if ($k->id_divisi != $t->id_divisi) continue;
