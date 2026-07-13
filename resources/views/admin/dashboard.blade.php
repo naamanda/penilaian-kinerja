@@ -9,15 +9,15 @@
         <p class="text-sm text-gray-400 mt-0.5">
             {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
         </p>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     </div>
 
     {{-- Statistik Utama --}}
     <div class="grid grid-cols-2 gap-4">
         <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4 border border-gray-100">
             <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <i class="fa-solid fa-users text-blue-600" style="width:16px; flex-shrink:0;"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-400 font-medium">Total Karyawan</p>
@@ -26,9 +26,7 @@
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4 border border-gray-100">
             <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                <i class="fa-solid fa-building text-purple-600" style="width:16px; flex-shrink:0;"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-400 font-medium">Total Divisi</p>
@@ -92,10 +90,7 @@
     {{-- Leaderboard --}}
     <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100">
         <div class="flex items-center gap-2 mb-4">
-            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 21h8M12 17v4M7 4h10v3a5 5 0 01-10 0V4zm10 1h2a2 2 0 010 4h-2M7 5H5a2 2 0 000 4h2" />
-            </svg>
+            <i class="fa-solid fa-medal text-yellow-600" style="width:16px; flex-shrink:0;"></i>
             <p class="font-bold text-gray-700">Leaderboard Bulan Ini</p>
         </div>
         <div class="flex flex-col gap-1 max-h-64 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -104,11 +99,11 @@
                 <div class="w-7 text-center flex-shrink-0">
                     <div class="w-6 flex justify-center flex-shrink-0">
                         @if($i == 0)
-                        <span class="w-5 h-5 flex items-center justify-center bg-yellow-400 text-white text-xs font-bold rounded-full">1</span>
+                        <i class="fa-solid fa-1" style="width:16px; flex-shrink:0;"></i>
                         @elseif($i == 1)
-                        <span class="w-5 h-5 flex items-center justify-center bg-gray-300 text-gray-700 text-xs font-bold rounded-full">2</span>
+                        <i class="fa-solid fa-2" style="width:16px; flex-shrink:0;"></i>
                         @elseif($i == 2)
-                        <span class="w-5 h-5 flex items-center justify-center bg-amber-600 text-white text-xs font-bold rounded-full">3</span>
+                        <i class="fa-solid fa-3" style="width:16px; flex-shrink:0;"></i>
                         @else
                         <span class="text-xs font-bold text-gray-400">{{ $i + 1 }}</span>
                         @endif
@@ -120,14 +115,7 @@
                 <p class="flex-1 text-sm font-semibold text-gray-700">{{ $lb->nama }}</p>
                 <span class="text-xs text-gray-400 hidden md:block">{{ $lb->divisi->nama_divisi ?? '-' }}</span>
                 <div class="flex items-center gap-1 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        class="w-4 h-4 text-amber-500">
-                        <path fill-rule="evenodd"
-                            d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM9 10.5a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 9 10.5Zm0 3a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 9 13.5Z"
-                            clip-rule="evenodd" />
-                    </svg>
+                    <i class="fa-solid fa-circle-dot text-yellow-600"></i>
                     <span class="text-sm font-bold text-gray-600">{{ $lb->total_nilai }}</span>
                 </div>
             </div>

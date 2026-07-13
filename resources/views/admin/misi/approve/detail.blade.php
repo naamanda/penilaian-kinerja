@@ -2,7 +2,8 @@
 
 @section('content')
 <div class="pt-2 px-6 pb-6">
-
+<link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     {{-- Header --}}
     <div class="flex items-center gap-3 mb-6">
         <a href="/approve-misi" class="text-gray-400 hover:text-gray-600 transition">
@@ -40,7 +41,7 @@
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Informasi Misi</h2>
 
-                    {{-- ✅ FIXED: Badge status lengkap --}}
+                    {{-- FIXED: Badge status lengkap --}}
                     @if($misi->status == 'menunggu')
                         <span class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">Menunggu</span>
                     @elseif($misi->status == 'disetujui')
@@ -59,7 +60,7 @@
                     {{-- Nama Karyawan --}}
                     <div class="px-6 py-4 flex items-center gap-4">
                         <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-[#1e3f7c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            <i class="fa-regular fa-user"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-400 font-medium">Nama Karyawan</p>
@@ -81,7 +82,7 @@
                     {{-- Deskripsi --}}
                     <div class="px-6 py-4 flex items-center gap-4">
                         <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-[#1e3f7c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                            <i class="fa-solid fa-align-right"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-400 font-medium">Deskripsi</p>
@@ -103,7 +104,7 @@
                     {{-- Poin --}}
                     <div class="px-6 py-4 flex items-center gap-4">
                         <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-[#1e3f7c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <i class="fa-regular fa-star"></i>
                         </div>
                         <div>
                             <p class="text-xs text-gray-400 font-medium">Poin</p>

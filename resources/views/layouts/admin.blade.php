@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeSync - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .no-scrollbar {
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            width: 0;
+            display: none;
+        }
+    </style>
 </head>
 <script>
     function konfirmasiLogout() {
@@ -34,16 +49,25 @@
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
-    <aside style="width:224px; height:100vh; background:#1e3f7c; color:white; display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:50;">
+    <aside style="
+    width:224px;
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    background:#1e3f7c;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    z-index:50;
+">
 
         <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.12); flex-shrink:0;">
             <img src="{{ asset('assets/logo.png') }}" alt="logo" style="width:40px; height:40px; object-fit:contain;">
             <span style="font-size:25px; font-weight:600; letter-spacing:0.02em;">LifeSync</span>
         </div>
-
-        <div class="no-scrollbar" style="flex:1; overflow-y: hidden; padding:4px 0;">
+        <div class="no-scrollbar" style="flex:1; overflow-y:auto; overflow-x:hidden; padding:4px 0;">
             <nav>
-                <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:12px 16px 4px; font-weight:500;">Menu Utama</p>
 
                 <a href="/dashboard-admin" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('dashboard-admin') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('dashboard-admin') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
@@ -55,60 +79,49 @@
                 </a>
 
                 <a href="/data-karyawan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('data-karyawan*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
-                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('data-karyawan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-                    </svg>
-                    Data User
+                    onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                    onmouseout="this.style.background='{{ request()->is('data-karyawan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+
+                    <i class="fa-solid fa-user" style="width:16px; flex-shrink:0;"></i>
+
+                    Data Karyawan
                 </a>
 
                 <a href="/data-divisi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('data-divisi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('data-divisi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <rect x="2" y="7" width="20" height="14" rx="2" />
-                        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
-                    </svg>
+                    <i class="fa-solid fa-briefcase" style="width:16px; flex-shrink:0;"></i>
                     Data Divisi
                 </a>
 
                 <a href="/absensi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('absensi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('absensi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <i class="fa-solid fa-check" style="width:16px; flex-shrink:0;"></i>
                     Data Absensi
                 </a>
 
                 {{-- MENU BARU: REKAP KINERJA (ADMIN) --}}
                 <a href="/admin/rekap-kinerja" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('admin/rekap-kinerja*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('admin/rekap-kinerja*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                    </svg>
+                    <i class="fa-solid fa-folder-open" style="width:16px; flex-shrink:0;"></i>
                     Rekap Kinerja
+                </a>
+                <a href="/admin/backup" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('admin/backup*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
+                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('admin/backup*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                    <i class="fa-solid fa-download" style="width:16px; flex-shrink:0;"></i>
+                    Backup & Restore
                 </a>
 
                 <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Kedisiplinan</p>
 
                 <a href="/kelola-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('kelola-misi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <rect x="3" y="4" width="18" height="18" rx="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
+                    <i class="fa-solid fa-file-lines" style="width:16px; flex-shrink:0;"></i>
                     Kelola Misi Harian
                 </a>
 
                 <a href="/approve-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('approve-misi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <polyline points="9 11 12 14 22 4" />
-                    </svg>
+                    <i class="fa-solid fa-list-check" style="width:16px; flex-shrink:0;"></i>
                     Approve Misi Harian
                 </a>
 
@@ -116,22 +129,14 @@
 
                 <a href="/kelola-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('kelola-tugas*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <rect x="9" y="3" width="13" height="13" rx="2" />
-                        <path d="M5 7H3a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                    </svg>
+                    <i class="fa-solid fa-clipboard" style="width:16px; flex-shrink:0;"></i>
                     Kelola Tugas
                 </a>
 
                 <a href="/approve-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('approve-tugas*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                    </svg>
-                    Approve Laporan
+                    <i class="fa-solid fa-square-check" style="width:16px; flex-shrink:0;"></i>
+                    Approve Tugas
                 </a>
             </nav>
         </div>
@@ -150,12 +155,11 @@
         </div>
     </aside>
 
-    <div style="margin-left:224px; min-height:100vh; display:flex; flex-direction:column;">
+    <div style="margin-left:224px; display:flex; flex-direction:column; min-h-screen; width: calc(100% - 224px);">
         <header class="bg-white shadow-sm px-8 pr-4 flex items-center justify-between sticky top-0 z-30 h-[72px] w-full flex-shrink-0">
             @if(!request()->is('dashboard-admin'))
             <form method="GET" action="{{ url()->current() }}" class="w-full max-w-md">
                 <div class="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-2.5">
-                    <span class="text-gray-400 text-base">🔍</span>
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Cari data..."
                         class="bg-transparent outline-none text-base text-gray-600 w-full placeholder:text-gray-400">
@@ -174,7 +178,7 @@
             </div>
         </header>
 
-        <main class="flex-1 px-6 pb-6 pt-5 bg-gray-100">
+        <main class="w-full min-h-[calc(100vh-72px)] p-6 bg-gray-100 flex flex-col justify-start items-stretch">
             @yield('content')
         </main>
     </div>

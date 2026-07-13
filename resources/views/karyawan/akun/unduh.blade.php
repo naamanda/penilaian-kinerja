@@ -31,7 +31,6 @@
     {{-- SECTION ABSENSI --}}
     <div id="section-absensi" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
         <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
             <h4>Log & Riwayat Absensi</h4>
         </div>
         <div class="overflow-x-auto">
@@ -80,7 +79,6 @@
     {{-- SECTION MISI --}}
     <div id="section-misi" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
         <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
             <h4>Log Misi Harian</h4>
         </div>
         <div class="overflow-x-auto">
@@ -140,7 +138,6 @@
     {{-- SECTION TUGAS --}}
     <div id="section-tugas" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
         <div class="flex items-center space-x-2 text-gray-800 font-bold text-sm border-b border-gray-50 pb-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
             <h4>Log Pengumpulan Tugas</h4>
         </div>
         <div class="overflow-x-auto">

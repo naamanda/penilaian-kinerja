@@ -1,12 +1,14 @@
 @extends('layouts.admin')
 
 @section('content')
+{{-- 
+  Menggunakan container w-full tanpa max-w-3xl 
+  agar tampilan form melebar penuh serasi dengan halaman data lainnya.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full">
 
-<div class="pt-2 px-6 pb-6">
-
-    <div class="max-w-3xl mx-auto">
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
 
             {{-- Header --}}
             <div class="bg-[#1e3f7c] px-6 py-4">
@@ -23,7 +25,7 @@
 
                     {{-- Nama Tugas --}}
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest">
                             Nama Tugas
                         </label>
                         <input type="text"
@@ -36,7 +38,7 @@
 
                     {{-- Deskripsi --}}
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest">
                             Deskripsi
                         </label>
                         <textarea name="deskripsi"
@@ -48,7 +50,7 @@
 
                     {{-- Divisi --}}
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest">
                             Divisi
                         </label>
                         <select name="id_divisi" required
@@ -63,12 +65,12 @@
                         </select>
                     </div>
 
-                    {{-- Detail Penjadwalan & Poin --}}
-                    <div style="display: grid; grid-template-columns: 80px 80px 1fr 100px; gap: 12px; align-items: end;">
+                    {{-- Detail Penjadwalan & Poin (Grid Responsif menggunakan Tailwind Class) --}}
+                    <div class="grid grid-cols-2 md:grid-cols-12 gap-4 items-end">
 
                         {{-- Minggu Ke- --}}
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest whitespace-nowrap">
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest whitespace-nowrap">
                                 Minggu Ke-
                             </label>
                             <input type="number"
@@ -78,26 +80,24 @@
                                 max="5"
                                 placeholder="1"
                                 required
-                                style="-moz-appearance: textfield;"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#1e3f7c] focus:border-[#1e3f7c] outline-none transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#1e3f7c] focus:border-[#1e3f7c] outline-none transition-all [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
                         </div>
 
                         {{-- Bulan Ke- --}}
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest whitespace-nowrap">
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest whitespace-nowrap">
                                 Bulan Ke-
                             </label>
                             <input type="number"
                                 name="bulan"
                                 value="{{ date('n') }}"
                                 readonly
-                                style="-moz-appearance: textfield;"
-                                class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
+                                class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
                         </div>
 
                         {{-- Batas Waktu (Deadline) --}}
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest">
+                        <div class="col-span-2 md:col-span-6">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest">
                                 Batas Waktu (Deadline)
                             </label>
                             <input type="datetime-local"
@@ -108,29 +108,28 @@
                         </div>
 
                         {{-- Poin Tugas --}}
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-widest whitespace-nowrap">
+                        <div class="col-span-2 md:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1 tracking-widest whitespace-nowrap">
                                 Poin Tugas
                             </label>
                             <input type="number"
                                 name="poin"
                                 value="100"
                                 readonly
-                                style="-moz-appearance: textfield;"
-                                class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
+                                class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
                         </div>
 
                     </div>
 
                     {{-- Actions Button --}}
-                    <div class="flex gap-3 pt-2">
+                    <div class="flex flex-col sm:flex-row gap-2 pt-4">
                         <a href="/kelola-tugas"
-                            class="flex-1 text-center bg-gray-50 border border-gray-200 text-gray-600 font-semibold py-2.5 rounded-xl hover:bg-gray-100 transition-all text-sm">
+                            class="flex-1 order-2 sm:order-1 text-center bg-gray-50 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all border border-gray-200 text-sm">
                             Batal
                         </a>
                         <button type="submit"
-                            class="flex-1 bg-[#1e3f7c] text-white font-semibold py-2.5 rounded-xl hover:bg-blue-900 transition-all shadow-sm text-sm">
-                            Simpan
+                            class="flex-1 order-1 sm:order-2 bg-[#1e3f7c] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition-all shadow-md text-sm">
+                            Simpan Tugas
                         </button>
                     </div>
 
@@ -141,7 +140,5 @@
         </div>
 
     </div>
-
 </div>
-
 @endsection

@@ -1,9 +1,13 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="px-4">
-    <div class="max-w-xl mx-auto mt-0">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+{{-- 
+  Menggunakan container w-full tanpa max-w-xl 
+  agar tampilan form melebar penuh mengikuti halaman data karyawan.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full"> 
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
             <div class="bg-[#1e3f7c] px-6 py-3">
                 <h1 class="text-lg font-bold text-white">Tambah Divisi Baru</h1>
                 <p class="text-blue-100 text-[11px] opacity-80">Pastikan data yang dimasukkan sudah benar.</p>

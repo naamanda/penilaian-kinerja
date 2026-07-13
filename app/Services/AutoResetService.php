@@ -11,6 +11,7 @@ use Carbon\Carbon;
 
 class AutoResetService
 {
+    // Menjalankan proses reset harian dan mingguan secara otomatis
     public static function jalankan()
     {
         $today     = Carbon::today()->toDateString();
@@ -24,7 +25,7 @@ class AutoResetService
             ->where('bulan', $bulan)
             ->get();
 
-        // 1. LOGIKA RESET HARIAN (MISI)
+        // 1. LOGIKA RESET HARIAN MISI
         $sudahResetHariIni = Pengerjaan::where('tanggal', $today)->exists();
 
         if (!$sudahResetHariIni) {
@@ -46,7 +47,7 @@ class AutoResetService
             }
         }
 
-        // 2. LOGIKA RESET MINGGUAN (TUGAS MINGGUAN)
+        // 2. LOGIKA RESET MINGGUAN
         foreach ($karyawanList as $k) {
             foreach ($tugasList as $t) {
                 if ($k->id_divisi != $t->id_divisi) continue;

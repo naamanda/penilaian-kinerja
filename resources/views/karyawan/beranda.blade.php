@@ -16,9 +16,7 @@
 <div class="px-4 -mt-5">
     <div class="bg-white rounded-2xl shadow-md p-4 flex items-center gap-4">
         <div class="w-12 h-12 bg-yellow-100 text-yellow-500 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-            </svg>
+            <i class="fa-regular fa-star"></i>
         </div>
         <div class="flex-1">
             <p class="text-xs text-gray-400 font-medium">Nilai Sekarang</p>
@@ -49,30 +47,28 @@
             @foreach($leaderboard as $i => $lb)
             <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl
                 {{ $lb->id_karyawan == Session::get('id_karyawan') ? 'bg-blue-50 border border-blue-100' : '' }}">
-                
+
                 <div class="w-6 flex justify-center flex-shrink-0">
-                    @if($i == 0) 
-                        <span class="w-5 h-5 flex items-center justify-center bg-yellow-400 text-white text-xs font-bold rounded-full">1</span>
-                    @elseif($i == 1) 
-                        <span class="w-5 h-5 flex items-center justify-center bg-gray-300 text-gray-700 text-xs font-bold rounded-full">2</span>
-                    @elseif($i == 2) 
-                        <span class="w-5 h-5 flex items-center justify-center bg-amber-600 text-white text-xs font-bold rounded-full">3</span>
-                    @else 
-                        <span class="text-xs font-bold text-gray-400">{{ $i + 1 }}</span>
+                    @if($i == 0)
+                    <span class="fa-regular fa-1 text-black"></span>
+                    @elseif($i == 1)
+                    <span class="fa-regular fa-2 text-black"></span>
+                    @elseif($i == 2)
+                    <span class="fa-regular fa-3 text-black"></span>
+                    @else
+                    <span class="text-xs font-bold text-gray-400">{{ $i + 1 }}</span>
                     @endif
                 </div>
-                
+
                 <p class="flex-1 text-sm font-semibold text-gray-700 truncate">
                     {{ $lb->nama }}
                     @if($lb->id_karyawan == Session::get('id_karyawan'))
                     <span class="text-blue-500">(Anda)</span>
                     @endif
                 </p>
-                
+
                 <div class="flex items-center gap-1 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-amber-500">
-                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM9 10.5a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 9 10.5Zm0 3a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
-                    </svg>
+                    <i class="fa-regular fa-circle-dot text-yellow-600"></i>
                     <span class="text-sm font-bold {{ $lb->id_karyawan == Session::get('id_karyawan') ? 'text-blue-600' : 'text-gray-600' }}">
                         {{ $lb->total_nilai }}
                     </span>

@@ -59,9 +59,9 @@
                 @endif
                 @elseif($pengerjaan->status == 'disetujui')
                 @if($isTerlambat)
-                <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ Disetujui (Terlambat)</span>
+                <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">Disetujui (Terlambat)</span>
                 @else
-                <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">✓ Disetujui</span>
+                <span class="text-xs bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full font-medium">Disetujui</span>
                 @endif
                 @elseif($pengerjaan->status == 'ditolak')
                 <span class="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">Ditolak (Bisa Upload Ulang)</span>
@@ -85,13 +85,13 @@
         @if($bisaUpload)
         <div id="camera-container" class="relative w-full h-[480px] bg-black rounded-xl overflow-hidden mb-4 flex flex-col items-center justify-center shadow-inner">
             <button type="button" id="btn-start-init" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md z-10">
-                📷 Aktifkan Kamera
+                Aktifkan Kamera
             </button>
             <video id="video" class="hidden w-full h-full object-cover absolute inset-0" autoplay playsinline></video>
             <canvas id="canvas" class="hidden"></canvas>
             <img id="preview" class="hidden w-full h-full object-cover absolute inset-0" alt="Preview foto">
             <button type="button" id="btn-switch" class="hidden absolute top-3 right-3 bg-black/50 text-white p-2.5 rounded-full hover:bg-black/70 transition backdrop-blur-sm z-10">
-                🔄 Putar Kamera
+                Putar Kamera
             </button>
         </div>
 
@@ -141,9 +141,9 @@
                         @if($pengerjaan->status == 'menunggu')
                         <span class="font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">Menunggu Persetujuan</span>
                         @elseif($pengerjaan->status == 'disetujui')
-                        <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">✓ Disetujui</span>
+                        <span class="font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Disetujui</span>
                         @elseif($pengerjaan->status == 'terlambat')
-                        <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">✓ Disetujui (Terlambat)</span>
+                        <span class="font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Disetujui (Terlambat)</span>
                         @elseif($pengerjaan->status == 'ditolak')
                         <span class="font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md">Ditolak</span>
                         @endif

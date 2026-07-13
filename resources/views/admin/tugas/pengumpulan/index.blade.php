@@ -58,7 +58,7 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-[#1e3f7c] text-white text-xs uppercase tracking-widest">
-                    <th class="px-6 py-4">Karyawan</th>
+                    <th class="px-6 py-4">Nama Karyawan</th>
                     <th class="px-6 py-4">Tugas</th>
                     <th class="px-6 py-4">Divisi</th>
                     <th class="px-6 py-4">Tanggal Upload</th>

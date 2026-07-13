@@ -1,17 +1,21 @@
 @extends('layouts.atasan')
 
 @section('content')
-<div class="px-4">
-    {{-- mt-0 untuk benar-benar memposisikan card di paling atas --}}
-    <div class="max-w-xl mx-auto mt-0">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            {{-- Header dibuat lebih ringkas (py-3) --}}
+{{-- 
+  Menggunakan container w-full tanpa max-w-xl
+  agar tampilan form melebar penuh serasi dengan halaman data lainnya.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
+            
+            {{-- Header --}}
             <div class="bg-[#1e3f7c] px-6 py-3">
                 <h1 class="text-lg font-bold text-white">Tambah Program Reward</h1>
                 <p class="text-blue-100 text-[11px] opacity-80">Pastikan kriteria dan nominal hadiah yang dimasukkan sudah sesuai.</p>
             </div>
 
-            <div class="p-6 pt-4"> {{-- pt-4 agar konten form lebih naik ke atas --}}
+            <div class="p-6 pt-4">
                 <form action="/reward-atasan/tambah" method="POST" class="space-y-3" autocomplete="off">
                     @csrf
 
@@ -25,7 +29,7 @@
                         @enderror
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {{-- Kualifikasi (Jenis) --}}
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1 tracking-widest">Kualifikasi</label>
@@ -59,16 +63,14 @@
                         </div>
                     </div>
 
-                    {{-- Tombol Aksi --}}
-                    <div class="flex flex-col gap-2 pt-4">
-                        {{-- Tombol Utama --}}
-                        <button type="submit" class="w-full bg-[#1e3f7c] text-white font-bold py-3 rounded-xl hover:bg-[#152c58] transition-all shadow-md text-sm tracking-wide">
-                            Simpan Program Reward
-                        </button>
-                        {{-- Tombol Batalkan --}}
-                        <a href="/reward-atasan" class="w-full text-center bg-gray-50 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all text-sm">
+                    {{-- Tombol Aksi (Diubah ke flex horizontal agar seimbang dengan layout form lebar) --}}
+                    <div class="flex flex-col sm:flex-row gap-2 pt-4">
+                        <a href="/reward-atasan" class="flex-1 order-2 sm:order-1 text-center bg-gray-50 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all border border-gray-200 text-sm">
                             Batalkan
                         </a>
+                        <button type="submit" class="flex-1 order-1 sm:order-2 bg-[#1e3f7c] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition-all shadow-md text-sm tracking-wide">
+                            Simpan Program Reward
+                        </button>
                     </div>
                 </form>
             </div>

@@ -4,12 +4,18 @@
 
 {{-- Menghilangkan scrollbar utama browser secara global namun halaman tetap bisa di-scroll --}}
 <style>
-    html, body {
-        scrollbar-width: none; /* Untuk Firefox */
-        -ms-overflow-style: none;  /* Untuk IE dan Edge */
+    html,
+    body {
+        scrollbar-width: none;
+        /* Untuk Firefox */
+        -ms-overflow-style: none;
+        /* Untuk IE dan Edge */
     }
-    html::-webkit-scrollbar, body::-webkit-scrollbar {
-        display: none; /* Untuk Chrome, Safari, dan Opera */
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none;
+        /* Untuk Chrome, Safari, dan Opera */
     }
 </style>
 
@@ -21,9 +27,7 @@
 
         <a href="/kelola-misi/tambah"
             class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+            <i class="fa-solid fa-plus"></i>
             Tambah Data
         </a>
     </div>
@@ -85,11 +89,7 @@
                                 {{-- Edit --}}
                                 <a href="/kelola-misi/edit/{{ $m->id_misi }}"
                                     class="text-amber-500 hover:text-amber-600 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                        </path>
-                                    </svg>
+                                    <i class="fa-solid fa-pen-to-square text-yellow-600"></i>
                                 </a>
 
                                 {{-- Delete --}}
@@ -142,7 +142,7 @@
                             : 'bg-white text-gray-600 border border-gray-200 hover:bg-blue-50/60' }}">
                         {{ $i }}
                     </a>
-                @endfor
+                    @endfor
             </div>
         </div>
     </div>
@@ -184,23 +184,23 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
 
             let activeDeleteFormId = null;
 
-            window.openDeleteModal = function (id, nama) {
+            window.openDeleteModal = function(id, nama) {
                 activeDeleteFormId = 'delete-form-' + id;
                 document.getElementById('modal-kelola').innerText = nama;
                 document.getElementById('delete-modal').classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             }
 
-            window.closeDeleteModal = function () {
+            window.closeDeleteModal = function() {
                 document.getElementById('delete-modal').classList.add('hidden');
                 document.body.style.overflow = 'auto';
             }
 
-            document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
                 if (activeDeleteFormId) {
                     document.getElementById(activeDeleteFormId).submit();
                 }
@@ -211,7 +211,7 @@
             });
 
             window.addEventListener('click', function(e) {
-                if(document.getElementById('delete-modal').classList.contains('hidden')) {
+                if (document.getElementById('delete-modal').classList.contains('hidden')) {
                     document.body.style.scrollbarWidth = 'none';
                 }
             });
@@ -219,4 +219,4 @@
         });
     </script>
 
-@endsection
+    @endsection

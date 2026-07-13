@@ -8,9 +8,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Data Divisi</h1>
         <a href="/data-divisi/tambah"
             class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+            <i class="fa-solid fa-plus"></i>
             Tambah Data
         </a>
     </div>
@@ -36,9 +34,7 @@
 
                                 {{-- Edit Button --}}
                                 <a href="/data-divisi/edit/{{ $d->id_divisi }}" class="text-amber-500 hover:text-amber-600 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                    </svg>
+                                    <i class="fa-solid fa-pen-to-square" style="width:16px; flex-shrink:0;"></i>
                                 </a>
 
                                 {{-- Delete Button --}}

@@ -45,7 +45,7 @@
             @if($pengumpulan->status == 'menunggu')
             <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">Menunggu Persetujuan</span>
             @elseif($pengumpulan->status == 'disetujui')
-            <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">✓ Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
+            <span class="text-xs bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full">Disetujui — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'terlambat')
             <span class="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">Terlambat — +{{ $pengumpulan->poin_didapat }} poin</span>
             @elseif($pengumpulan->status == 'ditolak')

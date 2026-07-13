@@ -19,6 +19,7 @@ use App\Http\Controllers\RewardController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\KaryawanAkunController;
 use App\Http\Controllers\AdminRekapController;
+use App\Http\Controllers\BackupController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -130,3 +131,12 @@ Route::get('/akun-karyawan/cetak-excel', [KaryawanAkunController::class, 'cetakE
 
 Route::get('/admin/rekap-kinerja', [AdminRekapController::class, 'index'])->name('admin.rekap.index');
 Route::get('/admin/rekap-kinerja/download', [AdminRekapController::class, 'downloadPdf'])->name('admin.rekap.download');
+
+// ==========================================
+    // BACKUP SISTEM (Buat Admin)
+    // ==========================================
+    Route::get('/admin/backup', [BackupController::class, 'index'])->name('admin.backup.index');
+    Route::get('/admin/backup/database', [BackupController::class, 'backupDatabase'])->name('admin.backup.database');
+    Route::get('/admin/backup/sourcecode', [BackupController::class, 'backupSourceCode'])->name('admin.backup.source-code');
+    Route::get('/admin/backup/download/{filename}', [BackupController::class, 'downloadBackup'])->name('admin.backup.download');
+    Route::delete('/admin/backup/delete/{filename}', [BackupController::class, 'deleteBackup'])->name('admin.backup.delete');

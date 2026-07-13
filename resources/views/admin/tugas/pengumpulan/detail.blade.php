@@ -182,13 +182,13 @@
                 @elseif($pengumpulan->status == 'ditolak')
                 <div class="px-6 py-4 border-t border-gray-100 bg-rose-50/30">
                     <p class="text-xs text-rose-600 font-bold flex items-center gap-1.5">
-                        ⚠️ Laporan ini telah ditolak. Sistem menunggu karyawan mengunggah ulang dokumen revisi.
+                        Laporan ini telah ditolak. Sistem menunggu karyawan mengunggah ulang dokumen revisi.
                     </p>
                 </div>
                 @elseif($pengumpulan->status == 'terlambat')
                 <div class="px-6 py-4 border-t border-gray-100 bg-orange-50/30">
                     <p class="text-xs text-orange-600 font-bold flex items-center gap-1.5">
-                        ⏰ Tugas disetujui, namun terkena potongan nilai 50% karena melewati batas tenggat toleransi.
+                        Tugas disetujui, namun terkena potongan nilai 50% karena melewati batas tenggat toleransi.
                     </p>
                 </div>
                 @endif

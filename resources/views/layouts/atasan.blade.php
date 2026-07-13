@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeSync - Atasan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Menghilangkan scrollbar secara visual untuk Chrome, Safari dan Opera */
         .no-scrollbar::-webkit-scrollbar {
@@ -80,11 +81,7 @@
 
                 <a href="/pelanggaran-atasan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('pelanggaran-atasan*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('pelanggaran-atasan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <svg style="width:16px;height:16px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                        <line x1="12" y1="9" x2="12" y2="13" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
+                    <i class="fa-solid fa-file-arrow-up font-white-600"></i>
                     Unggah Surat Peringatan
                 </a>
             </nav>
@@ -111,9 +108,8 @@
             @if(!request()->is('dashboard-atasan'))
             <form method="GET" action="{{ url()->current() }}" class="w-full max-w-md">
                 <div class="flex items-center gap-3 bg-gray-100 rounded-full px-5 py-2.5">
-                    <span class="text-gray-400 text-base">🔍</span>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari data karyawan..."
+                        placeholder="Cari data..."
                         class="bg-transparent outline-none text-base text-gray-600 w-full placeholder:text-gray-400">
                 </div>
             </form>

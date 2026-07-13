@@ -133,9 +133,7 @@
     <div class="relative bg-white rounded-3xl shadow-xl border border-gray-100 max-w-sm w-full p-6 text-center z-10" id="modalContainer">
 
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-2xl bg-red-50 text-red-500 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0 2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-            </svg>
+            <i class="fa-solid fa-arrow-right-from-bracket text-red-600"></i>
         </div>
 
         <h3 class="text-lg font-extrabold text-gray-900">Konfirmasi Keluar</h3>

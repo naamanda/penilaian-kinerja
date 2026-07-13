@@ -1,10 +1,13 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="px-4">
-    {{-- mt-0 untuk benar-benar memposisikan card di paling atas --}}
-    <div class="max-w-xl mx-auto mt-0"> 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+{{-- 
+  Menghilangkan pembatasan lebar max-w-xl agar card bisa melebar penuh 
+  mengikuti ruang kanan dan kiri yang tersedia secara responsif.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full"> {{-- Mengubah max-w-xl menjadi w-full penuh --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
             {{-- Header dibuat lebih ringkas (py-3) --}}
             <div class="bg-[#1e3f7c] px-6 py-3">
                 <h1 class="text-lg font-bold text-white">Tambah Karyawan Baru</h1>
@@ -60,7 +63,7 @@
                         <button type="submit" class="w-full bg-[#1e3f7c] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition-all shadow-md">
                             Simpan Karyawan
                         </button>
-                        {{-- Tombol Batalkan: Ukuran font disamakan (text-base) dan font-bold --}}
+                        {{-- Tombol Batalkan --}}
                         <a href="/data-karyawan" class="w-full text-center bg-gray-50 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all">
                             Batalkan
                         </a>

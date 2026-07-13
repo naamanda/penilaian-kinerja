@@ -52,7 +52,7 @@
                 <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">Menunggu</span>
                 @elseif($p->status == 'disetujui')
                 {{-- HIJAU: Misi yang berhasil diselesaikan --}}
-                <span class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full font-medium">✓ Disetujui</span>
+                <span class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full font-medium">Disetujui</span>
                 @elseif($p->status == 'terlambat')
                 <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full font-medium">Terlambat</span>
                 @elseif($p->status == 'ditolak')

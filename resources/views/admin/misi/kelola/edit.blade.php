@@ -1,12 +1,14 @@
 @extends('layouts.admin')
 
 @section('content')
+{{-- 
+  Menggunakan container w-full tanpa max-w-3xl 
+  agar tampilan form melebar penuh serasi dengan halaman data lainnya.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full">
 
-<div class="px-4">
-
-    <div class="max-w-3xl mx-auto mt-0">
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
 
             {{-- Header --}}
             <div class="bg-[#1e3f7c] px-6 py-3">
@@ -91,15 +93,15 @@
 
                     </div>
 
-                    {{-- Button Actions (Diselaraskan layout horizontal/flex demi konsistensi) --}}
-                    <div class="flex gap-3 pt-4">
+                    {{-- Button Actions --}}
+                    <div class="flex flex-col sm:flex-row gap-2 pt-4">
                         <a href="/kelola-misi"
-                            class="flex-1 text-center bg-gray-50 text-gray-600 font-semibold py-2.5 rounded-xl hover:bg-gray-100 transition-all">
+                            class="flex-1 order-2 sm:order-1 text-center bg-gray-50 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all">
                             Batalkan
                         </a>
 
                         <button type="submit"
-                            class="flex-1 bg-[#1e3f7c] text-white font-semibold py-2.5 rounded-xl hover:bg-blue-900 transition-all shadow-md">
+                            class="flex-1 order-1 sm:order-2 bg-[#1e3f7c] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition-all shadow-md">
                             Simpan Perubahan
                         </button>
                     </div>
@@ -111,7 +113,5 @@
         </div>
 
     </div>
-
 </div>
-
 @endsection

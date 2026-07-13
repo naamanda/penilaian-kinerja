@@ -1,9 +1,13 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="px-4">
-    <div class="max-w-xl mx-auto mt-0">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+{{-- 
+  Menggunakan container w-full tanpa pembatas max-w-xl
+  agar tampilan form sinkron penuh kanan-kiri dengan form lainnya.
+--}}
+<div class="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
+    <div class="w-full"> 
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
             <div class="bg-[#1e3f7c] px-6 py-3">
                 <h1 class="text-lg font-bold text-white">Edit Data Divisi</h1>
                 <p class="text-blue-100 text-[11px] opacity-80">ID: #{{ $divisi->id_divisi }} - {{ $divisi->nama_divisi }}</p>

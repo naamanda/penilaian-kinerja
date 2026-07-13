@@ -42,9 +42,7 @@
             {{-- Tombol Tambah Data --}}
             <a href="/reward-atasan/tambah"
                 class="bg-[#1e3f7c] hover:bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
+                <i class="fa-solid fa-plus"></i>
                 Tambah Data
             </a>
         </div>
@@ -53,7 +51,7 @@
     {{-- Flash Message Success --}}
     @if(session('success'))
     <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm font-medium flex items-center gap-2">
-        ✅ {{ session('success') }}
+        {{ session('success') }}
     </div>
     @endif
 
