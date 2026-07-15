@@ -71,7 +71,7 @@
         </div>
 
         @else
-        {{-- Area Kamera (Membuka Kamera / Pratinjau Foto Berhasil Diambil) --}}
+        {{-- Area Kamera --}}
         <div id="kameraArea" class="w-full h-[480px] rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 flex flex-col items-center justify-center cursor-pointer mb-4 overflow-hidden relative" onclick="bukaKamera()">
             <canvas id="fotoCanvas" class="absolute inset-0 w-full h-[480px] object-cover rounded-2xl hidden"></canvas>
             <div id="placeholder" class="flex flex-col items-center gap-2 z-10">
@@ -121,18 +121,52 @@
             @if($fotoAbsensi)
             <img src="{{ url('uploads/absensi/' . $fotoAbsensi) }}" class="w-full h-full object-cover">
             @else
-            <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">Tidak ada foto</div>
+            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm gap-2">
+                @if($statusAbsen == 'izin')
+                <p class="font-semibold text-gray-600 mt-2">Surat Izin Telah Diunggah</p>
+                @else
+                <p>Tidak ada foto</p>
+                @endif
+            </div>
             @endif
         </div>
 
-        <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center
-            {{ $statusAbsen == 'hadir' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600' }}">
-            @if($statusAbsen == 'hadir')
-            Hadir — {{ $waktuAbsen }}
-            @else
-            Terlambat — {{ $waktuAbsen }}
-            @endif
+        {{-- Pengecekan Status Badge --}}
+        @if($statusAbsen == 'hadir')
+        <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center bg-emerald-100 text-emerald-600">
+            Hadir — {{ $waktuAbsen }} WIB
         </div>
+        @elseif($statusAbsen == 'izin')
+        {{-- Mengambil data izin terbaru untuk hari ini --}}
+        @php
+        $dataIzinHariIni = \App\Models\Izin::where('id_karyawan', session('id_karyawan'))
+            ->whereDate('tanggal_izin', \Carbon\Carbon::today())
+            ->first();
+
+        $statusPersetujuan = '';
+        if ($dataIzinHariIni) {
+            if ($dataIzinHariIni->status == 'disetujui') {
+                $statusPersetujuan = ' (Disetujui)';
+            } elseif ($dataIzinHariIni->status == 'ditolak') {
+                $statusPersetujuan = ' (Ditolak)';
+            } else {
+                $statusPersetujuan = ' (Menunggu Persetujuan)';
+            }
+        }
+        @endphp
+
+        <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center bg-blue-100 text-blue-600">
+            Izin — {{ str_replace(' WIB', '', $waktuAbsen) }} WIB{{ $statusPersetujuan }}
+        </div>
+        @elseif($statusAbsen == 'tidak_hadir')
+        <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center bg-red-100 text-red-600">
+            Tidak Hadir
+        </div>
+        @else
+        <div class="w-full py-3.5 rounded-xl text-sm font-bold text-center bg-orange-100 text-orange-600">
+            Terlambat — {{ $waktuAbsen }} WIB
+        </div>
+        @endif
 
         @endif
         @endif
@@ -218,14 +252,11 @@
         };
 
         const gagalLokasi = (error) => {
-
             console.log(error);
-
             alert(
                 "Code: " + error.code +
                 "\nMessage: " + error.message
             );
-
             lokasiText.textContent = "⚠️ " + error.message;
             lokasiText.className = "text-red-500";
         };
@@ -257,10 +288,7 @@
                 }
             });
             video.srcObject = stream;
-
-            // KUNCI PERUBAHAN: Menyesuaikan class video agar tetap h-[480px] secara dinamis di JS
             video.className = "w-full h-[480px] rounded-2xl mb-3 object-cover";
-
             video.classList.remove('hidden');
             kameraArea.classList.add('hidden');
             btnCapture.classList.remove('hidden');

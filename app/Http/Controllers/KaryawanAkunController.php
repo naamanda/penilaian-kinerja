@@ -79,6 +79,10 @@ class KaryawanAkunController extends Controller
             ? \Carbon\Carbon::now()->day
             : \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
 
+        // Jam tutup absen (samakan dengan KaryawanAbsensiController)
+        $jamTutupAbsen = '18:10';
+        $jamSekarang   = \Carbon\Carbon::now()->format('H:i');
+
         // Ambil data absensi dari database
         $absensiData = Absensi::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
@@ -99,10 +103,16 @@ class KaryawanAkunController extends Controller
 
                 if (isset($absensiData[$formatTanggal])) {
                     $detailAbsensi[] = $absensiData[$formatTanggal];
+                } elseif ($tanggalObj->isToday() && $jamSekarang < $jamTutupAbsen) {
+                    // Hari ini, jam absen belum tutup -> jangan tandai Tidak Hadir
+                    $detailAbsensi[] = (object)[
+                        'tanggal' => $formatTanggal,
+                        'status'  => 'belum_selesai',
+                    ];
                 } else {
                     $detailAbsensi[] = (object)[
                         'tanggal' => $formatTanggal,
-                        'status'  => 'Tidak Hadir',
+                        'status'  => 'tidak_hadir',
                     ];
                 }
             }

@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeSync - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
         .no-scrollbar {
             overflow-y: auto;
@@ -19,6 +18,26 @@
         .no-scrollbar::-webkit-scrollbar {
             width: 0;
             display: none;
+        }
+
+        /* Transisi untuk Dropdown Menu */
+        .dropdown-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .dropdown-container.show {
+            max-height: 200px;
+            /* Sesuaikan dengan tinggi konten */
+        }
+
+        .chevron-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .rotate-chevron {
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -44,6 +63,17 @@
                 window.location.href = '/logout';
             }
         });
+    }
+
+    // Fungsi Toggle Dropdown Sidebar
+    function toggleDropdown(id, element) {
+        const dropdown = document.getElementById(id);
+        const chevron = element.querySelector('.chevron-icon');
+
+        dropdown.classList.toggle('show');
+        if (chevron) {
+            chevron.classList.toggle('rotate-chevron');
+        }
     }
 </script>
 
@@ -81,9 +111,7 @@
                 <a href="/data-karyawan" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('data-karyawan*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'"
                     onmouseout="this.style.background='{{ request()->is('data-karyawan*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-
                     <i class="fa-solid fa-user" style="width:16px; flex-shrink:0;"></i>
-
                     Data Karyawan
                 </a>
 
@@ -99,45 +127,78 @@
                     Data Absensi
                 </a>
 
-                {{-- MENU BARU: REKAP KINERJA (ADMIN) --}}
+                <a href="/approve-izin" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('approve-izin*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
+                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-izin*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                    <i class="fa-solid fa-file-shield" style="width:16px; flex-shrink:0;"></i>
+                    Approve Izin
+                </a>
+
                 <a href="/admin/rekap-kinerja" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('admin/rekap-kinerja*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('admin/rekap-kinerja*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
                     <i class="fa-solid fa-folder-open" style="width:16px; flex-shrink:0;"></i>
                     Rekap Kinerja
                 </a>
+
                 <a href="/admin/backup" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('admin/backup*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('admin/backup*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
                     <i class="fa-solid fa-download" style="width:16px; flex-shrink:0;"></i>
                     Backup & Restore
                 </a>
 
-                <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Kedisiplinan</p>
+                @php
+                $isKedisiplinanActive = request()->is('kelola-misi*') || request()->is('approve-misi*');
+                @endphp
+                <div style="margin: 4px 8px;">
+                    <button type="button" onclick="toggleDropdown('dropKedisiplinan', this)" style="display:flex; width:100%; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); background:transparent; border:none; cursor:pointer;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                            <i class="fa-solid fa-scale-balanced" style="width:16px; flex-shrink:0;"></i>
+                            <span>Kedisiplinan</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right chevron-icon text-[10px] {{ $isKedisiplinanActive ? 'rotate-chevron' : '' }}"></i>
+                    </button>
 
-                <a href="/kelola-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('kelola-misi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
-                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <i class="fa-solid fa-file-lines" style="width:16px; flex-shrink:0;"></i>
-                    Kelola Misi Harian
-                </a>
+                    <div id="dropKedisiplinan" class="dropdown-container {{ $isKedisiplinanActive ? 'show' : '' }}" style="padding-left: 12px;">
+                        <a href="/kelola-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:2px 0; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none; {{ request()->is('kelola-misi*') ? 'background:rgba(255,255,255,0.15); color:white;' : '' }}"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                            <i class="fa-solid fa-file-lines" style="width:16px; flex-shrink:0;"></i>
+                            Kelola Misi Harian
+                        </a>
+                        <a href="/approve-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:2px 0; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none; {{ request()->is('approve-misi*') ? 'background:rgba(255,255,255,0.15); color:white;' : '' }}"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                            <i class="fa-solid fa-list-check" style="width:16px; flex-shrink:0;"></i>
+                            Approve Misi Harian
+                        </a>
+                    </div>
+                </div>
 
-                <a href="/approve-misi" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('approve-misi*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
-                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-misi*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <i class="fa-solid fa-list-check" style="width:16px; flex-shrink:0;"></i>
-                    Approve Misi Harian
-                </a>
+                @php
+                $isTugasActive = request()->is('kelola-tugas*') || request()->is('approve-tugas*');
+                @endphp
+                <div style="margin: 4px 8px;">
+                    <button type="button" onclick="toggleDropdown('dropTugas', this)" style="display:flex; width:100%; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); background:transparent; border:none; cursor:pointer;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                            <i class="fa-solid fa-list-ol" style="width:16px; flex-shrink:0;"></i>
+                            <span>Tugas</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right chevron-icon text-[10px] {{ $isTugasActive ? 'rotate-chevron' : '' }}"></i>
+                    </button>
 
-                <p style="font-size:12px; color:rgba(147,186,232,0.85); text-transform:uppercase; letter-spacing:0.08em; padding:16px 16px 4px; font-weight:500;">Tugas Mingguan</p>
+                    <div id="dropTugas" class="dropdown-container {{ $isTugasActive ? 'show' : '' }}" style="padding-left: 12px;">
+                        <a href="/kelola-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:2px 0; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none; {{ request()->is('kelola-tugas*') ? 'background:rgba(255,255,255,0.15); color:white;' : '' }}"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                            <i class="fa-solid fa-clipboard" style="width:16px; flex-shrink:0;"></i>
+                            Kelola Tugas
+                        </a>
+                        <a href="/approve-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:2px 0; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none; {{ request()->is('approve-tugas*') ? 'background:rgba(255,255,255,0.15); color:white;' : '' }}"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
+                            <i class="fa-solid fa-square-check" style="width:16px; flex-shrink:0;"></i>
+                            Approve Tugas
+                        </a>
+                    </div>
+                </div>
 
-                <a href="/kelola-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('kelola-tugas*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
-                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('kelola-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <i class="fa-solid fa-clipboard" style="width:16px; flex-shrink:0;"></i>
-                    Kelola Tugas
-                </a>
-
-                <a href="/approve-tugas" style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin:1px 8px; border-radius:8px; font-size:13px; color:rgba(255,255,255,0.8); text-decoration:none; {{ request()->is('approve-tugas*') ? 'background:rgba(255,255,255,0.15); color:white; font-weight:500;' : '' }}"
-                    onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='{{ request()->is('approve-tugas*') ? 'rgba(255,255,255,0.15)' : 'transparent' }}'">
-                    <i class="fa-solid fa-square-check" style="width:16px; flex-shrink:0;"></i>
-                    Approve Tugas
-                </a>
             </nav>
         </div>
 
@@ -184,6 +245,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @stack('scripts')
 
 </body>
 

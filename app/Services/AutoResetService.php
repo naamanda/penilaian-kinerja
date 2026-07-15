@@ -26,16 +26,19 @@ class AutoResetService
             ->get();
 
         // 1. LOGIKA RESET HARIAN MISI
-        $sudahResetHariIni = Pengerjaan::where('tanggal', $today)->exists();
+        Pengerjaan::where('tanggal', $yesterday)
+            ->where('status', 'menunggu')
+            ->update(['status' => 'ditolak']);
 
-        if (!$sudahResetHariIni) {
-            Pengerjaan::where('tanggal', $yesterday)
-                ->where('status', 'menunggu')
-                ->update(['status' => 'ditolak']);
+        $misiList = Misi::all();
+        foreach ($karyawanList as $k) {
+            foreach ($misiList as $m) {
+                $sudahAda = Pengerjaan::where('id_karyawan', $k->id_karyawan)
+                    ->where('id_misi', $m->id_misi)
+                    ->where('tanggal', $today)
+                    ->exists();
 
-            $misiList = Misi::all();
-            foreach ($karyawanList as $k) {
-                foreach ($misiList as $m) {
+                if (!$sudahAda) {
                     Pengerjaan::create([
                         'id_karyawan'  => $k->id_karyawan,
                         'id_misi'      => $m->id_misi,

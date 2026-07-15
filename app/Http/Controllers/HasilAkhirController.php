@@ -14,26 +14,21 @@ use Illuminate\Support\Facades\DB;
 
 class HasilAkhirController extends Controller
 {
-
     /**
      * Hitung semua nilai karyawan untuk bulan & tahun tertentu.
      * Murni memisahkan Kehadiran, Kedisiplinan (Misi), dan Tugas.
+     * Izin (status 'izin' di Absensi) diperlakukan netral: tidak menambah,
+     * tidak mengurangi nilai maupun dihitung sebagai pelanggaran.
      *
      * @return array{kehadiran: float, kedisiplinan: float, tugas: float, akhir: float, predikat: array, pelanggaran: array}
      */
     public function hitungNilai(int $idKaryawan, int $bulan, int $tahun): array
     {
-        // 1. Nilai Kehadiran murni dari rekapitulasi Absensi
-        $nilaiKehadiran   = $this->hitungNilaiKehadiran($idKaryawan, $bulan, $tahun);
-
-        // 2. Nilai Kedisiplinan murni dari Pengerjaan Misi Harian
+        $nilaiKehadiran    = $this->hitungNilaiKehadiran($idKaryawan, $bulan, $tahun);
         $nilaiKedisiplinan = $this->hitungNilaiMisi($idKaryawan, $bulan, $tahun);
-
-        // 3. Nilai Tugas murni dari Pengumpulan Tugas Mingguan
         $nilaiTugas        = $this->hitungNilaiTugas($idKaryawan, $bulan, $tahun);
 
-        // Rumus Akurat: Dijumlahkan rata dari 3 komponen utama terpisah
-        $nilaiAkhir        = round(($nilaiKehadiran + $nilaiKedisiplinan + $nilaiTugas) / 3, 2);
+        $nilaiAkhir = round(($nilaiKehadiran + $nilaiKedisiplinan + $nilaiTugas) / 3, 2);
 
         return [
             'kehadiran'    => $nilaiKehadiran,
@@ -47,6 +42,8 @@ class HasilAkhirController extends Controller
 
     /**
      * Hitung pelanggaran karyawan untuk bulan & tahun tertentu.
+     * Izin dianggap sebagai catatan sah (bukan tidak hadir), jadi tidak dihitung
+     * sebagai pelanggaran.
      *
      * @return array{terlambat: int, tidak_mengerjakan: int, total_poin: int, status: string}
      */
@@ -72,7 +69,7 @@ class HasilAkhirController extends Controller
 
         $totalTerlambat = $terlambatAbsensi + $terlambatMisi + $terlambatTugas;
 
-        // ── 2. Tidak Hadir Absensi
+        // ── 2. Tidak Hadir Absensi (izin TIDAK dihitung tidak hadir)
         $karyawanData     = Karyawan::findOrFail($idKaryawan);
         $tanggalBergabung = $karyawanData->tanggal_bergabung
             ? Carbon::parse($karyawanData->tanggal_bergabung)
@@ -99,14 +96,17 @@ class HasilAkhirController extends Controller
                 \App\Helpers\HariLiburHelper::isHariKerja($tanggalObj)
                 && $tanggalObj->gte($tanggalBergabung)
             ) {
-                $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat'])
+                // 'izin' ikut dianggap "ada catatan" -> tidak dihitung tidak hadir
+                $adaAbsensi = $absensi->whereIn('status', ['hadir', 'terlambat', 'izin'])
                     ->where('tanggal', $tanggalObj->format('Y-m-d'))
                     ->count();
                 if (!$adaAbsensi) $tidakHadirAbsensi++;
             }
         }
 
-        // ── 3. Tidak Mengerjakan Misi & Tugas ───────────────────
+        // ── 3. Tidak Mengerjakan Misi & Tugas
+        // (Pengerjaan berstatus 'izin' dikecualikan otomatis karena hilir/hulu
+        // di executeGenerateInternal() sudah mencegahnya menjadi 'tidak_mengerjakan')
         $tidakMengerjakanMisi = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
@@ -121,7 +121,7 @@ class HasilAkhirController extends Controller
 
         $totalTidakMengerjakan = $tidakHadirAbsensi + $tidakMengerjakanMisi + $tidakMengerjakanTugas;
 
-        // ── 4. Total Poin & Status ──────────────────────────────
+        // ── 4. Total Poin & Status
         $totalPoin = ($totalTerlambat * 1) + ($totalTidakMengerjakan * 2);
 
         return [
@@ -152,10 +152,8 @@ class HasilAkhirController extends Controller
         $bulan = $request->get('bulan', date('n'));
         $tahun = $request->get('tahun', date('Y'));
 
-        // Pemicu Otomatis: Jalankan fungsi generate internal sebelum mengambil data view
         $this->executeGenerateInternal($bulan, $tahun);
 
-        // Ambil data hasil akhir
         $hasilAkhir = HasilAkhir::with('karyawan')
             ->where('bulan', $bulan)
             ->where('tahun', $tahun)
@@ -179,9 +177,6 @@ class HasilAkhirController extends Controller
             ->with('success', "Hasil akhir bulan {$request->bulan}/{$request->tahun} berhasil diperbarui.");
     }
 
-    /**
-     * Fungsi Helper Internal agar kalkulasi otomatis bisa dipakai bersama
-     */
     public function executeGenerateInternal(int $bulan, int $tahun)
     {
         $karyawans = Karyawan::where('id_role', 2)->get();
@@ -205,18 +200,13 @@ class HasilAkhirController extends Controller
                 continue;
             }
 
+            // Generate misi seperti biasa, TANPA skip untuk tanggal izin.
+            // Status awal selalu 'belum_mengerjakan' — netral secara nilai & pelanggaran.
             for ($d = $mulaiHari; $d <= $hariMax; $d++) {
                 $tanggalObj = Carbon::create($tahun, $bulan, $d);
 
                 if (!\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) || $tanggalObj->gt(Carbon::today())) {
-                    if ($tanggalObj->format('Y-m-d') === '2026-06-16') {
-                        \Log::info('16 Juni diblock: isHariKerja=' . (\App\Helpers\HariLiburHelper::isHariKerja($tanggalObj) ? 'true' : 'false'));
-                    }
                     continue;
-                }
-
-                if ($tanggalObj->format('Y-m-d') === '2026-06-16') {
-                    \Log::info('16 Juni LOLOS generate!');
                 }
 
                 $formatTanggal = $tanggalObj->format('Y-m-d');
@@ -245,7 +235,7 @@ class HasilAkhirController extends Controller
                 $q->where('deadline', '<', Carbon::now());
             })->update(['status' => 'tidak_mengerjakan']);
 
-        // 2. TRIGGER OTOMATIS UNTUK MISI
+        // 2. TRIGGER OTOMATIS UNTUK MISI (per karyawan, exclude tanggal izin)
         $liburBulan = [];
         $daysInMonth = Carbon::create($tahun, $bulan)->daysInMonth;
         for ($d = 1; $d <= $daysInMonth; $d++) {
@@ -255,25 +245,38 @@ class HasilAkhirController extends Controller
             }
         }
 
-        Pengerjaan::where('status', 'belum_mengerjakan')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->whereNotIn('tanggal', $liburBulan)
-            ->where(function ($q) {
-                $q->where('tanggal', '<', Carbon::today())
-                    ->orWhere(function ($q2) {
-                        $q2->where('tanggal', Carbon::today())
-                            ->whereHas('misi', fn($m) => $m->where(
-                                'waktu_selesai',
-                                '<',
-                                Carbon::now()->subMinutes(10)->format('H:i:s')
-                            ));
-                    });
-            })->update(['status' => 'tidak_mengerjakan']);
+        foreach ($karyawans as $karyawan) {
+            // Tanggal karyawan ini sedang izin -> jangan diubah ke 'tidak_mengerjakan',
+            // biarkan tetap 'belum_mengerjakan' (netral, tidak dihitung pelanggaran/nilai)
+            $tanggalIzinKaryawan = Absensi::where('id_karyawan', $karyawan->id_karyawan)
+                ->where('status', 'izin')
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->pluck('tanggal')
+                ->map(fn($t) => Carbon::parse($t)->format('Y-m-d'))
+                ->toArray();
+
+            $tanggalDikecualikan = array_merge($liburBulan, $tanggalIzinKaryawan);
+
+            Pengerjaan::where('id_karyawan', $karyawan->id_karyawan)
+                ->where('status', 'belum_mengerjakan')
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->whereNotIn('tanggal', $tanggalDikecualikan)
+                ->where(function ($q) {
+                    $q->where('tanggal', '<', Carbon::today())
+                        ->orWhere(function ($q2) {
+                            $q2->where('tanggal', Carbon::today())
+                                ->whereHas('misi', fn($m) => $m->where(
+                                    'waktu_selesai',
+                                    '<',
+                                    Carbon::now()->subMinutes(10)->format('H:i:s')
+                                ));
+                        });
+                })->update(['status' => 'tidak_mengerjakan']);
+        }
 
         // 3. HITUNG & SIMPAN HASIL AKHIR
-        $karyawans = Karyawan::where('id_role', 2)->get();
-
         DB::beginTransaction();
         try {
             $totalHariKerja = \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun);
@@ -317,6 +320,11 @@ class HasilAkhirController extends Controller
     }
 
     //  PRIVATE HELPERS
+
+    /**
+     * Nilai kehadiran murni. Izin (disetujui) dikeluarkan dari penyebut
+     * sehingga bersifat netral: tidak menambah, tidak mengurangi nilai.
+     */
     private function hitungNilaiKehadiran(int $idKaryawan, int $bulan, int $tahun): float
     {
         $absensi = Absensi::where('id_karyawan', $idKaryawan)
@@ -325,9 +333,12 @@ class HasilAkhirController extends Controller
             ->get();
 
         $hariKerja   = \App\Helpers\HariLiburHelper::getTotalHariKerjaBulan($bulan, $tahun);
+        $jumlahIzin  = $absensi->where('status', 'izin')->count();
         $jumlahHadir = $absensi->whereIn('status', ['hadir', 'terlambat'])->count();
 
-        return $hariKerja > 0 ? round(($jumlahHadir / $hariKerja) * 100, 2) : 0;
+        $hariKerjaEfektif = $hariKerja - $jumlahIzin;
+
+        return $hariKerjaEfektif > 0 ? round(($jumlahHadir / $hariKerjaEfektif) * 100, 2) : 0;
     }
 
     private function hitungNilaiMisi(int $idKaryawan, int $bulan, int $tahun): float
@@ -337,30 +348,35 @@ class HasilAkhirController extends Controller
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->join('misi', 'pengerjaan.id_misi', '=', 'misi.id_misi')
-            ->sum('misi.poin'); // 7520
+            ->sum('misi.poin');
 
         $poinDisetujui = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->where('status', 'disetujui')
-            ->sum('poin_didapat'); // 270
+            ->sum('poin_didapat');
 
         $poinTerlambat = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->where('status', 'terlambat')
-            ->sum('poin_didapat'); // 35
+            ->sum('poin_didapat');
 
         $poinBelum = Pengerjaan::where('id_karyawan', $idKaryawan)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->where('status', 'belum_mengerjakan')
             ->join('misi', 'pengerjaan.id_misi', '=', 'misi.id_misi')
-            ->sum('misi.poin'); // 320
+            ->sum('misi.poin');
 
-        $totalPoin = $totalSemuaPoin - $poinDisetujui - $poinTerlambat - $poinBelum; // 6895
+        // NOTE: karena hulu/hilir di executeGenerateInternal() sekarang mencegah
+        // misi digenerate/diubah 'tidak_mengerjakan' untuk tanggal izin, poin misi
+        // di hari izin otomatis tidak pernah masuk hitungan ini sama sekali
+        // (baik sebagai totalSemuaPoin, poinDisetujui, poinTerlambat, maupun poinBelum).
 
-        $poinDidapat = $poinDisetujui + $poinTerlambat; // 305
+        $totalPoin = $totalSemuaPoin - $poinDisetujui - $poinTerlambat - $poinBelum;
+
+        $poinDidapat = $poinDisetujui + $poinTerlambat;
 
         return $totalPoin > 0 ? round(($poinDidapat / $totalPoin) * 100, 2) : 0;
     }

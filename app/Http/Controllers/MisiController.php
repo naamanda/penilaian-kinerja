@@ -38,15 +38,57 @@ class MisiController extends Controller
             'waktu_selesai' => 'required|after:waktu_mulai',
         ]);
 
-        Misi::create([
-            'nama_misi'     => $request->nama_misi,
-            'deskripsi'     => $request->deskripsi,
-            'poin'          => $request->poin,
-            'waktu_mulai'   => $request->waktu_mulai,
-            'waktu_selesai' => $request->waktu_selesai,
-        ]);
+        // Gunakan DB Transaction agar jika ada satu proses yang gagal, 
+        // kita bisa menangkap (catch) pesan error aslinya.
+        \DB::beginTransaction();
 
-        return redirect('/kelola-misi')->with('success', 'Misi berhasil ditambahkan.');
+        try {
+            // 1. Simpan misi
+            $misi = Misi::create([
+                'nama_misi'     => $request->nama_misi,
+                'deskripsi'     => $request->deskripsi,
+                'poin'          => $request->poin,
+                'waktu_mulai'   => $request->waktu_mulai,
+                'waktu_selesai' => $request->waktu_selesai,
+            ]);
+
+            $today = \Carbon\Carbon::today()->toDateString();
+            $karyawanList = \App\Models\Karyawan::where('id_role', 2)->get();
+
+            // Lakukan dump data karyawan dulu untuk memastikan data id_karyawan tidak null
+            if ($karyawanList->isEmpty()) {
+                throw new \Exception("Daftar karyawan dengan id_role 2 kosong!");
+            }
+
+            // 2. Coba buat pengerjaan
+            foreach ($karyawanList as $k) {
+                // Pastikan id_karyawan tidak null sebelum insert
+                if (!$k->id_karyawan) {
+                    throw new \Exception("Karyawan bernama {$k->nama_karyawan} tidak memiliki id_karyawan!");
+                }
+
+                \App\Models\Pengerjaan::create([
+                    'id_karyawan'  => $k->id_karyawan,
+                    'id_misi'      => $misi->id_misi,
+                    'tanggal'      => $today,
+                    'status'       => 'belum_mengerjakan',
+                    'poin_didapat' => 0,
+                ]);
+            }
+
+            \DB::commit();
+
+            return redirect('/kelola-misi')->with('success', 'Misi berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            // Tampilkan error asli dari SQL/Laravel ke layar Anda!
+            dd([
+                'Pesan Error' => $e->getMessage(),
+                'Line Error'  => $e->getLine(),
+                'File Error'  => $e->getFile()
+            ]);
+        }
     }
 
     public function edit($id)

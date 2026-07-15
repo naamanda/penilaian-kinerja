@@ -20,6 +20,8 @@ use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\KaryawanAkunController;
 use App\Http\Controllers\AdminRekapController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\IzinController;
+use App\Http\Controllers\KaryawanIzinController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -86,9 +88,19 @@ Route::post('/approve-tugas/{id}/reject', [PengumpulanController::class, 'reject
 Route::delete('/approve-tugas/hapus/{id}', [PengumpulanController::class, 'destroy']);
 Route::get('/approve-tugas/{id}/file', [PengumpulanController::class, 'lihatFile']);
 
+// Approve Izin
+Route::get('/approve-izin', [IzinController::class, 'index'])->name('izin.index');
+Route::get('/approve-izin/{id}', [IzinController::class, 'show'])->name('izin.show');
+Route::post('/approve-izin/{id}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+Route::post('/approve-izin/{id}/reject', [IzinController::class, 'reject'])->name('izin.reject');
+Route::delete('/approve-izin/hapus/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
+
 Route::get('/dashboard-karyawan', [KaryawanBerandaController::class, 'beranda']);
 Route::get('/absensi-karyawan', [KaryawanAbsensiController::class, 'index']);
 Route::post('/absensi-karyawan/simpan', [KaryawanAbsensiController::class, 'simpan']);
+
+Route::get('/izin-karyawan', [KaryawanIzinController::class, 'index']);
+Route::post('/izin-karyawan/simpan', [KaryawanIzinController::class, 'store']);
 
 Route::get('/aktivitas-misi', [KaryawanMisiController::class, 'index']);
 Route::get('/aktivitas-misi/{id}', [KaryawanMisiController::class, 'show']);

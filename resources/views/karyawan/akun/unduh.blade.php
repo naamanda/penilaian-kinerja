@@ -49,12 +49,16 @@
                             'hadir'                      => 'Hadir',
                             'tepat waktu'                => 'Tepat Waktu',
                             'terlambat'                  => 'Terlambat',
+                            'izin'                        => 'Izin',
+                            'belum_selesai'               => 'Belum Selesai',
                             'tidak hadir', 'tidak_hadir' => 'Tidak Hadir',
                             default                      => ucfirst(str_replace('_', ' ', $absStatus)),
                         };
                         $absClass = match(strtolower($absStatus)) {
                             'hadir', 'tepat waktu' => 'bg-green-50 text-green-600',
                             'terlambat'            => 'bg-blue-50 text-blue-600',
+                            'izin'                 => 'bg-purple-50 text-purple-600',
+                            'belum_selesai'        => 'bg-amber-50 text-amber-600',
                             default                => 'bg-red-50 text-red-600',
                         };
                     @endphp
@@ -225,7 +229,6 @@
             if (secMisi)    secMisi.remove();
         }
 
-        // Simpan hash ke hidden input sebelum form submit
         const inputSection = document.getElementById('input-section');
         const form = document.querySelector('form');
         if (form && inputSection) {
@@ -235,7 +238,6 @@
             });
         }
 
-        // Restore hash di URL setelah page load dari query param
         if (sectionParam && !window.location.hash) {
             history.replaceState(null, '', window.location.pathname + window.location.search + '#' + sectionParam);
         }

@@ -25,6 +25,9 @@
                 <a href="/absensi-karyawan" class="flex items-center px-4 py-3 rounded-xl transition {{ request()->is('absensi-karyawan') ? 'bg-white text-[#1e3f7c] font-bold shadow-md' : 'text-gray-200 hover:bg-blue-800' }}">
                     Absensi
                 </a>
+                <a href="/izin-karyawan" class="flex items-center px-4 py-3 rounded-xl transition {{ request()->is('izin-karyawan') ? 'bg-white text-[#1e3f7c] font-bold shadow-md' : 'text-gray-200 hover:bg-blue-800' }}">
+                    Izin
+                </a>
                 <a href="/aktivitas-misi" class="flex items-center px-4 py-3 rounded-xl transition {{ request()->is('aktivitas-misi') ? 'bg-white text-[#1e3f7c] font-bold shadow-md' : 'text-gray-200 hover:bg-blue-800' }}">
                     Aktivitas
                 </a>
@@ -60,12 +63,12 @@
                     // Atur fallback jika seandainya session kosong / tidak ditemukan
                     $nama = $karyawanLog ? $karyawanLog->nama : 'Karyawan';
                     $inisial = $karyawanLog ? strtoupper(substr($karyawanLog->nama, 0, 1)) : 'K';
-                    @endphp {{-- ◄ DI SINI FIX-NYA: Sebelumnya tertulis @php yang memicu error --}}
+                    @endphp
 
                     <div class="flex items-center gap-3">
                         <span class="text-sm font-medium text-gray-600">{{ $nama }}</span>
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm uppercase">
-                            {{ $inisial }} {{-- ◄ DI SINI FIX-NYA: Disamakan menjadi $inisial --}}
+                            {{ $inisial }}
                         </div>
                     </div>
                 </header>
@@ -98,6 +101,12 @@
                         <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="20 6 9 17 4 12" />
                     </svg>
                     <span class="text-[10px] {{ request()->is('absensi-karyawan') ? 'font-bold' : 'font-medium' }}">Absensi</span>
+                </a>
+                <a href="/izin-karyawan" class="flex flex-col items-center gap-1 px-2 {{ request()->is('izin-karyawan') ? 'text-[#1e3f7c]' : 'text-gray-400' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 8h1M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-[10px] {{ request()->is('izin-karyawan') ? 'font-bold' : 'font-medium' }}">Izin</span>
                 </a>
                 <a href="/aktivitas-misi" class="flex flex-col items-center gap-1 px-2 {{ request()->is('aktivitas-misi') ? 'text-[#1e3f7c]' : 'text-gray-400' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
